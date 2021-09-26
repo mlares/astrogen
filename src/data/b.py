@@ -228,10 +228,65 @@ def S03_add_OAC_data(*args):
 
     D = args[0] 
 
+    UE = pd.read_excel('../../data/raw/OAC_julio_2021.xlsx')
+    UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
 
+    filt = []
+    inds = []
+    for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
+        closest = 99
+        for j, (n2, a2) in enumerate(zip(D['nombre'], D['apellido'])):
+            d = ds2(a1, a2, n1, n2)
+            if d < closest:
+                closest = d
+                ind = j
+                nc2 = n2
+                ac2 = a2
+        cond = closest < 0.26
+        filt.append(cond)
+        inds.append(ind)
+     
+    filt = np.array(filt)
+    inds = np.array(inds)
 
+    D.cic = D.cic.astype(str)
+    D.area = D.area.astype(str)
+    N = len(filt)
+    for i in range(N):
+        if filt[i]:
+            D.at[inds[i], 'cic'] = UE.iloc[i].cic
+            D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
+            D.at[inds[i], 'area'] = UE.iloc[i].area
+            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' OAC'
+     
+    ADD = UE[~np.array(filt)]
+     
+    # Agregar columna de género
+    N = ADD.shape[0]
+    gender = []
+    for i in range(N):
+        name = ADD['nombre'].iloc[i]
+        g = get_gender2(name)
+        gender.append(g)
+    ADD['genero'] = gender  
 
- 
+    ADD['aff'] = 'IATE'
+    ADD['lugar'] = 'IATE'
+    ADD['aaa'] = 0
+    ADD['area'] = ''
+    ADD['nac'] = ''
+    ADD['dni'] = ''
+    ADD['fnac'] = ''
+    ADD['edad'] = ''
+    ADD['cic'] = ''
+    ADD['orcid'] = ''
+    ADD['status'] = ''
+    ADD['docencia'] = ''
+                           
+    ADD = ADD[list(D.columns)]  
+
+    D = pd.concat([D, ADD])
+    
     yield D
 
 
@@ -240,10 +295,10 @@ def S03_add_IATE_data(*args):
     """
     STEP: S03_add_OAC_data
 
-    In this step, the database is combined with data from the IATE
+    In this step, the database is combined with data from the IATE,
+    to add the columns:
 
-    Columns:
-    1)
+    1) cic
     2)
     3)
     4)
@@ -256,85 +311,76 @@ def S03_add_IATE_data(*args):
 
     D = args[0] 
 
+    UE = pd.read_excel('../../data/raw/IATE_julio_2021.xlsx')
+    UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
 
+    filt = []
+    inds = []
+    for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
+        closest = 99
+        for j, (n2, a2) in enumerate(zip(D['nombre'], D['apellido'])):
+            d = ds2(a1, a2, n1, n2)
+            if d < closest:
+                closest = d
+                ind = j
+                nc2 = n2
+                ac2 = a2
+        cond = closest < 0.26
+        inds.append(ind)
+        filt.append(cond)
 
-AAA = pd.read_excel('../../../data/redux/astro_arg.xlsx')
-AAA['orcid'] = ''
+    filt = np.array(filt)
+    inds = np.array(inds)
 
-UE = pd.read_excel('../../../data/UEs/IATE_julio_2021.xlsx')
-UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
+    D.cic = D.cic.astype(str)
+    D.area = D.area.astype(str)
+    D.docencia = D.docencia.astype(str)
+    N = len(filt)
+    for i in range(N):
+        if filt[i]:
+            D.at[inds[i], 'cic'] = UE.iloc[i].cic
+            D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
+            D.at[inds[i], 'area'] = UE.iloc[i].area
+            D.at[inds[i], 'docencia'] = UE.iloc[i].docencia
+            D.at[inds[i], 'aff'] = 'IATE'
+     
+    ADD = UE[~np.array(filt)]
 
-filt = []
-inds = []
-for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
-    closest = 99
-    for j, (n2, a2) in enumerate(zip(AAA['nombre'], AAA['apellido'])):
-        d = ds2(a1, a2, n1, n2)
-        if d < closest:
-            closest = d
-            ind = j
-            nc2 = n2
-            ac2 = a2
-    cond = closest < 0.26
-    inds.append(ind)
-    filt.append(cond)
+    # Agregar columna de género
+    N = ADD.shape[0]
+    gender = []
 
-filt = np.array(filt)
-inds = np.array(inds)
+    for i in range(N):
+        name = ADD['nombre'].iloc[i]
+        g = get_gender2(name)
+        gender.append(g)
 
-AAA.cic = AAA.cic.astype(str)
-AAA.area = AAA.area.astype(str)
-AAA.docencia = AAA.docencia.astype(str)
-N = len(filt)
-for i in range(N):
-    if filt[i]:
-        AAA.at[inds[i], 'cic'] = UE.iloc[i].cic
-        AAA.at[inds[i], 'orcid'] = UE.iloc[i].orcid
-        AAA.at[inds[i], 'area'] = UE.iloc[i].area
-        AAA.at[inds[i], 'docencia'] = UE.iloc[i].docencia
-        AAA.at[inds[i], 'aff'] = 'IATE'
- 
-ADD = UE[~np.array(filt)]
+    ADD['genero'] = gender  
+                    
+    ADD['aff'] = 'IATE'
+    ADD['lugar'] = 'IATE'
+    ADD['aaa'] = 0
+    ADD['area'] = ''
+    ADD['nac'] = ''
+    ADD['dni'] = ''
+    ADD['fnac'] = ''
+    ADD['edad'] = ''
+    ADD['cic'] = ''
+    ADD['orcid'] = ''
+    ADD['status'] = ''
+    ADD['docencia'] = ''
+                           
+    ADD = ADD[list(D.columns)]  
 
-# Agregar columna de género
-N = ADD.shape[0]
-gender = []
+    D = pd.concat([D, ADD])
 
-for i in range(N):
-    name = ADD['nombre'].iloc[i]
-    g = get_gender2(name)
-    gender.append(g)
-
-ADD['genero'] = gender  
-                
-ADD['aff'] = 'IATE'
-ADD['lugar'] = 'IATE'
-ADD['aaa'] = 0
-ADD['area'] = ''
-ADD['nac'] = ''
-ADD['dni'] = ''
-ADD['fnac'] = ''
-ADD['edad'] = ''
-ADD['cic'] = ''
-ADD['orcid'] = ''
-ADD['status'] = ''
-ADD['docencia'] = ''
-                       
-ADD = ADD[list(AAA.columns)]  
-
-df = pd.concat([AAA, ADD])
-
-# Escribir en una tabla de excell
-
-path = '../../../data/redux/astro_arg.xlsx'
-append_df_to_excel(path, ADD, sheet_name="NoSoc_IATE", 
-                   startcol=0, startrow=0, index=False)
-
-path = '../../../data/redux/astro_all.xlsx'
-append_df_to_excel(path, df, sheet_name="con IATE",  
-                   startcol=0, startrow=0, index=False) 
-
-
+    ## Escribir en una tabla de excell
+    #path = '../../../data/redux/astro_arg.xlsx'
+    #append_df_to_excel(path, ADD, sheet_name="NoSoc_IATE", 
+    #                   startcol=0, startrow=0, index=False)
+    #path = '../../../data/redux/astro_all.xlsx'
+    #append_df_to_excel(path, df, sheet_name="con IATE",  
+    #                   startcol=0, startrow=0, index=False) 
  
     yield D
 
@@ -401,6 +447,64 @@ def S03_add_IAFE_data(*args):
     """     
 
     D = args[0] 
+
+    UE = pd.read_excel('../../data/raw/IAFE_julio_2021.xlsx')
+    UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
+
+
+    filt = []
+    inds = []
+    for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
+        closest = 99
+        ind = np.nan
+        for j, (n2, a2) in enumerate(zip(D['nombre'], D['apellido'])):
+            print(a1, a2, n1, n2)
+            d = ds2(a1, a2, n1, n2)
+            if d < closest:
+                closest = d
+                ind = j
+                nc2 = n2
+                ac2 = a2
+        cond = closest < 0.26
+        inds.append(ind)
+        filt.append(cond)
+    filt = np.array(filt)
+    inds = np.array(inds)
+
+    #D.status = D.status.astype(str)
+
+    #N = len(filt)
+    #for i in range(N):
+    #    if filt[i]:
+    #        D.at[inds[i], 'status'] = UE.iloc[i].status
+    #        #print(D.iloc[inds[i]])
+    #        #print(UE.iloc[i])
+    #        #input()
+
+    #ADD = UE[~np.array(filt)]
+
+    #N = ADD.shape[0]
+    #gender = []
+    #for i in range(N):
+    #    name = ADD['Nombre'].iloc[i]
+    #    g = get_gender2(name)
+    #    gender.append(g)
+    #ADD['genero'] = gender  
+
+    #ADD['aff'] = 'IAFE'
+    #ADD['lugar'] = 'IAFE'
+    #ADD['aaa'] = 0
+    #ADD['area'] = ''
+    #ADD['nac'] = ''
+    #ADD['dni'] = ''
+    #ADD['fnac'] = ''
+    #ADD['edad'] = ''
+    #ADD['cic'] = ''
+    #ADD['docencia'] = ''
+
+    #ADD = ADD[list(D.columns)]
+
+    #D.append(df)
  
     yield D
 
@@ -475,6 +579,8 @@ def get_graph(**options):
                     S02_add_gender,
                     S02_add_age,
                     S02_clean_and_sort,
+                    S03_add_IATE_data,
+                    S03_add_OAC_data,
                     load)
     return graph
 
