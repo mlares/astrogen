@@ -9,6 +9,7 @@ from scipy.optimize import curve_fit
 from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
 from astrogen_utils import initials, getinitials, pickone
 import pickle
+import ads
 
 
 # avoid SettingWithCopyWarning
@@ -145,19 +146,19 @@ def S01_read_aaa_table():
     Notes:
     ------
     aa_soc codes:
-    B1  baja por fallecimiento
-    B2  baja por renuncia no vinculada al alejamiento de la Astronomía
-    B3  baja por haberse desvinculado de la Astronomía (incluyendo renuncia)
-    B4  baja por no haberse reempadronado al 01/01/2005
-    B5  baja por morosidad en el pago
-    B6  baja por expulsión, falta profesional grave
-    L   licencia
-    A1  activo
-    Pf  profesional
-    Ad  adherente
-    Af  aficionado
-    F   fallecido
-    FP  fallecido a posteriori de su baja
+    B1   baja por fallecimiento
+    B2   baja por renuncia no vinculada al alejamiento de la Astronomía
+    B3   baja por desvinculación de la Astronomía (incluyendo renuncia)
+    B4   baja por no haberse reempadronado al 01/01/2005
+    B5   baja por morosidad en el pago
+    B6   baja por expulsión, falta profesional grave
+    L    licencia
+    A1   activo
+    Pf   profesional
+    Ad   adherente
+    Af   aficionado
+    F    fallecido
+    FP   fallecido a posteriori de su baja
     """
     D = pd.read_excel('../../data/raw/collect_AAA.xlsx')
 
@@ -457,6 +458,9 @@ def S02_add_GAE_data(*args):
 
 
 # TRANSFORM: add data from CONICET
+"""
+Add data for the scientific research career at CONICET
+"""
 
 def S02_add_CIC_data(*args):
     """
@@ -467,13 +471,13 @@ def S02_add_CIC_data(*args):
     Columns:
     1) apellido
     2) nombre
-    3) categoria
-    4) area
-    5) subarea
-    6) ue
-    7) l
-    8) tema
-    9) sn
+    3) categoria (+)
+    4) area (+)
+    5) subarea (+)
+    6) ue (+)
+    7) l (+)
+    8) tema (+)
+    9) sn (+)
 
     Returns:
     --------
@@ -560,7 +564,6 @@ def S03_add_age(*args):
 
     """    
     df = args[0]
-
     today = datetime.date.today()
     today = pd.to_datetime(today)
 
@@ -642,8 +645,6 @@ def S03_clean_and_sort(*args):
 
 
 
-
-
 # TRANSFORM: add publication data
 """
 S04_pub_get_ads_entries
@@ -653,7 +654,6 @@ S04_pub_value_added
 """
 
 def S04_pub_get_ads_entries(*args):
- 
     """
     STEP: S04_pub_get_ads_entries
 
@@ -674,38 +674,54 @@ def S04_pub_get_ads_entries(*args):
     rows_max = 300
     OPTS = {'rows': rows_max, 
             'fl': fl}
+    orcid_cck = 'use_orcid' in D.columns
+    if orcid_cck:
+        D.use_orcid[D.use_orcid.isna()] = 0
+    N = D.shape[0]
 
     # ############################################## DOWNLOAD DATA      
-    #for i in range(N):
-    for i in range(700,710):
+    for i in range(N):
         x = D.iloc[i]
         ap = x.apellido.title()
+        fname_ap = '_'.join(ap.split())
         nm = x.nombre
+        fname_nm = ''.join([a[0].upper() for a in nm.split()])
+        fname = '_'.join([fname_ap, fname_nm])
         auth = ', '.join([ap, getinitials(nm)])
         #print(F'{auth} --- {ap}, {nm}')
 
-        if x.use_orcid:
-            OPTS['orcid'] = auth
+        if orcid_cck:
+            if x.use_orcid:
+                OPTS['orcid'] = orcid
+            else:
+                OPTS['author'] = auth
         else:
             OPTS['author'] = auth
 
-
         papers = list(ads.SearchQuery(**OPTS))
 
-        filen = '../../data/interim/ADS/papers_'+ ap +'.pk'
+        filen = '../../data/interim/ADS/' + fname + '.pk'
         with open(filen, 'wb') as f:
             pickle.dump(papers, f)
     # ##########################################################
 
     yield D
 
-
 def S04_pub_get_orcids(*args):
     D = args[0]
+
+
+
+
+
+
     yield D
 
 def S04_pub_journal_index(*args):
     D = args[0]
+
+
+
     yield D
 
 def S04_pub_value_added(*args):
@@ -715,6 +731,9 @@ def S04_pub_value_added(*args):
 
 
 # LOAD
+"""
+Load data to data warehouse
+"""
 
 def load(*args):
     """
@@ -747,7 +766,18 @@ def load(*args):
     D.to_excel(fileD)
 
 
+# PIPELINE
+"""
+Set data reduction pipeline using ETL data integration process.
 
+TST_filter_subset
+data_pipeline
+"""
+
+def TST_filter_subset(*args):
+    D = args[0]
+    D = D.iloc[400:420]
+    yield D
 
 def data_pipeline(**options):
     """
@@ -757,28 +787,28 @@ def data_pipeline(**options):
 
     """
     graph = bonobo.Graph()
+
     graph.add_chain(S01_read_aaa_table,
-                    #
                     S02_add_OAC_data,
                     S02_add_IATE_data,
-                    S02_add_IALP_data,
-                    S02_add_GAE_data,
-                    S02_add_IAFE_data,
-                    S02_add_ICATE_data,
+                    #S02_add_IALP_data,
+                    #S02_add_GAE_data,
+                    #S02_add_IAFE_data,
+                    #S02_add_ICATE_data,
                     S02_add_CIC_data,
                     #
                     S03_add_gender,
                     S03_add_age,
                     S03_clean_and_sort,
+                    TST_filter_subset,
                     ##
-                    #S04_pub_get_ads_entries,
+                    S04_pub_get_ads_entries,
                     #S04_pub_get_orcids,
                     #S04_pub_journal_index,
                     #S04_pub_value_added,
-                    #
                     load)
-    return graph
 
+    return graph
 
 
 """
@@ -801,14 +831,6 @@ D = S04_pub_journal_index(D)
 D = S04_pub_value_added(D)
 load) 
 """
-
-
-
-
-
-
-
-
 
 
 def get_services(**options):
