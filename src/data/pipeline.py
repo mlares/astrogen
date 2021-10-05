@@ -10,7 +10,8 @@ from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
 from astrogen_utils import initials, getinitials, pickone
 import pickle
 import ads
-
+from sys import argv
+from Parser import Parser
 
 # avoid SettingWithCopyWarning
 # (see https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy)
@@ -753,6 +754,8 @@ def S03_clean_and_sort(*args):
 S04_pub_get_ads_entries
 S04_pub_get_orcids
 S04_pub_journal_index
+S04_pub_clean_papers
+S04_make_pages
 S04_pub_value_added
 """
 
@@ -760,11 +763,15 @@ def S04_pub_get_ads_entries(*args):
     """
     STEP: S04_pub_get_ads_entries
 
-    In this step, 
+    In this step, the lists of names and orcids are used to retrieve
+    data from the Astronomical Data Service (ADS) using the ads
+    package (https://ads.readthedocs.io/en/latest/)
 
     Returns:
     --------
     D: DataFrame containing the data
+       This is the same object that enters the function. In addition, a file is
+       saved for each author.
 
     """   
     D = args[0]
@@ -811,24 +818,44 @@ def S04_pub_get_ads_entries(*args):
     yield D
 
 def S04_pub_get_orcids(*args):
+    """
+    STEP: S04_pub_get_orcids
+
+    In this step, orcids are guessed by downloading from orcid
+    service.
+    The following steps are in order:
+    1) generate query
+    2) download data
+    3) check on ads
+    4) clean
+    5) get orcid best guess
+    6) add guessed_orcid to dataframe.
+
+    Returns:
+    --------
+    D: DataFrame containing the data
+
+    """
     D = args[0]
-
-
-
-
-
-
+    # PLACEHOLDER
     yield D
 
 def S04_pub_journal_index(*args):
+    """
+    STEP: S04_pub_journal_index
+
+    In this step, journals are assigned an index taken from the
+    Scimago Journal Index (Guerrero-Botea & Moya-Anegón, 2021,
+    Journal of infometrics, 6, 674)
+
+    Returns:
+    --------
+    D: DataFrame containing the data (including journal index)
+
+    """
     D = args[0]
-
-
-
-
+    # PLACEHOLDER
     yield D
-
-
 
 def S04_pub_clean_papers(*args):
     D = args[0]
@@ -871,11 +898,35 @@ def S04_pub_clean_papers(*args):
 
     yield D
 
+def S04_make_pages(*args):
+    """
+    STEP: S04_make pages
 
+    Returns:
+    --------
+    D: DataFrame containing the data (including journal index)
+    """
+    D = args[0]
+    # PLACEHOLDER
+    yield D
 
 def S04_pub_value_added(*args):
+    """
+    STEP: S04_pub_value_added
+
+    Returns:
+    --------
+    D: DataFrame containing the data (including journal index)
+    """
     D = args[0]
+    # PLACEHOLDER
     yield D
+
+
+
+
+###### a la parte de analizar hacerla separada ##########
+
 
 
 
@@ -939,11 +990,11 @@ def data_pipeline(**options):
 
     graph.add_chain(S01_read_aaa_table,
                     S02_add_OAC_data,
-                    S02_add_IATE_data,
-                    S02_add_IALP_data,
-                    S02_add_GAE_data,
-                    S02_add_IAFE_data,
-                    S02_add_ICATE_data,
+                    #S02_add_IATE_data,
+                    #S02_add_IALP_data,
+                    #S02_add_GAE_data,
+                    #S02_add_IAFE_data,
+                    #S02_add_ICATE_data,
                     S02_add_CIC_data,
                     #
                     S03_add_gender,
@@ -951,7 +1002,7 @@ def data_pipeline(**options):
                     S03_clean_and_sort,
                     TST_filter_subset,
                     ##
-                    S04_pub_get_ads_entries,
+                    #S04_pub_get_ads_entries,
                     #S04_pub_get_orcids,
                     #S04_pub_journal_index,
                     #S04_pub_value_added,
@@ -961,7 +1012,7 @@ def data_pipeline(**options):
 
 
 """
-Como se hace esto???
+Debugging:
 
 D = S01_read_aaa_table()
 D = S02_add_OAC_data(next(D))
@@ -997,9 +1048,16 @@ def get_services(**options):
     return {}
 
 if __name__ == '__main__':
+
+    # Load parameters from config file
+    inifile = '../../sets/set_experiment.ini'
+    global config
+    config = Parser(inifile)
+
+    # run bonobo pipeline (default options)
     parser = bonobo.get_argument_parser()
     with bonobo.parse_args(parser) as options:
         bonobo.run(
-            data_pipeline(**options),
-            services=get_services(**options)
-        )
+                   data_pipeline(**options),
+                   services=get_services(**options)
+                  )

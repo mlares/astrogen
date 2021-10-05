@@ -95,7 +95,7 @@ Tomar la tabla de datos de socios de la AAA y limpiarla a mano en XLSX
 
 --> data/redux/astro_arg.xlsx
 
-Usar los archivos cross_... para agregar las tabs a la tabla XLSX
+Usar los archivos cross... para agregar las tabs a la tabla XLSX
 
 
 

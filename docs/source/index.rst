@@ -8,7 +8,7 @@ Welcome to astrogen's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
    pipeline
    project
