@@ -3,8 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to astrogen's documentation!
-====================================
+####################################
+astrogen documentation
+####################################
+
+ASTROGEN is a project devoted to the formal statistical analysis
+of the gender fractions in the astronomical community in Argentina.
+
+********************
+Methods
+********************
 
 .. toctree::
    :maxdepth: 2
@@ -14,10 +22,22 @@ Welcome to astrogen's documentation!
    project
    references
 
-
+********************
 Indices and tables
-==================
+********************
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API
+
+   api/pipeline
+
+
+********************
+Indices and tables
+********************
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
