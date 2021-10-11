@@ -2,7 +2,7 @@
 # DOCS
 # ===========================================================
 
-"""Utilities to analyse Cosmic Microwave Foregrounds
+"""Utilities to analyse gender data in astronomy in Argentina
 
 """
 
@@ -32,6 +32,7 @@ REQUIREMENTS = [
     "joblib",
     "matplotlib"]
 
+
 with open(PATH / "README.rst") as fp:
     LONG_DESCRIPTION = fp.read()
  
@@ -40,10 +41,11 @@ DESCRIPTION = (
     )
 
 with open(PATH / "astrogen" / "__init__.py") as fp:
-    VERSION = [
-        l for l in fp.readlines() if l.startswith("__version__")
-    ][0].split("=", 1)[-1].strip().replace('"', "")
-
+    for line in fp.readlines():
+        if line.startswith("__version__ = "):
+            VERSION = line.split("=", 1)[-1].replace('"', '').strip()
+            break
+ 
 # ===========================================================
 # FUNCTIONS
 # ===========================================================

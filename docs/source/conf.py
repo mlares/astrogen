@@ -12,11 +12,19 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('./'))
-sys.path.insert(0, os.path.abspath('../'))
+import pathlib
 
+# this path is pointing to astrogen/docs/source
+CURRENT_PATH = pathlib.Path(os.path.abspath(os.path.dirname(__file__)))
+ASTROGEN_PATH = CURRENT_PATH.parent.parent
+
+print(CURRENT_PATH)
+print(ASTROGEN_PATH)
+
+sys.path.insert(0, str(ASTROGEN_PATH))
+
+from setup import VERSION
 import astrogen
-
 
 # -- Project information -----------------------------------------------------
 
@@ -24,8 +32,8 @@ project = 'astrogen'
 copyright = '2021, Marcelo Lares'
 author = 'Marcelo Lares'
 
-# The full version, including alpha/beta/rc tags
-release = '0.1'
+version = VERSION
+release = VERSION
 
 
 # -- General configuration ---------------------------------------------------
@@ -46,14 +54,7 @@ exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-#html_theme = 'sphinx_rtd_theme'
 html_theme = 'insegel'
 html_logo = "../source/img/astrogen_logo.svg"
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []

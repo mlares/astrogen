@@ -6,9 +6,11 @@ import operator
 import re 
 import os
 from openpyxl import load_workbook
+from pathlib import Path
 
-path = '../data/external/nombres.csv'
+path = Path(__file__).parent / "../../data/external/nombres.csv"
 gender_list = pd.read_csv(path)
+
 
 # COLORS ::::::::::::::::::::::::::::::::::::::::::::::::
 
