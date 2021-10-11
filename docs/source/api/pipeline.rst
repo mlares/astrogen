@@ -1,7 +1,7 @@
 pipeline module
 ===============
 
-.. automodule:: pipelin
+.. automodule:: astrogen.data.pipeline
     :members:
     :undoc-members:
     :show-inheritance:

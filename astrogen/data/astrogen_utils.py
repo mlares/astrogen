@@ -7,9 +7,20 @@ import re
 import os
 from openpyxl import load_workbook
 
+path = '../data/external/nombres.csv'
+gender_list = pd.read_csv(path)
+
 # COLORS ::::::::::::::::::::::::::::::::::::::::::::::::
 
 class bcolors:
+    """
+    Get color palette for pretty printing
+
+    This class simply contains a list of predefined colors to
+    be used in the visual analysis of strings and publication
+    data.
+
+    """
     # ANSI escape sequences
     # Ver también el paquete colorama
     HEADER = '\033[95m'
@@ -24,9 +35,28 @@ class bcolors:
     TST = '\033[31;1m'
     X = '\033[4;95;1m'
 
+
 # NAME MATCHING :::::::::::::::::::::::::::::::::::::::
 
 def ds(a, b):                                           
+    """
+    Get distance between two words.
+
+    This function is used to obtain the distance between two names
+    or surnames. Uses different distances in word space, namely,
+    Damerau Levenshtein distance, Jaro distance, Levenstein
+    distance and SequenceMatcher. The later from the difflib package
+    and the other ones from the Jellyfish package.
+
+    Args:
+        a (string): one of the strings
+        b (string): the other string to compare
+
+    Returns:
+        res (array): Numpy array with the list of distances
+           between the two words.
+
+    """
     d1 = jellyfish.damerau_levenshtein_distance(a, b)
     d2 = jellyfish.jaro_distance(a, b)     
     d3 = jellyfish.levenshtein_distance(a, b)                          
@@ -36,6 +66,24 @@ def ds(a, b):
     return res
 
 def ds1(s1, s2):
+    """
+    Get distance between two words.
+
+    This function is used to obtain the distance between two names
+    or surnames. Uses different distances in word space, namely,
+    Damerau Levenshtein distance, Jaro distance, Levenstein
+    distance and SequenceMatcher. The later from the difflib package
+    and the other ones from the Jellyfish package.
+
+    Args:
+        a (string): one of the strings
+        b (string): the other string to compare
+
+    Returns:
+        res (array): Numpy array with the list of distances
+           between the two words.
+
+    """ 
     s1l = s1.lower().split()
     s2l = s2.lower().split()
     n1 = len(s1l)
@@ -51,6 +99,24 @@ def ds1(s1, s2):
     return dm
 
 def ds2(ap1, ap2, nom1, nom2):
+    """
+    Get distance between two words.
+
+    This function is used to obtain the distance between two names
+    or surnames. Uses different distances in word space, namely,
+    Damerau Levenshtein distance, Jaro distance, Levenstein
+    distance and SequenceMatcher. The later from the difflib package
+    and the other ones from the Jellyfish package.
+
+    Args:
+        a (string): one of the strings
+        b (string): the other string to compare
+
+    Returns:
+        res (array): Numpy array with the list of distances
+           between the two words.
+
+    """    
     d_apel = ds1(ap1, ap2)
     d_nomb = ds1(nom1, nom2)
     names_dist = np.sqrt(d_apel**2 + d_nomb**2)
@@ -60,11 +126,27 @@ def ds2(ap1, ap2, nom1, nom2):
 
 def initials(initials, string):
     """
-    ver si las iniciales de dos nombres coinciden
+    Check if the initials of two names coincide.
+
     e.g.:
+
     initials = 'Juan Carlos'; string='Juan' --> True
+
     initials = 'Juan Carlos'; string='Juan José' --> False
+
     initials = 'Juan Carlos'; string='Jacinto' --> True
+
+    Args:
+        initials (string): source string for the initials
+        string (string): full names
+
+    Returns:
+        boo (bool): whether the initials are accepted
+
+    Notes:
+
+    The criteria for the string matching is the following:
+
     """
     Li = [x[0] for x in initials.lower().replace('.', ' ').split()]
     Ln = [x[0] for x in string.lower().replace('.', ' ').split()]
@@ -77,8 +159,14 @@ def initials(initials, string):
 
 def getinitials(nombre):
     """
-    Devuelve las iniciales de los nombres
+    Get the initials of a full name
+
     e.g.: 'Jose Facundo' --> 'J. F.'
+
+    Args:
+
+    Returns:
+
     """
     res = ' '.join([a[0].upper()+'.' for a in nombre.split()])
     return res
@@ -105,16 +193,6 @@ def pickone(df, au, sift):
     return sift
  
 
-
-
-
-
-
-
-
-
-
-
 # TEXT MANIPULATION ::::::::::::::::::::::::::::::::::::::::::::
 
 def clean_text(txt):
@@ -127,6 +205,8 @@ def df_to_dict(df, key_column, val_column):
     xkey = df[key_column].tolist()
     xval = df[val_column].tolist()
     return dict(zip(xkey,xval))
+
+gender_list = df_to_dict(gender_list, key_column='nombre', val_column='genero')
 
 # GENDER DETECTION :::::::::::::::::::::::::::::::::::::::::::::
 
@@ -141,11 +221,8 @@ def get_gender2(names):
     gender['a'] = 0 if (gender['f']+gender['m']) > 0 else 1
     return max(gender.items(), key=operator.itemgetter(1))[0]
 
-path = '../../data/external/nombres.csv'
-gender_list = pd.read_csv(path)
-gender_list = df_to_dict(gender_list, key_column='nombre', val_column='genero')
-
-
+ 
+ 
 # XLSX WRITERS :::::::::::::::::::::::::::::::::::::::::::::::::
 
 def append_df_to_excel(filename, df, sheet_name='Sheet1', startrow=None,
@@ -157,17 +234,17 @@ def append_df_to_excel(filename, df, sheet_name='Sheet1', startrow=None,
     If [filename] doesn't exist, then this function will create it.
 
     @param filename: File path or existing ExcelWriter
-                     (Example: '/path/to/file.xlsx')
+    (Example: '/path/to/file.xlsx')
     @param df: DataFrame to save to workbook
     @param sheet_name: Name of sheet which will contain DataFrame.
-                       (default: 'Sheet1')
+    (default: 'Sheet1')
     @param startrow: upper left cell row to dump data frame.
-                     Per default (startrow=None) calculate the last row
-                     in the existing DF and write to the next row...
+    Per default (startrow=None) calculate the last row
+    in the existing DF and write to the next row...
     @param truncate_sheet: truncate (remove and recreate) [sheet_name]
-                           before writing DataFrame to Excel file
+    before writing DataFrame to Excel file
     @param to_excel_kwargs: arguments which will be passed to `DataFrame.to_excel()`
-                            [can be a dictionary]
+    [can be a dictionary]
     @return: None
 
     Usage examples:
@@ -227,4 +304,3 @@ def append_df_to_excel(filename, df, sheet_name='Sheet1', startrow=None,
 
     # save the workbook
     writer.save()
- 

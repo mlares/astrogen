@@ -14,10 +14,10 @@ Métodos:
    - machine learning
 
 
-HACER UN RELEVAMIENTO DE DATOS CON DATOS ABIERTOS
-=================================================
+relevamiento de datos con datos abiertos
+-------------------------------------------------
 
-FUENTES DE DATOS
+fuentes de datos
 ----------------
 
  - CONICET, "gobierno abierto > conicet en cifras"
@@ -33,7 +33,7 @@ FUENTES DE DATOS
  - Criterios de balance de género en comunidades desbalanceadas
 
 
-CURACIÓN DE DATOS
+curación de datos
 -----------------
 
 - explorar los resultados del ADS
@@ -43,8 +43,8 @@ CURACIÓN DE DATOS
 
 
 
-HACER UN ANÁLISIS ESTADÍSTICO DE LOS DATOS 
-==========================================
+hacer un análisis estadístico de los datos 
+------------------------------------------
 
 Composición por género en:
 
@@ -61,10 +61,8 @@ Composición por género en:
     - ascensos
 
 
-
-
-OBJETIVOS PARTICULARES
-======================
+objetivos particulares
+----------------------
 
 - ¿proporción de mujeres en CIC y comisiones?
 - ¿proporción de mujeres en ingreso y egreso de las carreras

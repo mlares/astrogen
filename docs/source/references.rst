@@ -1,24 +1,28 @@
-NOTAS PERIODISTICAS
-===================
+REFERENCES
+============
+
+
+notas periodisticas
+--------------------
 
 https://www.telam.com.ar/notas/202010/523806-redes-sociales-recsate-cientificas-argentinas.html
 
 https://www.cronista.com/columnistas/La-importancia-de-impulsar-el-desarrollo-de-las-mujeres-cientificas-argentinas-20201203-0045.html/
 
 
-BLOGS
-=======================
+blogs
+-----------------------
 
 
-INSTITUCIONALES
-=======================
+institucionales
+--------------------------
 
 https://www.educ.ar/recursos/155547/mujeres-y-ciencia-una-historia-a-medias
 
 https://www.conicet.gov.ar/tres-investigadoras-reflexionan-sobre-los-avances-y-los-estereotipos-en-materia-de-genero-en-la-ciencia/
 
-INSTITUCIONES
-=======================
+instituciones
+-------------------------
 
 http://www.ragcyt.org.ar/index
 
@@ -35,8 +39,8 @@ https://www.conicet.gov.ar/comision-interdisciplinaria-del-observatorio-de-viole
 
 
 
-REDES SOCIALES
-===================
+redes sociales
+-------------------
 
 Twitter
  - Científicas de acá: @cientificasaca
@@ -69,25 +73,25 @@ Mujeres en ciencias de datos
 
 
 
-EVENTOS, CICLOS Y PROGRAMAS ESPECÍFICOS
-=======================================
+eventos, ciclos y programas específicos
+---------------------------------------
 
 Jornadas de ciencia y arte: 
 Cerebro y mujer, mitos realidades y distintas perspectivas
 
 
-PREMIOS
-=======================================
+premios
+---------------------------------------
 
-L'Oreal
-
-
+l'oreal
 
 
-ARTÍCULOS
-===================
 
-http://sidetec.tucuman.gob.ar/wp-content/uploads/2017/03/g%C3%A9nero_y_profesi%C3%B3n__en_la_ciencia_argentina_cab_2010.pdf
+
+artículos
+---------------------
+
+http://sidetec.tucuman.gob.ar/wp-content/uploads/2017/03/g%c3%a9nero_y_profesi%c3%b3n__en_la_ciencia_argentina_cab_2010.pdf
 
 
 
@@ -112,7 +116,3 @@ https://www.pnas.org/content/117/49/31063
 
 https://journals.sagepub.com/doi/10.1177/0956797617741719
 Stoet, Gijsbert; Geary, David C. (14 February 2018). "The Gender-Equality Paradox in Science, Technology, Engineering, and Mathematics Education" (PDF). Psychological Science. 29 (4): 581–593. doi:10.1177/0956797617741719. ISSN 0956-7976. PMID 29442575. S2CID 4874507
-
-
-
-

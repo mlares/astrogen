@@ -39,7 +39,7 @@ DESCRIPTION = (
     "Analyze gender data for the astronomical community in Argentina"
     )
 
-with open(PATH / "src" / "__init__.py") as fp:
+with open(PATH / "astrogen" / "__init__.py") as fp:
     VERSION = [
         l for l in fp.readlines() if l.startswith("__version__")
     ][0].split("=", 1)[-1].strip().replace('"', "")
@@ -48,11 +48,11 @@ with open(PATH / "src" / "__init__.py") as fp:
 # FUNCTIONS
 # ===========================================================
 
-# setup(name="hearsay", packages=find_packages())
+# setup(name="astrogen", packages=find_packages())
 
 def do_setup():
     setup(
-        name="src",
+        name="astrogen",
         version=VERSION,
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
@@ -77,7 +77,7 @@ def do_setup():
             "Programming Language :: Python :: Implementation :: CPython",
             "Topic :: Scientific/Engineering"],
 
-        packages=["src"],
+        packages=["astrogen"],
         py_modules=["ez_setup"],
 
         install_requires=REQUIREMENTS)

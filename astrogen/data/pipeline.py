@@ -6,12 +6,13 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 import numpy as np
 from scipy.optimize import curve_fit
-from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
-from astrogen_utils import initials, getinitials, pickone
+from astrogen.data.astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
+from astrogen.data.astrogen_utils import initials, getinitials, pickone
 import pickle
 import ads
 from sys import argv
-from Parser import Parser
+#from Parser import Parser
+from astrogen.data.Parser import Parser
 
 # avoid SettingWithCopyWarning
 # (see https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy)
@@ -20,14 +21,14 @@ pd.options.mode.chained_assignment = None
 
 def get_filters_by_names(D, UE):
     """
-    Parameters:
-    -----------
+    Args:
     D: DataFrame, base data
+
     UE: DataFrame, data to be added
 
     Returns:
-    --------
     filt: ndarray
+
     inds: ndarray
 
 
@@ -55,12 +56,10 @@ def set_empty_with_type(tipo):
     """
     Returns an empty object of a given type.
 
-    Parameters:
-    -----------
+    Args:
     tipo: type
 
     Returns:
-    --------
     An empty object of the same type.
     """
     if tipo == type(''):
@@ -78,6 +77,11 @@ def fill_empty_columns(df1, df2):
     """
     add empty columns to df1 that are in df2 but not in df1
 
+    Args:
+
+       df1 (DataFrame): A Pandas dataframe with data
+       df2 (DataFrame): A Pandas dataframe with data
+
     """
     for c, t in zip(df2.columns, df2.iloc[0]):
         if c not in df1.columns:
@@ -87,8 +91,11 @@ def fill_empty_columns(df1, df2):
 
 def ft_year(s):
     """
-    Return the year from a datetime object, is possible,
-    if not, returns -1
+    Returns the year from a datetime object
+
+    Notes:
+       If it is not possible to return the year, then returns -1
+
     """
     try:
         y=s.year
@@ -98,7 +105,8 @@ def ft_year(s):
  
 def ft_low(s):
     """
-    Return the affiliation in lower case format
+    Returns the affiliation in lower case format
+
     """
     if isinstance(s, str):
         y = s.lower()
@@ -109,6 +117,7 @@ def ft_low(s):
 def re_names(string):
     """
     Dado un nombre, devuelve los nombres completos o iniciales
+
     """
     string = string.title()
     regex1 = r"[A-Z][^A-Z\s]\w+"
@@ -131,8 +140,10 @@ def re_names(string):
 def aut_compare(aut1, aut2):
     """
     each author: ap_full, ap_inic, nom_full, nom_inic
+
     e.g.:
     aut_compare([['Lares'], [], [], ['M.']], [['Lares'], [], [], ['M. E.']])
+
     """
     # comparar apellidos:
     a1 = aut1[0]
@@ -168,7 +179,9 @@ def authmatch(x, ip, show=False):
     """
     Dado un autor y un paper, determinar si ese paper
     es de ese autor.
+
     0)ap_full, 1)ap_inic, 2)nom_full, 3)nom_inic,  <--- autor buscado
+
     4)etal_ap_full, 5)etal_ap_inic, 6)etal_nom_full, 7)etal_nom_inic
 
     """
@@ -232,37 +245,37 @@ def S01_read_aaa_table():
     This is the more complete list, so it used as the base list to add
     information from other data sources.
 
-    Columns:
-    1) apellido 
-    2) nombre   
-    3) ads_str: string to look for in ADS
-    4) dni: documento nacional de identidad
-    5) fnac: day of birth
-    6) ynac: year of birth
-    7) aff: affiliation
-    8) nac: nacionality
-    9) aaa_soc: aaa situation
+    | Columns:
+    | 1) apellido 
+    | 2) nombre   
+    | 3) ads_str: string to look for in ADS
+    | 4) dni: documento nacional de identidad
+    | 5) fnac: day of birth
+    | 6) ynac: year of birth
+    | 7) aff: affiliation
+    | 8) nac: nacionality
+    | 9) aaa_soc: aaa situation
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     Notes:
-    ------
-    aa_soc codes:
-    B1   baja por fallecimiento
-    B2   baja por renuncia no vinculada al alejamiento de la Astronomía
-    B3   baja por desvinculación de la Astronomía (incluyendo renuncia)
-    B4   baja por no haberse reempadronado al 01/01/2005
-    B5   baja por morosidad en el pago
-    B6   baja por expulsión, falta profesional grave
-    L    licencia
-    A1   activo
-    Pf   profesional
-    Ad   adherente
-    Af   aficionado
-    F    fallecido
-    FP   fallecido a posteriori de su baja
+
+    | aa_soc codes:
+    | B1   baja por fallecimiento
+    | B2   baja por renuncia no vinculada al alejamiento de la Astronomía
+    | B3   baja por desvinculación de la Astronomía (incluyendo renuncia)
+    | B4   baja por no haberse reempadronado al 01/01/2005
+    | B5   baja por morosidad en el pago
+    | B6   baja por expulsión, falta profesional grave
+    | L    licencia
+    | A1   activo
+    | Pf   profesional
+    | Ad   adherente
+    | Af   aficionado
+    | F    fallecido
+    | FP   fallecido a posteriori de su baja
+
     """
     D = pd.read_excel('../../data/raw/collect_AAA.xlsx')
 
@@ -274,20 +287,20 @@ def S01_read_aaa_table():
 
 # TRANSFORM: add data from institutes
 """ 
-In these steps the following columns are added:
-    - cic
-    - docencia
-    - area
-    - orcid
-    - use_orcid
-
-The steps are contained in the following functions:
-    - S02_add_OAC_data
-    - S02_add_IATE_data
-    - S02_add_UNLP_data
-    - S02_add_ICATE_data
-    - S02_add_GAE_data
-    - S02_add_CIC_data
+| In these steps the following columns are added:
+|     - cic
+|     - docencia
+|     - area
+|     - orcid
+|     - use_orcid
+| 
+| The steps are contained in the following functions:
+|     - S02_add_OAC_data
+|     - S02_add_IATE_data
+|     - S02_add_UNLP_data
+|     - S02_add_ICATE_data
+|     - S02_add_GAE_data
+|     - S02_add_CIC_data
 """ 
 
 def S02_add_OAC_data(*args):
@@ -296,17 +309,17 @@ def S02_add_OAC_data(*args):
 
     In this step, the database is combined with data from the OAC
 
-    Columns:
-    1) apellido  
-    2) nombre    
-    3) ads_str   
-    4) dni
-    5) ynac      
-    6) cic (+)
-    7) docencia (+)
-    8) area (+)
-    9) orcid (+)
-    10) use_orcid (+)
+    | Columns:
+    | 1) apellido  
+    | 2) nombre    
+    | 3) ads_str   
+    | 4) dni
+    | 5) ynac      
+    | 6) cic (+)
+    | 7) docencia (+)
+    | 8) area (+)
+    | 9) orcid (+)
+    | 10) use_orcid (+)
 
     Returns:
     --------
@@ -342,19 +355,18 @@ def S02_add_IATE_data(*args):
 
     In this step, the database is combined with data from the IATE
 
-    Columns:
-    1) apellido  
-    2) nombre    
-    3) ads_str   
-    4) ynac      
-    5) cic (+)
-    6) docencia (+)
-    7) area (+)
-    8) orcid (+)
-    9) use_orcid (+)
+    | Columns:
+    | 1) apellido  
+    | 2) nombre    
+    | 3) ads_str   
+    | 4) ynac      
+    | 5) cic (+)
+    | 6) docencia (+)
+    | 7) area (+)
+    | 8) orcid (+)
+    | 9) use_orcid (+)
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """     
@@ -388,17 +400,17 @@ def S02_add_ICATE_data(*args):
 
     In this step, the database is combined with data from the ICATE
 
-    Columns: 
-    1) apellido  
-    2) nombre    
-    3) ads_str   
-    4) dni
-    5) ynac      
-    6) cic (+)
-    7) docencia (+)
-    8) area (+)
-    9) orcid (+)
-    10) use_orcid (+) 
+    | Columns: 
+    | 1) apellido  
+    | 2) nombre    
+    | 3) ads_str   
+    | 4) dni
+    | 5) ynac      
+    | 6) cic (+)
+    | 7) docencia (+)
+    | 8) area (+)
+    | 9) orcid (+)
+    | 10) use_orcid (+) 
 
     Returns:
     --------
@@ -432,20 +444,19 @@ def S02_add_IALP_data(*args):
 
     In this step, the database is combined with data from the IALP
 
-    Columns:
-    1) apellido  
-    2) nombre    
-    3) ads_str   
-    4) dni
-    5) ynac      
-    6) cic (+)
-    7) docencia (+)
-    8) area (+)
-    9) orcid (+)
-    10) use_orcid (+) 
+    | Columns:
+    | 1) apellido  
+    | 2) nombre    
+    | 3) ads_str   
+    | 4) dni
+    | 5) ynac      
+    | 6) cic (+)
+    | 7) docencia (+)
+    | 8) area (+)
+    | 9) orcid (+)
+    | 10) use_orcid (+) 
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """     
@@ -477,20 +488,19 @@ def S02_add_IAFE_data(*args):
 
     In this step, the database is combined with data from the IAFE
 
-    Columns:
-    1) apellido  
-    2) nombre    
-    3) ads_str   
-    4) dni
-    5) ynac      
-    6) cic (+)
-    7) docencia (+)
-    8) area (+)
-    9) orcid (+)
-    10) use_orcid (+) 
+    | Columns:
+    | 1) apellido  
+    | 2) nombre    
+    | 3) ads_str   
+    | 4) dni
+    | 5) ynac      
+    | 6) cic (+)
+    | 7) docencia (+)
+    | 8) area (+)
+    | 9) orcid (+)
+    | 10) use_orcid (+) 
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """     
@@ -521,20 +531,19 @@ def S02_add_GAE_data(*args):
 
     In this step, the database is combined with data from the GAE
 
-    Columns:
-    1) apellido  
-    2) nombre    
-    3) ads_str   
-    4) dni
-    5) ynac      
-    6) cic (+)
-    7) docencia (+)
-    8) area (+)
-    9) orcid (+)
-    10) use_orcid (+) 
+    1 Columns:
+    1 1) apellido  
+    1 2) nombre    
+    1 3) ads_str   
+    1 4) dni
+    1 5) ynac      
+    1 6) cic (+)
+    1 7) docencia (+)
+    1 8) area (+)
+    1 9) orcid (+)
+    1 10) use_orcid (+) 
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """     
@@ -572,19 +581,18 @@ def S02_add_CIC_data(*args):
 
     In this step, the database is combined with data from the GAE
 
-    Columns:
-    1) apellido
-    2) nombre
-    3) categoria (+)
-    4) area (+)
-    5) subarea (+)
-    6) ue (+)
-    7) l (+)
-    8) tema (+)
-    9) sn (+)
+    1 Columns:
+    1 1) apellido
+    1 2) nombre
+    1 3) categoria (+)
+    1 4) area (+)
+    1 5) subarea (+)
+    1 6) ue (+)
+    1 7) l (+)
+    1 8) tema (+)
+    1 9) sn (+)
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """     
@@ -624,11 +632,11 @@ def S03_add_gender(*args):
 
     In this step, genders are assigned according to data from XXX
 
-    Columns:
-    1)
-    2)
-    3)
-    4)
+    | Columns:
+    | 1)
+    | 2)
+    | 3)
+    | 4)
 
     Returns:
     --------
@@ -823,13 +831,15 @@ def S04_pub_get_orcids(*args):
 
     In this step, orcids are guessed by downloading from orcid
     service.
+    
     The following steps are in order:
-    1) generate query
-    2) download data
-    3) check on ads
-    4) clean
-    5) get orcid best guess
-    6) add guessed_orcid to dataframe.
+    
+    | 1) generate query
+    | 2) download data
+    | 3) check on ads
+    | 4) clean
+    | 5) get orcid best guess
+    | 6) add guessed_orcid to dataframe.
 
     Returns:
     --------
@@ -941,11 +951,11 @@ def load(*args):
 
     In this step, columns of the database are cleaned and sorted
 
-    Columns:
-    1)
-    2)
-    3)
-    4)
+    | Columns:
+    | 1)
+    | 2)
+    | 3)
+    | 4)
 
     Returns:
     --------
@@ -1043,7 +1053,9 @@ def get_services(**options):
     http, ...). You can override those defaults, or just let the
     framework define them. You can also define your own services and
     naming is up to you.
-    :return: dict
+
+    Returns: 
+       dict
     """
     return {}
 
