@@ -1,16 +1,16 @@
-# import datetime
-# import time
-# import pandas as pd
-# import bonobo
-# import numpy as np
-# from dateutil.relativedelta import relativedelta
-# import numpy as np
-# from scipy.optimize import curve_fit
+import datetime
+import time
+import pandas as pd
+import bonobo
+import numpy as np
+from dateutil.relativedelta import relativedelta
+import numpy as np
+from scipy.optimize import curve_fit
 from astrogen.data.astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
 from astrogen.data.astrogen_utils import initials, getinitials, pickone
-# import pickle
-# import ads
-# from sys import argv
+import pickle
+import ads
+from sys import argv
 # #from Parser import Parser
 # from astrogen.data.Parser import Parser
 # 
@@ -25,6 +25,13 @@ def test(x):
 
     """
     return True
+
+def test2(x):
+    """
+    Docstrings OK
+
+    """
+    return Tru
 
 
 def get_filters_by_names(D, UE):
