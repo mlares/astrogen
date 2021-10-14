@@ -322,7 +322,6 @@ def S02_add_OAC_data(*args):
     | 10) use_orcid (+)
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """     
@@ -413,7 +412,6 @@ def S02_add_ICATE_data(*args):
     | 10) use_orcid (+) 
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """     
@@ -639,7 +637,6 @@ def S03_add_gender(*args):
     | 4)
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """   
@@ -663,7 +660,6 @@ def S03_add_age(*args):
     1) edad
 
     Notes:
-    ------
     When the year of birth is not available, a relacion between the
     DNI and the age is fitted aud used to complete the data.
     DNI (Documento nacional de identidad) number is assigned
@@ -671,7 +667,6 @@ def S03_add_age(*args):
     Argentina.
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """    
@@ -729,7 +724,6 @@ def S03_clean_and_sort(*args):
     In this step, columns of the database are cleaned and sorted
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """     
@@ -776,10 +770,9 @@ def S04_pub_get_ads_entries(*args):
     package (https://ads.readthedocs.io/en/latest/)
 
     Returns:
-    --------
     D: DataFrame containing the data
-       This is the same object that enters the function. In addition, a file is
-       saved for each author.
+    This is the same object that enters the function. In addition, a file is
+    saved for each author.
 
     """   
     D = args[0]
@@ -842,7 +835,6 @@ def S04_pub_get_orcids(*args):
     | 6) add guessed_orcid to dataframe.
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """
@@ -859,7 +851,6 @@ def S04_pub_journal_index(*args):
     Journal of infometrics, 6, 674)
 
     Returns:
-    --------
     D: DataFrame containing the data (including journal index)
 
     """
@@ -913,7 +904,6 @@ def S04_make_pages(*args):
     STEP: S04_make pages
 
     Returns:
-    --------
     D: DataFrame containing the data (including journal index)
     """
     D = args[0]
@@ -925,7 +915,6 @@ def S04_pub_value_added(*args):
     STEP: S04_pub_value_added
 
     Returns:
-    --------
     D: DataFrame containing the data (including journal index)
     """
     D = args[0]
@@ -958,7 +947,6 @@ def load(*args):
     | 4)
 
     Returns:
-    --------
     D: DataFrame containing the data
 
     """   
