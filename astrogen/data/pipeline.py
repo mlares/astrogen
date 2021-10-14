@@ -6,11 +6,11 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 import numpy as np
 from scipy.optimize import curve_fit
-from astrogen.data.astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
-from astrogen.data.astrogen_utils import initials, getinitials, pickone
+#from astrogen.data.astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
+#from astrogen.data.astrogen_utils import initials, getinitials, pickone
 import pickle
-import ads
-from sys import argv
+#import ads
+#from sys import argv
 # #from Parser import Parser
 # from astrogen.data.Parser import Parser
 # 
@@ -31,42 +31,42 @@ def test2(x):
     Docstrings OK
 
     """
-    return Tru
+    return True
 
 
-def get_filters_by_names(D, UE):
-    """
-    Args:
-    D: DataFrame, base data
-
-    UE: DataFrame, data to be added
-
-    Returns:
-    filt: ndarray
-
-    inds: ndarray
-
-
-    """
-    filt = []
-    inds = []
-    for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
-        closest = 99
-        for j, (n2, a2) in enumerate(zip(D['nombre'], D['apellido'])):
-            d = ds2(a1, a2, n1, n2)
-            if d < closest:
-                closest = d
-                ind = j
-                nc2 = n2
-                ac2 = a2
-        cond = closest < 0.26
-        filt.append(cond)
-        inds.append(ind)
-
-    filt = np.array(filt)
-    inds = np.array(inds)
-    return filt, inds
-
+#def get_filters_by_names(D, UE):
+#    """
+#    Args:
+#    D: DataFrame, base data
+#
+#    UE: DataFrame, data to be added
+#
+#    Returns:
+#    filt: ndarray
+#
+#    inds: ndarray
+#
+#
+#    """
+#    filt = []
+#    inds = []
+#    for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
+#        closest = 99
+#        for j, (n2, a2) in enumerate(zip(D['nombre'], D['apellido'])):
+#            d = ds2(a1, a2, n1, n2)
+#            if d < closest:
+#                closest = d
+#                ind = j
+#                nc2 = n2
+#                ac2 = a2
+#        cond = closest < 0.26
+#        filt.append(cond)
+#        inds.append(ind)
+#
+#    filt = np.array(filt)
+#    inds = np.array(inds)
+#    return filt, inds
+#
 #def set_empty_with_type(tipo):
 #    """
 #    Returns an empty object of a given type.
