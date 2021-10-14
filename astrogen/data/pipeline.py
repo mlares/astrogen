@@ -50,85 +50,85 @@ def get_filters_by_names(D, UE):
     """
     filt = []
     inds = []
-#    for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
-#        closest = 99
-#        for j, (n2, a2) in enumerate(zip(D['nombre'], D['apellido'])):
-#            d = ds2(a1, a2, n1, n2)
-#            if d < closest:
-#                closest = d
-#                ind = j
-#                nc2 = n2
-#                ac2 = a2
-#        cond = closest < 0.26
-#        filt.append(cond)
-#        inds.append(ind)
-#
-#    filt = np.array(filt)
-#    inds = np.array(inds)
-#    return filt, inds
-#
-#def set_empty_with_type(tipo):
-#    """
-#    Returns an empty object of a given type.
-#
-#    Args:
-#    tipo: type
-#
-#    Returns:
-#    An empty object of the same type.
-#    """
-#    if tipo == type(''):
-#        return ''
-#    elif tipo == type(1):
-#        return np.nan
-#    elif tipo == type(1.):
-#        return np.nan
-#    elif tipo == type([]):
-#        return []
-#    else:
-#        return np.nan
-#
-#def fill_empty_columns(df1, df2):
-#    """
-#    add empty columns to df1 that are in df2 but not in df1
-#
-#    Args:
-#
-#       df1 (DataFrame): A Pandas dataframe with data
-#       df2 (DataFrame): A Pandas dataframe with data
-#
-#    """
-#    for c, t in zip(df2.columns, df2.iloc[0]):
-#        if c not in df1.columns:
-#            df1[c] = set_empty_with_type(type(t))
-#
-#    return df1
-#
-#def ft_year(s):
-#    """
-#    Returns the year from a datetime object
-#
-#    Notes:
-#       If it is not possible to return the year, then returns -1
-#
-#    """
-#    try:
-#        y=s.year
-#    except AttributeError:
-#        y=-1
-#    return y
-# 
-#def ft_low(s):
-#    """
-#    Returns the affiliation in lower case format
-#
-#    """
-#    if isinstance(s, str):
-#        y = s.lower()
-#    else:
-#        y = s
-#    return y
-#
+    for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
+        closest = 99
+        for j, (n2, a2) in enumerate(zip(D['nombre'], D['apellido'])):
+            d = ds2(a1, a2, n1, n2)
+            if d < closest:
+                closest = d
+                ind = j
+                nc2 = n2
+                ac2 = a2
+        cond = closest < 0.26
+        filt.append(cond)
+        inds.append(ind)
+
+    filt = np.array(filt)
+    inds = np.array(inds)
+    return filt, inds
+
+def set_empty_with_type(tipo):
+    """
+    Returns an empty object of a given type.
+
+    Args:
+    tipo: type
+
+    Returns:
+    An empty object of the same type.
+    """
+    if tipo == type(''):
+        return ''
+    elif tipo == type(1):
+        return np.nan
+    elif tipo == type(1.):
+        return np.nan
+    elif tipo == type([]):
+        return []
+    else:
+        return np.nan
+
+def fill_empty_columns(df1, df2):
+    """
+    add empty columns to df1 that are in df2 but not in df1
+
+    Args:
+
+       df1 (DataFrame): A Pandas dataframe with data
+       df2 (DataFrame): A Pandas dataframe with data
+
+    """
+    for c, t in zip(df2.columns, df2.iloc[0]):
+        if c not in df1.columns:
+            df1[c] = set_empty_with_type(type(t))
+
+    return df1
+
+def ft_year(s):
+    """
+    Returns the year from a datetime object
+
+    Notes:
+       If it is not possible to return the year, then returns -1
+
+    """
+    try:
+        y=s.year
+    except AttributeError:
+        y=-1
+    return y
+ 
+def ft_low(s):
+    """
+    Returns the affiliation in lower case format
+
+    """
+    if isinstance(s, str):
+        y = s.lower()
+    else:
+        y = s
+    return y
+
 #def re_names(string):
 #    """
 #    Dado un nombre, devuelve los nombres completos o iniciales
