@@ -19,7 +19,7 @@ The functions in this module comprise:
     + append_df_to_excel
 
 
-.. automodule:: astrogen.data.astrogen_utils
+.. automodule:: astrogen_utils
     :members:
     :undoc-members:
     :show-inheritance:

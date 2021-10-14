@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-********************
+*************************************************************
 ASTROGEN (Is there gender balance in astronomy in Argentina?)
-********************
+*************************************************************
 
 
 ASTROGEN is a project devoted to the formal statistical analysis

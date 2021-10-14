@@ -1,7 +1,9 @@
 pipeline module
-===============
+======================
 
-.. automodule:: astrogen.data.pipeline
+This module contains the steps fot the data reduction pipeline
+
+.. automodule:: pipeline
     :members:
     :undoc-members:
     :show-inheritance:
