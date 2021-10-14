@@ -4,36 +4,37 @@
    contain the root `toctree` directive.
 
 *************************************************************
-ASTROGEN (Is there gender balance in astronomy in Argentina?)
+ASTROGEN - Astronomy and Gender in Argentina
 *************************************************************
 
 
 ASTROGEN is a project devoted to the formal statistical analysis
-of the gender fractions in the astronomical community in Argentina.
+of the gender representations in the astronomical community in Argentina.
 
 
 ********************
 API documentation
 ********************
 
+Here we describe the tools (software) to retrieve, curate and analyze data related to the project.
+
 .. toctree::
    :maxdepth: 2
-   :caption: API
 
    api/astrogen_utils
    api/pipeline
 
 ********************
-Methods
+Project
 ********************
 
 .. toctree::
    :maxdepth: 2
-   :caption: Project
 
-   pipeline
-   project
-   references
+   project/datapipeline
+   project/proposal
+   project/references
+   project/aboutus
 
 
 ********************

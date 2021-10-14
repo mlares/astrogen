@@ -1,42 +1,39 @@
-ORGANIZE
-========
+Data pipeline
+================
 
 (these links are temporarily restricted to authors)
 
    + `Shared Drive <https://drive.google.com/drive/u/1/folders/0AN-YzcZ1W14wUk9PVA>`_
-   + `Github repository <git@github.com:mlares/astrogen.git>`_
+   + `Github repository <https://github.com/mlares/astrogen>`_
    + `Overleaf document <https://www.overleaf.com/project/60d0fe7480df9741fb8eb662>`_
 
 
-download & get data
+Get data
 --------------------
 
-   * datos del ADS
+* datos del ADS
 
-   * planillas del CONICET
+* planillas del CONICET
+  + completar con lo que haga falta
 
-         + completar con lo que haga falta
 
+* planillas de socios de la AAA
+   
+   + planillas actualizadas, históricas?
+   + no anda el link en la página a la planilla de socios
 
-   * planillas de socios de la AAA
-
-         + planillas actualizadas, históricas?
-         + no anda el link en la página a la planilla de socios
-
-   * listas de integrantes de instituciones:
-
-      + IATE, IAFE, ICATE, CASLEO, UNLP, PierreAuger, ...
-      + preguntar en los CCT?
+* listas de integrantes de instituciones
+   + IATE, IAFE, ICATE, CASLEO, UNLP, PierreAuger, ...
+   + preguntar en los CCT?<
 
 
 clean & curation
---------------------
 
-   Asignar géneros por nombre
-
+Asignar géneros por nombre
 
 
-analysis
+
+Analysis
 ---------
 
 Tomar la tabla de datos de socios de la AAA y limpiarla a mano en XLSX
@@ -61,11 +58,7 @@ select: criterios de autores y papers
 
 
 
-
-
-
-
-estadisticas de publicaciones
+Publications
 -----------------------------
 
 Parte de la planilla del Google Drive: astro_all.xlsx
@@ -142,18 +135,3 @@ Agrega las columnas:
 .........................................
 
 --- pub_journal_index.py
-
-
-herramientas
-..............
-
-Mirar papers:
-
-+ code: pub_check.py
-
-
-python implementation
-------------------------
-
-We implemented a pdpipe data reduction pipeline, with an ETL
-(Extract-Transform-Load) data integration process.

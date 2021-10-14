@@ -1,4 +1,4 @@
-REFERENCES
+References
 ============
 
 In this section we list several data sources.

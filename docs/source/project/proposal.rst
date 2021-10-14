@@ -1,5 +1,8 @@
-SEGREGACIÓN POR GÉNERO EN ASTRONOMIA
+Proposal: Gender bias in Argentina
 ====================================
+
+Methods
+-------
 
 Hipótesis de trabajo: En astronomía en Argentina existe
 segregación por motivos de género con causas estructurales
@@ -8,17 +11,27 @@ segregación produce injusticias y diferencias en las oportunidades.
 
 Objetivo: Hacer todo con datos abiertos
 
+
+objetivos particulares:
+ 
+¿proporción de mujeres en CIC y comisiones?
+¿proporción de mujeres en ingreso y egreso de las carreras universitarias?
+¿proporción de mujeres áreas del conocimiento?
+¿diferencias de oportunidades?
+
+
+
 Métodos:
    - web scraping
    - pruebas de hipótesis
    - machine learning
 
 
-relevamiento de datos con datos abiertos
--------------------------------------------------
-
-fuentes de datos
+Data sources
 ----------------
+
+relevamiento de datos con datos abiertos
+
 
  - CONICET, "gobierno abierto > conicet en cifras"
    https://cifras.conicet.gov.ar/publica/
@@ -33,8 +46,7 @@ fuentes de datos
  - Criterios de balance de género en comunidades desbalanceadas
 
 
-curación de datos
------------------
+Dat curation
 
 - explorar los resultados del ADS
 - asignación de género a los nombres
@@ -42,31 +54,13 @@ curación de datos
   cruzar con bases de datos de la AAA
 
 
+Data analysis
+--------------
 
 hacer un análisis estadístico de los datos 
-------------------------------------------
 
-Composición por género en:
+Gender representation in:
 
-- carrera de astronomía en las universidades: 
-    - histórico
-    - ingresos
-    - egresos
-
-- CIC, categorías
-
-- comisiones evaluadoras:
-    - becas
-    - ingresos
-    - ascensos
-
-
-objetivos particulares
-----------------------
-
-- ¿proporción de mujeres en CIC y comisiones?
-- ¿proporción de mujeres en ingreso y egreso de las carreras
-  universitarias?
-- ¿proporción de mujeres áreas del conocimiento?
-- ¿diferencias de oportunidades?
-
+- Academic career in Universities
+- Permanent positions (CIC, categorías)
+- Evaluation (comisiones evaluadoras: becas, ingresos, ascensos)
