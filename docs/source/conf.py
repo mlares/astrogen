@@ -29,6 +29,7 @@ sys.path.insert(0, '..')
 
 autodoc_mock_imports = ['numpy',
                         'time',
+                        'datetime',
                         'pandas',
                         'jellyfish',
                         'bonobo',
