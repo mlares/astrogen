@@ -6,8 +6,8 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 import numpy as np
 from scipy.optimize import curve_fit
-#from astrogen.data.astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
-#from astrogen.data.astrogen_utils import initials, getinitials, pickone
+from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
+from astrogen_utils import initials, getinitials, pickone
 import pickle
 #import ads
 #from sys import argv
@@ -34,22 +34,22 @@ def test2(x):
     return True
 
 
-#def get_filters_by_names(D, UE):
-#    """
-#    Args:
-#    D: DataFrame, base data
-#
-#    UE: DataFrame, data to be added
-#
-#    Returns:
-#    filt: ndarray
-#
-#    inds: ndarray
-#
-#
-#    """
-#    filt = []
-#    inds = []
+def get_filters_by_names(D, UE):
+    """
+    Args:
+    D: DataFrame, base data
+
+    UE: DataFrame, data to be added
+
+    Returns:
+    filt: ndarray
+
+    inds: ndarray
+
+
+    """
+    filt = []
+    inds = []
 #    for i, (n1, a1) in enumerate(zip(UE['nombre'], UE['apellido'])):
 #        closest = 99
 #        for j, (n2, a2) in enumerate(zip(D['nombre'], D['apellido'])):
