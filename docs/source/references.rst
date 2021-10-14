@@ -1,8 +1,10 @@
 REFERENCES
 ============
 
+In this section we list several data sources.
 
-notas periodisticas
+
+in the news
 --------------------
 
 https://www.telam.com.ar/notas/202010/523806-redes-sociales-recsate-cientificas-argentinas.html
@@ -10,19 +12,13 @@ https://www.telam.com.ar/notas/202010/523806-redes-sociales-recsate-cientificas-
 https://www.cronista.com/columnistas/La-importancia-de-impulsar-el-desarrollo-de-las-mujeres-cientificas-argentinas-20201203-0045.html/
 
 
-blogs
------------------------
 
-
-institucionales
---------------------------
+institutions
+-------------------------
 
 https://www.educ.ar/recursos/155547/mujeres-y-ciencia-una-historia-a-medias
 
 https://www.conicet.gov.ar/tres-investigadoras-reflexionan-sobre-los-avances-y-los-estereotipos-en-materia-de-genero-en-la-ciencia/
-
-instituciones
--------------------------
 
 http://www.ragcyt.org.ar/index
 
@@ -39,7 +35,7 @@ https://www.conicet.gov.ar/comision-interdisciplinaria-del-observatorio-de-viole
 
 
 
-redes sociales
+social media
 -------------------
 
 Twitter
@@ -69,26 +65,25 @@ Twitter
 Mujeres en tecnología
 Mujeres en ciencias de datos
 
-
-
-
-
-eventos, ciclos y programas específicos
+Events
 ---------------------------------------
 
-Jornadas de ciencia y arte: 
-Cerebro y mujer, mitos realidades y distintas perspectivas
+- Jornadas de ciencia y arte: 
+- Cerebro y mujer, mitos realidades y distintas perspectivas
 
 
-premios
+Women-only prizes
 ---------------------------------------
 
-l'oreal
+List of prizes that only women can apply, in astronomy-related disciplines:
+
+- `L'Oréal-UNESCO Awards for Women in Science <https://en.unesco.org/news/loreal-unesco-awards-women-science-recognize-five-women-researchers-pioneering-work>`_
+- `Globant awards for women in technology <https://womenawards.globant.com>`_
 
 
 
 
-artículos
+Articles
 ---------------------
 
 http://sidetec.tucuman.gob.ar/wp-content/uploads/2017/03/g%c3%a9nero_y_profesi%c3%b3n__en_la_ciencia_argentina_cab_2010.pdf
@@ -97,6 +92,9 @@ http://sidetec.tucuman.gob.ar/wp-content/uploads/2017/03/g%c3%a9nero_y_profesi%c
 
 The equality paradox
 --------------------
+
+Articles, blog entries and papers about the equality paradox.
+
 
 https://en.wikipedia.org/wiki/Gender-equality_paradox
 

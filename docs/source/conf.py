@@ -42,27 +42,6 @@ autodoc_mock_imports = ['numpy',
                        ]
 
 
-# import datetime
-# import time
-# import pandas as pd
-# import bonobo
-# import numpy as np
-# from dateutil.relativedelta import relativedelta
-# import numpy as np
-# from scipy.optimize import curve_fit
-# from astrogen.data.astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
-# from astrogen.data.astrogen_utils import initials, getinitials, pickone
-# import pickle
-# import ads
-# from sys import argv
-# #from Parser import Parser
-# from astrogen.data.Parser import Parser
-# 
-# # avoid SettingWithCopyWarning
-# # (see https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy)
-# pd.options.mode.chained_assignment = None
-
-
 # -- Project information -----------------------------------------------------
 
 project = 'astrogen'

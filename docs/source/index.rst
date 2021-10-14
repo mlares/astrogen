@@ -12,7 +12,6 @@ ASTROGEN is a project devoted to the formal statistical analysis
 of the gender fractions in the astronomical community in Argentina.
 
 
-
 ********************
 API documentation
 ********************
@@ -23,8 +22,6 @@ API documentation
 
    api/astrogen_utils
    api/pipeline
-   api/funcs
- 
 
 ********************
 Methods
@@ -39,7 +36,6 @@ Methods
    references
 
 
-
 ********************
 Indices
 ********************
@@ -51,4 +47,3 @@ Indices
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
