@@ -23,6 +23,7 @@ API documentation
 
    api/astrogen_utils
    api/pipeline
+   api/funcs
  
 
 ********************
