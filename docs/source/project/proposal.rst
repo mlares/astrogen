@@ -46,7 +46,7 @@ relevamiento de datos con datos abiertos
  - Criterios de balance de género en comunidades desbalanceadas
 
 
-Dat curation
+Data curation
 
 - explorar los resultados del ADS
 - asignación de género a los nombres

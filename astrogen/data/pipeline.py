@@ -530,17 +530,17 @@ def S02_add_GAE_data(*args):
 
     In this step, the database is combined with data from the GAE
 
-    1 Columns:
-    1 1) apellido  
-    1 2) nombre    
-    1 3) ads_str   
-    1 4) dni
-    1 5) ynac      
-    1 6) cic (+)
-    1 7) docencia (+)
-    1 8) area (+)
-    1 9) orcid (+)
-    1 10) use_orcid (+) 
+    | Columns:
+    | 1) apellido  
+    | 2) nombre    
+    | 3) ads_str   
+    | 4) dni
+    | 5) ynac      
+    | 6) cic (+)
+    | 7) docencia (+)
+    | 8) area (+)
+    | 9) orcid (+)
+    | 10) use_orcid (+) 
 
     Returns:
     D: DataFrame containing the data
@@ -580,16 +580,16 @@ def S02_add_CIC_data(*args):
 
     In this step, the database is combined with data from the GAE
 
-    1 Columns:
-    1 1) apellido
-    1 2) nombre
-    1 3) categoria (+)
-    1 4) area (+)
-    1 5) subarea (+)
-    1 6) ue (+)
-    1 7) l (+)
-    1 8) tema (+)
-    1 9) sn (+)
+    | Columns:
+    | 1) apellido
+    | 2) nombre
+    | 3) categoria (+)
+    | 4) area (+)
+    | 5) subarea (+)
+    | 6) ue (+)
+    | 7) l (+)
+    | 8) tema (+)
+    | 9) sn (+)
 
     Returns:
     D: DataFrame containing the data
@@ -903,6 +903,17 @@ def S04_pub_clean_papers(*args):
 def S04_make_pages(*args):
     """
     STEP: S04_make pages
+
+    Generate web pages with the list of candidate publication entries. Each entry has a checkbox
+    that, when marked, selects the entry for elimination of the list.
+    The webpage allows check "by eye" the list of entries and to save a filter to further clean the 
+    list of publications. Additionally, the page contains links to the ADSABS pages of each author,
+    preselected with the following criteria:
+    - less than 50 authors
+    - refereed papers
+    - Q1 journals
+
+    When used, this function generates and writes 
 
     Returns:
     D: DataFrame containing the data (including journal index)

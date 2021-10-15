@@ -7,9 +7,21 @@
 ASTROGEN - Astronomy and Gender in Argentina
 *************************************************************
 
-
 ASTROGEN is a project devoted to the formal statistical analysis
 of the gender representations in the astronomical community in Argentina.
+
+
+********************
+Project
+********************
+
+.. toctree::
+   :maxdepth: 2
+
+   project/datapipeline
+   project/proposal
+   project/references
+   project/aboutus
 
 
 ********************
@@ -23,18 +35,6 @@ Here we describe the tools (software) to retrieve, curate and analyze data relat
 
    api/astrogen_utils
    api/pipeline
-
-********************
-Project
-********************
-
-.. toctree::
-   :maxdepth: 2
-
-   project/datapipeline
-   project/proposal
-   project/references
-   project/aboutus
 
 
 ********************
