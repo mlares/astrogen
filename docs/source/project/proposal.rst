@@ -1,4 +1,4 @@
-Proposal: Gender bias in Argentina
+Proposal
 ====================================
 
 Methods
@@ -27,40 +27,18 @@ Métodos:
    - machine learning
 
 
-Data sources
-----------------
-
-relevamiento de datos con datos abiertos
-
-
- - CONICET, "gobierno abierto > conicet en cifras"
-   https://cifras.conicet.gov.ar/publica/
-
- - CONICET, "conicet digital" Repositorio institucional
-   https://ri.conicet.gov.ar
-
- - Publicaciones: ADSABS / PINNACLE
-
- - Programas / premios / becas exclusivos para mujeres
-
- - Criterios de balance de género en comunidades desbalanceadas
-
-
-Data curation
-
-- explorar los resultados del ADS
-- asignación de género a los nombres
-  (dificultades cuando aparece solo el apellido)
-  cruzar con bases de datos de la AAA
-
-
 Data analysis
 --------------
 
-hacer un análisis estadístico de los datos 
+Statistical analysis of the following aspects on the astronomy career
+in Argentina:
 
-Gender representation in:
+* Gender representation in the academic career in Universities
+* Gender representation in scholarships (CONICET)
+* Gender representation in permanent positions (CIC, CONICET)
+* Gender representation in evaluation committees
+* Gender differences in scientific production metrics
+* Gender differences in the academic performance in Universities
 
-- Academic career in Universities
-- Permanent positions (CIC, categorías)
-- Evaluation (comisiones evaluadoras: becas, ingresos, ascensos)
+
+

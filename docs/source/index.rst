@@ -3,38 +3,48 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+|
+
+.. image:: ./img/astrogen_logo.png
+    :width: 150
+    :align: center
+    :alt: logo
+
+|
+
 *************************************************************
-ASTROGEN - Astronomy and Gender in Argentina
+Astronomy and Gender in Argentina
 *************************************************************
+
 
 ASTROGEN is a project devoted to the formal statistical analysis
 of the gender representations in the astronomical community in Argentina.
 
-
-********************
-Project
-********************
-
 .. toctree::
+   :numbered:
    :maxdepth: 2
+   :caption: Project
+   :name: mastertoc
 
-   project/datapipeline
+
    project/proposal
+   project/datapipeline
    project/references
+   project/output
    project/aboutus
 
-
-********************
-API documentation
-********************
 
 Here we describe the tools (software) to retrieve, curate and analyze data related to the project.
 
 .. toctree::
+   :numbered:
    :maxdepth: 2
+   :caption: API documentation
+   :name: apitoc
 
    api/astrogen_utils
    api/pipeline
+   api/example
 
 
 ********************

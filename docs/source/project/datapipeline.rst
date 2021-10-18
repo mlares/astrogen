@@ -3,135 +3,95 @@ Data pipeline
 
 (these links are temporarily restricted to authors)
 
-   + `Shared Drive <https://drive.google.com/drive/u/1/folders/0AN-YzcZ1W14wUk9PVA>`_
-   + `Github repository <https://github.com/mlares/astrogen>`_
-   + `Overleaf document <https://www.overleaf.com/project/60d0fe7480df9741fb8eb662>`_
+   + `Shared Drive with data warehouse <https://drive.google.com/drive/u/1/folders/0AN-YzcZ1W14wUk9PVA>`_ (requires access rights)
+   + `Github repository for codes <https://github.com/mlares/astrogen>`_
+   + `Overleaf document for paper <https://www.overleaf.com/project/612e7975fb24d63d9eef8aeb>`_ (requires access rights)
+   + `Data repository <https://datadryad.org/stash>`_ (comming soon)
 
 
 Get data
 --------------------
 
-* datos del ADS
+The data used in this work has been collected from several sources,
+namely:
 
-* planillas del CONICET
-  + completar con lo que haga falta
+* `Astronomical Data System <https://ui.adsabs.harvard.edu>`_
 
+* `CONICET <https://www.conicet.gov.ar/gobierno-abierto/>`_
 
-* planillas de socios de la AAA
-   
-   + planillas actualizadas, históricas?
-   + no anda el link en la página a la planilla de socios
+ - CONICET, "gobierno abierto > conicet en cifras"
+   https://cifras.conicet.gov.ar/publica/
+ - CONICET, "conicet digital" Repositorio institucional
+   https://ri.conicet.gov.ar
+ 
 
-* listas de integrantes de instituciones
-   + IATE, IAFE, ICATE, CASLEO, UNLP, PierreAuger, ...
-   + preguntar en los CCT?<
+* `Asociación Argentina de Astronomía <http://www.astronomiaargentina.org.ar>`_
 
+* Astronomy Institutions in Argentina:
 
-clean & curation
+  + `IATE <http://iate.oac.uncor.edu>`_
+  + `IAFE <http://www.iafe.uba.ar>`_
+  + `ICATE <https://icate.conicet.gov.ar>`_
+  + `IALP <http://ialp.fcaglp.unlp.edu.ar>`_
+  + `OAC <https://oac.unc.edu.ar>`_
 
-Asignar géneros por nombre
+* Universities in Argentina
 
-
-
-Analysis
----------
-
-Tomar la tabla de datos de socios de la AAA y limpiarla a mano en XLSX
-
---> data/redux/astro_arg.xlsx
-
-Usar los archivos cross... para agregar las tabs a la tabla XLSX
-
-
-NOTAS: El orcid es por autor, asi que se puede hacer al principio
-La indexación es lenta, asi que conviene hacerla despues de limpiar
-los papers.
-
-D_value_added.pk, papers_cleaned.pk, scimagojr.csv → **pub_journals.py**
-**pub_journals.py** → pickles/Qs_saved.pk
+  + `UNC <https://www.unc.edu.ar>`_
+     + `Lic. en Astronomía <https://www.famaf.unc.edu.ar/academica/grado/licenciatura-en-astronom%C3%ADa/>`_
+     + `Statistical data <https://www.unc.edu.ar/programa-de-estad%C3%ADsticas-universitarias/anuarios-estad%C3%ADsticos>`_
+  + `UNLP <https://unlp.edu.ar>`_
+  + `UNSJ <http://www.unsj.edu.ar>`_
 
 
-Proceso sobre los papers:
+Feature construction
+---------------------
 
-clean: pasar el modelo SVM
-select: criterios de autores y papers
+
+* Age: We performed a non-linear least squares regression for the
+  variables "DNI" and age, using as the training dataset that of the
+  AAA original table.
+
+* Gender: We use the `table
+  <https://gist.github.com/muatik/10500344>`_ compiled by `Mustafa
+  Atik <https://gist.github.com/muatik>`_ to assign gender on the
+  basis of the names. We have also tried other tools, e.g.
+  `genderize.io <https://genderize.io>`_, throught the client
+  `https://github.com/SteelPangolin/genderize <genderize>`_, `GenderAPI <https://gender-api.com/en/api-docs>`_ web tool, with the same results.
 
 
 
 Publications
 -----------------------------
 
-Parte de la planilla del Google Drive: astro_all.xlsx
-
-que contiene las columnas:
-
-
-1) descargar todos los papers del ADS
-.........................................
-
-+ code: pub_get_ads_entries.py 
-  + lee: astro_all.xlsx
-  + escribe: data/ADS/papers_*.pk
+We have performed a detailed analysis of publication data for each
+author. The process involves the following steps:
 
 
-2) agregar ORCIDs
-.......................
+* Download ADS publication data for each author using the name as the
+  search key. At this stage we use the python packages `ADS <https://ads.readthedocs.io/en/latest/>`_ and
+  `PINNACLE <https://pinnacle.readthedocs.io/en/latest/?badge=latest>`_.
 
-El script genera un script de descarga, que hay que correr aparte, y
-luego los lee con python y los agrega en el campo 'orcid_tent'
+* Search and add ORCID keys
 
-+ code: pub_get_orcids.py
-  + lee: astro_all.xlsx (nombre y apellido)
-  + escribe: data/pickles/D_orcids.pk
+* Train, evaluate and apply a machine learning model to clean the sample of papers. This is required since the search by name often return the entries for
+  several authors with similar names.
 
+* Add metrics for journals, taking data from `SCImago Journal & Country Rank public portal <https://www.scimagojr.com>`_
 
-
-3) Entrenar modelo de ML para limpiar papers
-.............................................
+* Add publication metrics
 
 
-+ code: ads_names.py
-  + lee: astro_all.xlsx, papers_saved.pk
-  + escribe: ...data/ADS/papers_learn.csv
+The curated dataset allows to construct sevarl indices:
+
++ number of authors per article
++ number of articles per author
++ number of articles per author, as leading author
++ distribution in time of articles
++ H-index
++ relative position of a given author in the authors list
 
 
 
-4) Generar modelo de ML para limpiar papers
-............................................
-
-+ code: ML_model.ipynb
-  + lee: papers_learn.csv
-  + escribe: SVM_model.joblib
 
 
-5) limpiar papers por nombres de autores
-.........................................
-
-+ code:
-  + lee: SVM_model.joblib
-  + escribe:
-
-
-6) Agregar métricas y listas de publicaciones
-.............................................
-
-+ code: pub_value_added.py
-  + lee:
-  + escribe:
-
-Agrega las columnas:
-  » D['Npapers'] = add_auth_Npprs
-  » D['auth_pos'] = add_auth_pos
-  » D['auth_num'] = add_auth_num
-  » D['auth_inar'] = add_auth_inar
-  » D['auth_citas'] = add_auth_citas
-
-
-7) preparar indexación de los journals
-.........................................
-
-
-8) agregar indexación de los journals
-.........................................
-
---- pub_journal_index.py
