@@ -194,6 +194,10 @@ def pickone(df, au, sift):
     sift[ind] = True
     return sift
  
+def similar(a, b):
+    r = SequenceMatcher(None, a, b).ratio()
+    return r
+
 
 # TEXT MANIPULATION ::::::::::::::::::::::::::::::::::::::::::::
 

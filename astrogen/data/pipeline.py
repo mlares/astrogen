@@ -6,12 +6,28 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 import numpy as np
 from scipy.optimize import curve_fit
-from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
-from astrogen_utils import initials, getinitials, pickone
 import pickle
 import ads
 from sys import argv
 from Parser import Parser
+import difflib
+from os import path, system
+from os.path import join as pathjoin
+import numpy as np
+from tqdm import tqdm
+import re
+import jellyfish
+from joblib import dump, load
+from io import StringIO
+import jinja2
+ 
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import csv
+from difflib import SequenceMatcher
+      
+from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
+from astrogen_utils import initials, getinitials, pickone, similar
  
 # avoid SettingWithCopyWarning
 # (see https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy)
@@ -20,8 +36,8 @@ from Parser import Parser
 
 def get_filters_by_names(D, UE):
     """
-    Given two dataframes with "nombre" key, find the entries in the second dataframe
-    that match any entry in the first dataframe.
+    Given two dataframes with "nombre" key, find the entries in the 
+    second dataframe (UE) that match any entry in the first dataframe.
 
     Args:
     D: DataFrame, base data
@@ -791,8 +807,11 @@ def S04_pub_get_ads_entries(*args):
         D.use_orcid[D.use_orcid.isna()] = 0
     N = D.shape[0]
 
+    print('GET ADS DATA')
+
     # ############################################## DOWNLOAD DATA      
     for i in range(N):
+        print(i, N)
         x = D.iloc[i]
         ap = x.apellido.title()
         fname_ap = '_'.join(ap.split())
@@ -811,7 +830,6 @@ def S04_pub_get_ads_entries(*args):
             OPTS['author'] = auth
 
         papers = list(ads.SearchQuery(**OPTS))
-
         filen = '../../data/interim/ADS/' + fname + '.pk'
         with open(filen, 'wb') as f:
             pickle.dump(papers, f)
@@ -857,13 +875,81 @@ def S04_pub_journal_index(*args):
     """
     D = args[0]
     # PLACEHOLDER
+
+
+    ###############################
+    ###############################
+    ###############################
+        
+    fileD = '../../data/pickles/papers_cleaned.pk'
+    with open(fileD, 'rb') as f:
+       papers = pickle.load(f)
+
+    # JOURNALS DATA ····································
+    stop_words = set(stopwords.words('english'))
+    journals = []
+    with open('../../data/external/scimagojr.csv', newline='') as csvfile:
+        s = csv.reader(csvfile, delimiter=';')
+
+        for row in s:
+            jname = row[2].lower()
+            word_tokens = word_tokenize(jname)
+            fname = [w for w in word_tokens if w not in stop_words]
+            sent1 = ' '.join(fname)
+            sent1 = sent1.replace('/', '')
+            row[2] = sent1
+            journals.append(row)  
+
+
+    # PUBLICATIONS DATA ································
+    pubs = []
+    for p in tqdm(papers):
+        for ip in p:
+            jname = ip.pub.lower()
+            word_tokens = word_tokenize(jname)
+            fname = [w for w in word_tokens if w not in stop_words]
+            sent1 = ' '.join(fname)
+            sent1 = sent1.replace('/', '')
+            name = sent1 
+            pubs.append(name)
+    myset = set(pubs)
+    ppubs = list(myset)  # lista de nombres de journals sin repeticion
+
+
+    # MATCH ···············································
+    match = 0
+    jname = []
+    jq = []
+    for p in tqdm(ppubs):
+        qs = []
+        for Journal in journals:
+            journal = Journal[2]
+            s1 = similar(p, journal)
+            s2 = jellyfish.jaro_winkler(p, journal)
+            if s1 > 0.92 and s2 > 0.92:
+                print(f'{s1:.2f} {s2:.2f} -- {p} -- {journal}')
+                qs.append(Journal[6])
+        if len(qs)>0:
+            Q = min(qs)
+            jname.append(p)
+            jq.append(Q)
+
+
+    fileD = '../../data/interim/Qs_saved.pk'
+    with open(fileD, 'wb') as f:
+       pickle.dump([jname, jq], f)
+     
+    ###############################
+    ###############################
+    ###############################
+
     yield D
 
 def S04_pub_clean_papers(*args):
     D = args[0]
 
     # CARGAR MODELO :::::::::::::::::::::::::::::::::::::::::
-    clf, scaler = load('SVM_model_pars.joblib')
+    clf, scaler = load('../../models/SVM_model_pars.joblib')
                             
 
     # FILTRAR: calcular el filtro :::::::::::::::::::::::::
@@ -920,6 +1006,171 @@ def S04_make_pages(*args):
     """
     D = args[0]
     # PLACEHOLDER
+
+#################################
+#################################
+#################################
+
+
+
+
+    #---------------------------------------------------------
+
+    def gen_spreadsheet(auth, papers):
+
+        lst_title = []
+        lst_auths = []
+        lst_affs = []
+        lst_año = []
+        lst_journal = []
+        lst_auth_aff = []
+        lst_auth_nam = []
+        lst_auth_selected = []
+        lst_bibcode = []
+
+        lst = range(len(papers))
+        apos = auth.auth_pos
+
+        s1 = 'https://ui.adsabs.harvard.edu/abs/'
+        s2 = '/abstract'
+
+        aind = np.arange(auth.Npapers)[auth.filter_papers]
+
+        for i in lst:
+            p = papers[i]
+
+            aux = p.aff.copy()
+            aux[auth.auth_pos[aind[i]]] = '<b>' + \
+                                    aux[auth.auth_pos[aind[i]]] + \
+                                    '</b>'
+            lst_affs.append(aux)
+
+            aux = p.author.copy()
+            aux[auth.auth_pos[aind[i]]] = '<b>' + \
+                                    aux[auth.auth_pos[aind[i]]] + \
+                                    '</b>'
+            lst_auths.append(aux)
+
+
+            lst_title.append(p.title[0])
+            lst_año.append(p.year)
+            lst_journal.append(p.pub)
+            lst_bibcode.append(f'{s1}{p.bibcode}{s2}')
+
+            #lst_auth_selected.append(p.filter_authors)
+
+            #k = apos[i]
+            #lst_auth_aff.append(p.aff[k])
+            #lst_auth_nam.append(p.author[k])
+
+        df = pd.DataFrame({'Título': lst_title,
+                           'Autores': lst_auths,
+                           #'auth_name': lst_auth_nam,
+                           'Afiliaciones': lst_affs,
+                           #'auth_aff': lst_auth_aff,
+                           'Año': lst_año,
+                           'Journal': lst_journal,
+                           'adsurl': lst_bibcode
+                           })
+                           #'selected': lst_auth_selected})
+        return df
+     
+    #---------------------------------------------------------
+     
+    fileD = '../../data/pickles/D_selected.pk'
+    with open(fileD, 'rb') as f:
+       D = pickle.load(f)
+    D['cic'].fillna(value='X', inplace=True)
+
+    fileD = '../../data/pickles/papers_selected.pk'
+    with open(fileD, 'rb') as f:
+       papers = pickle.load(f)
+
+    #---------------------------------------------------------
+
+    source_dir = './'
+    template_file = 'template.html'
+    templateLoader = jinja2.FileSystemLoader(searchpath=source_dir)
+     
+    latex_jinja_env = jinja2.Environment(
+        block_start_string=r"\BLOCK{",
+        block_end_string='}',
+        variable_start_string=r'\VAR{',
+        variable_end_string='}',
+        comment_start_string=r'\#{',
+        comment_end_string='}',
+        line_statement_prefix='%%',
+        line_comment_prefix='%#',
+        trim_blocks=True,
+        autoescape=False,
+        loader=templateLoader
+    )
+    template_page = latex_jinja_env.get_template(template_file)
+
+    #---------------------------------------------------------
+
+    # checkboxes
+    s1 = '<input type="checkbox" name="check'
+    s2 = '" value="" /><br>'
+
+    # urls
+    s3 = '<a href="'
+    s4 = '">link</a>'
+
+    pd.options.display.html.border = 1
+
+    for kounter, i in enumerate(D.index):
+        auth = D.loc[i]
+
+        print(i, auth.apellido)
+
+        k = D.index.get_loc(i)
+        p = papers[k]
+        df = gen_spreadsheet(auth, p)
+
+        df.sort_values(by=['Año'], axis='index', inplace=True)
+        S = [f'{s1}{str(i+1).zfill(3)}{s2}' for i in range(df.shape[0])]
+        df['exclude'] = S
+
+        url = [f'{s3}{r}{s4}' for r in df.adsurl]
+        df['linkurl'] = url
+        title_links = df.apply(lambda x: x.linkurl.replace('link', x.Título), axis=1)
+        if sum(auth.filter_papers)>0:
+            df['title_links'] = title_links
+        else:
+            df['title_links'] = [] 
+        df['counter'] = np.arange(1,df.shape[0]+1)
+
+        dfo = df.iloc[:, [9,3,4,8,6,1,2]].copy()
+
+        dfo = dfo.assign(Autores=dfo.Autores.apply(lambda x: '<br>'.join(x)))
+        dfo = dfo.assign(Afiliaciones=dfo.Afiliaciones.apply(lambda x: '<br>'.join(x)))
+
+        N = df.shape[0]
+
+        #--- template
+        str_io = StringIO()
+        dfo.to_html(buf=str_io, index=False, index_names=False, escape=False)
+        html_str = str_io.getvalue()
+
+        fname = (f'../../data/ADS/htmls/{str(kounter).zfill(3)}_{str(i).zfill(3)}_'
+                 f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.html')
+        fout = f'{str(kounter).zfill(3)}_{str(i).zfill(3)}_{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.txt'
+
+        filename = pathjoin(source_dir, fname)
+        target = open(filename, 'w')
+        target.write(template_page.render(N=N,
+                                          html_str=html_str,
+                                          auth=auth,
+                                          filedata=fout))
+        target.close()
+
+
+     
+#################################
+#################################
+#################################
+
     yield D
 
 def S04_pub_value_added(*args):
@@ -989,6 +1240,9 @@ def TST_filter_subset(*args):
     D = D.iloc[400:420]
     yield D
 
+
+# > > > PIPELINE < < <
+
 def data_pipeline(**options):
     """
     This function builds the graph that needs to be executed.
@@ -1000,7 +1254,7 @@ def data_pipeline(**options):
 
     graph.add_chain(S01_read_aaa_table,
                     S02_add_OAC_data,
-                    #S02_add_IATE_data,
+                    S02_add_IATE_data,
                     #S02_add_IALP_data,
                     #S02_add_GAE_data,
                     #S02_add_IAFE_data,
@@ -1012,8 +1266,9 @@ def data_pipeline(**options):
                     S03_clean_and_sort,
                     TST_filter_subset,
                     ##
-                    #S04_pub_get_ads_entries,
+                    S04_pub_get_ads_entries,
                     #S04_pub_get_orcids,
+                    S04_pub_clean_papers,
                     #S04_pub_journal_index,
                     #S04_pub_value_added,
                     load)
