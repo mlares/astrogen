@@ -195,7 +195,7 @@ def pickone(df, au, sift):
     return sift
  
 def similar(a, b):
-    r = SequenceMatcher(None, a, b).ratio()
+    r = difflib.SequenceMatcher(None, a, b).ratio()
     return r
 
 
