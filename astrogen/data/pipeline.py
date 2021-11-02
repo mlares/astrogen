@@ -258,6 +258,16 @@ def gen_spreadsheet(auth, papers):
 
     aind = np.arange(auth.Npapers)[auth.filter_papers]
 
+    if len(aind)<1:
+        df = pd.DataFrame({'Título': lst_title,
+                           'Autores': lst_auths,
+                           'Afiliaciones': lst_affs,
+                           'Año': lst_año,
+                           'Journal': lst_journal,
+                           'adsurl': lst_bibcode
+                          })
+        return df
+
     for i in lst:
         p = papers[i]
 
@@ -273,7 +283,10 @@ def gen_spreadsheet(auth, papers):
                                 '</b>'
         lst_auths.append(aux)
 
-        lst_title.append(p.title[0])
+        if isinstance(p.title, str):
+            lst_title.append(p.title[0])
+        else:
+            lst_title.append('')
         lst_año.append(p.year)
         lst_journal.append(p.pub)
         lst_bibcode.append(f'{s1}{p.bibcode}{s2}')
@@ -1004,8 +1017,6 @@ def S04_pub_filter_criteria(*args):
     D.edad.fillna(0, inplace=True)
     f_edad = D.edad.between(25, 80)
 
-    return D
-
     # fraccion de papers con afiliación en Argentina
     f_ar = D.apply(lambda x: x.auth_inar.count(1)/max(x.Npapers, 1), axis=1)
 
@@ -1015,10 +1026,6 @@ def S04_pub_filter_criteria(*args):
                                         np.array(x.auth_Q)==1)) / 
                      max(sum(np.array(x.auth_Q)==1),1), axis=1)
 
-
-    x.auth_Q tiene que ser un NUMEROOOOOO
-
-
     f_arq1 = f_arq1 > 0.75
 
     # año de la ultima publicación (activo en los ultimos 5 años)
@@ -1027,74 +1034,228 @@ def S04_pub_filter_criteria(*args):
     # arreglar a mano algunos autores:
     f_arq1[372] = True  # merchan, hay otro merchan afuera
 
+    # elegir f_ar o f_arq1 para tomar papers Q1
+    filter_authors = f_edad & f_last & f_arq1
 
-#    # elegir f_ar o f_arq1 para tomar papers Q1
-#    filter_authors = f_edad & f_last & f_arq1
-#
-#    D['filter_authors'] = filter_authors
-#    D['ID'] = range(D.shape[0])
-#
-#    D_selected = D[D.filter_authors].copy()
-#
-#    # -----  -----  -----  -----  -----  -----  -----  -----  FILTER PAPERS
-#
-#    # limitar el numero de autores
-#    Nmax = 50
-#    f_lessauth = D_selected.auth_num.apply(lambda x: np.array(x)<=Nmax)
-#
-#    # papers que son Q1
-#    # f_Q1 = D_selected.auth_Q.apply(lambda x: np.array(x)==1)
-#
-#    # papers con menos de 50 autores en revistas Q1
-#    filter_papers =  D_selected.apply(lambda x: 
-#                             np.logical_and(np.array(x['auth_num'])<50, 
-#                                            np.array(x['auth_Q'])==1),
-#                             axis=1)
-#    D_selected['filter_papers'] = filter_papers
-#
-#    Z = zip(filter_papers.values,
-#            compress(papers, filter_authors))
-#
-#    k = 0
-#    papers_selected = []
-#    for f, p in Z:
-#        k+=1
-#
-#        if sum(f)>0:
-#            pp = list(compress(p, f))
-#        else:
-#            pp = []
-#        papers_selected.append(pp)
-#
-#    # check (tiene que dar igual)
-#    k = 12 
-#    print(sum(D_selected.iloc[12].filter_papers))
-#    print(len(papers_selected[12]))
-#
-#    # -----  -----  -----  -----  -----  -----  -----  -----  -----  -----
-#    fileD = '../../data/pickles/D_selected.pk'
-#    with open(fileD, 'wb') as f:
-#       pickle.dump(D_selected, f)
-#
-#    fileD = '../../data/pickles/papers_selected.pk'
-#    with open(fileD, 'wb') as f:
-#       pickle.dump(papers_selected, f)
-#
-#    ## -----  -----  -----  -----  -----  -----  -----  -----  -----  -----
-#    #def printdf(df, L, columns=[]):
-#    #    N = df.shape[0]
-#    #    k, k2 = 0, 0
-#    #    while k2<N:
-#    #        k1 = k*L
-#    #        k2 = (k+1)*L
-#    #        print(k1, k2)
-#    #        k += 1
-#    #        print(df.iloc[k1:k2][columns])
-#    #        input()
-#    #df = D[D.filter_authors]
-#    #printdf(df, 20, ['apellido', 'nombre', 'edad'])
-#    yield D
 
+
+    # TEST / / / / / / / / / / / / / /   (borrar)
+
+    filter_authors = np.logical_or(filter_authors, True)
+    
+    # TEST / / / / / / / / / / / / / / 
+
+
+
+    D['filter_authors'] = filter_authors
+    D['ID'] = range(D.shape[0])
+    D_selected = D[D.filter_authors].copy()
+
+    # -----  -----  -----  -----  -----  -----  -----  -----  FILTER PAPERS
+
+    # limitar el numero de autores
+    Nmax = 50
+    f_lessauth = D_selected.auth_num.apply(lambda x: np.array(x)<=Nmax)
+
+    # papers que son Q1
+    f_Q1 = D_selected.auth_Q.apply(lambda x: np.array(x)==1)
+
+    # papers con menos de 50 autores en revistas Q1
+    filter_papers =  D_selected.apply(lambda x: 
+                             np.logical_and(np.array(x['auth_num'])<50, 
+                                            np.array(x['auth_Q'])==1),
+                             axis=1)
+
+
+    # TEST / / / / / / / / / / / / / /  (borrar)
+
+    filter_papers = D_selected.apply(lambda x: [True for i in
+        range(x.Npapers)], axis=1)
+    
+    # TEST / / / / / / / / / / / / / / 
+
+    if len(filter_papers)==0:
+        filter_papers = D_selected.apply(lambda x: [True for i in
+            range(x.Npapers)], axis=1)
+    D_selected['filter_papers'] = filter_papers
+
+    yield D_selected
+
+
+# -> auth_Q
+def S04_gen_journal_index(*args):
+    """
+    STEP: S04_gen_journal_index
+
+    Create a table with:
+    1) journal name
+    2) journal Q
+
+    for all the journals in the papers list.
+    This function must be run one time only, to generate the 
+    """
+    D = args[0]
+
+    # JOURNALS DATA ····································
+    stop_words = set(stopwords.words('english'))
+    journals = []
+    with open('../../data/external/scimagojr.csv', newline='') as csvfile:
+        s = csv.reader(csvfile, delimiter=';')
+        for row in s:
+            jname = row[2].lower()
+            word_tokens = word_tokenize(jname)
+            fname = [w for w in word_tokens if w not in stop_words]
+            sent1 = ' '.join(fname)
+            sent1 = sent1.replace('/', '')
+            row[2] = sent1
+            journals.append(row)  
+
+    jnames = []
+    jqs = []
+    lst = D.index
+    apin = []
+    for i in tqdm(lst): # LISTA DE AUTORES
+        x = D.loc[i]
+        papers = get_papers_from_df(x)
+
+        # PUBLICATIONS DATA ································
+        # la lista de todos los journals para este autor
+        pubs = []
+        for ip in papers:
+            jname = ip.pub.lower()
+            word_tokens = word_tokenize(jname)
+            fname = [w for w in word_tokens if w not in stop_words]
+            sent1 = ' '.join(fname)
+            sent1 = sent1.replace('/', '')
+            name = sent1 
+            pubs.append(name)
+        myset = set(pubs)
+        ppubs = list(myset)  # lista de nombres de journals sin repeticion
+
+        # MATCH ···············································
+        match = 0
+        jname = []
+        jq = []
+        for p in ppubs:
+            qs = []
+            for Journal in journals:
+                journal = Journal[2]
+                s1 = similar(p, journal)
+                s2 = jellyfish.jaro_winkler(p, journal)
+                if s1 > 0.92 and s2 > 0.92:
+                    #print(f'{s1:.2f} {s2:.2f} -- {p} -- {journal}')
+                    qs.append(Journal[6])
+            if len(qs)>0:
+                Q = min(qs)
+                jname.append(p)
+                Qnum = int(Q[1]) if len(Q)>1 else 0
+                jq.append(Qnum)
+
+        # la lista unica de journals y sus Qs
+        jnames.append(jname)
+        jqs.append(jq)
+    fileD = '../../data/interim/Qs_saved.pk'
+    with open(fileD, 'wb') as f:
+        pickle.dump([jname, jq], f)
+    return None
+
+
+def S04_pub_journal_index(*args):
+    """
+    STEP: S04_pub_journal_index
+
+    In this step, journals are assigned an index taken from the
+    Scimago Journal Index (Guerrero-Botea & Moya-Anegón, 2021,
+    Journal of infometrics, 6, 674)
+
+    Returns:
+    D: DataFrame containing the data (including journal index)
+
+    """
+    D = args[0]
+
+    stop_words = set(stopwords.words('english'))
+    fileD = '../../data/interim/Qs_saved.pk'
+    with open(fileD, 'rb') as f:
+       jname, jq = pickle.load(f)
+
+    N = D.shape[0]
+    add_auth_Q = []
+    add_cita_N = []
+
+    for i in tqdm(range(N)):
+        x = D.iloc[i]
+        p = get_papers_from_df(x)
+        auth_Q = []
+        cita_N = []
+
+        for ip in p:
+
+            jn = ip.pub.lower()
+            word_tokens = word_tokenize(jn)
+            fname = [w for w in word_tokens if w not in stop_words]
+            sent1 = ' '.join(fname)
+            journalname = sent1.replace('/', '')
+            s1m = 0
+            s2m = 0
+
+            for j, q in zip(jname, jq):
+                s1 = similar(j, journalname)
+                s2 = jellyfish.jaro_winkler(j, journalname)
+                if s1 > s1m and s2 > s2m:
+                    s1m, s2m = s1, s2
+                    #Q = int(q[1]) if 'Q' in q else 0
+                    Q = q
+
+            if s1m<0.92 or s2m<0.92:
+                Q = 0
+            auth_Q.append(Q)
+            cita_N.append(ip.citation_count)
+
+        add_auth_Q.append(auth_Q)
+        add_cita_N.append(cita_N)
+
+    D['auth_Q'] = add_auth_Q
+    D['cita_Q'] = add_cita_N
+
+    H = []
+    for i in tqdm(range(N)):
+        x = D.iloc[i]
+        c = np.array(x.cita_Q)
+        c = c[c != np.array(None)]
+        c.sort()
+        c = np.flip(c)
+
+        Hindex = 0
+        for i, cc in enumerate(c):
+            if cc is None:
+                pass
+            else:
+                if cc<i:
+                    Hindex = i
+                    break
+        H.append(Hindex)
+
+    D['Hindex'] = H
+
+    A_add = []
+    for i in tqdm(range(N)):
+        x = D.iloc[i]
+
+        p = get_papers_from_df(x)
+
+        A = []
+        for ip in p:
+            A.append(int(ip.year))
+        A_add.append(A)
+
+    D['pub_años'] = A_add
+
+    yield D
+ 
+
+
+# -> auth_inar
 def S04_pub_add_metrics(*args):
     D = args[0]
 
@@ -1116,6 +1277,9 @@ def S04_pub_add_metrics(*args):
         auth = ', '.join([ap, getinitials(nm)]) 
 
         p = get_papers_from_df(x)
+
+        print(len(p))
+
         add_auth_Npprs.append(len(p))
         Npapers = 0
         k = 0
@@ -1125,8 +1289,8 @@ def S04_pub_add_metrics(*args):
         auth_citas = []
         auth_inar = []
         coauth_inar = []
-
         for ip in p:
+
             k = k+1
             t = ip.title
             a = ip.author
@@ -1171,105 +1335,13 @@ def S04_pub_add_metrics(*args):
         add_auth_inar.append(auth_inar)
         add_auth_citas.append(auth_citas)
 
-
     D['Npapers'] = add_auth_Npprs
     D['auth_pos'] = add_auth_pos
     D['auth_num'] = add_auth_num
     D['auth_inar'] = add_auth_inar
     D['auth_citas'] = add_auth_citas
     yield D
-
-def S04_pub_journal_index(*args):
-    """
-    STEP: S04_pub_journal_index
-
-    In this step, journals are assigned an index taken from the
-    Scimago Journal Index (Guerrero-Botea & Moya-Anegón, 2021,
-    Journal of infometrics, 6, 674)
-
-    Returns:
-    D: DataFrame containing the data (including journal index)
-
-    """
-    D = args[0]
-
-    ###############################
-    ###############################
-    ###############################
-        
-    # JOURNALS DATA ····································
-    stop_words = set(stopwords.words('english'))
-    journals = []
-    with open('../../data/external/scimagojr.csv', newline='') as csvfile:
-        s = csv.reader(csvfile, delimiter=';')
-
-        for row in s:
-            jname = row[2].lower()
-            word_tokens = word_tokenize(jname)
-            fname = [w for w in word_tokens if w not in stop_words]
-            sent1 = ' '.join(fname)
-            sent1 = sent1.replace('/', '')
-            row[2] = sent1
-            journals.append(row)  
-
-    jnames = []
-    jqs = []
-
-    lst = D.index
-    apin = []
-    for i in tqdm(lst): # LISTA DE AUTORES
-        x = D.loc[i]
-
-        ap = x.apellido.title()
-        fname_ap = '_'.join(ap.split())
-        nm = x.nombre
-        fname_nm = ''.join([a[0].upper() for a in nm.split()])
-        fname = '_'.join([fname_ap, fname_nm])
-        file_papers = '../../data/interim/ADS/' + fname + '_C1.pk' 
-
-        with open(file_papers, 'rb') as f:
-            papers = pickle.load(f)
-
-
-        # PUBLICATIONS DATA ································
-        pubs = []
-        for ip in papers:
-            jname = ip.pub.lower()
-            word_tokens = word_tokenize(jname)
-            fname = [w for w in word_tokens if w not in stop_words]
-            sent1 = ' '.join(fname)
-            sent1 = sent1.replace('/', '')
-            name = sent1 
-            pubs.append(name)
-        myset = set(pubs)
-        ppubs = list(myset)  # lista de nombres de journals sin repeticion
-
-
-        # MATCH ···············································
-        match = 0
-        jname = []
-        jq = []
-        for p in ppubs:
-            qs = []
-            for Journal in journals:
-                journal = Journal[2]
-                s1 = similar(p, journal)
-                s2 = jellyfish.jaro_winkler(p, journal)
-                if s1 > 0.92 and s2 > 0.92:
-                    #print(f'{s1:.2f} {s2:.2f} -- {p} -- {journal}')
-                    qs.append(Journal[6])
-            if len(qs)>0:
-                Q = min(qs)
-                jname.append(p)
-                jq.append(Q)
-
-        jnames.append(jname)
-        jqs.append(jq)
-
-    D['jnames'] = jnames
-    D['auth_Q'] = jqs
-
-    yield D
+ 
 
 def S04_make_pages(*args):
     """
@@ -1319,6 +1391,7 @@ def S04_make_pages(*args):
     s3 = '<a href="'
     s4 = '">link</a>'
 
+    source_dir = '../../data/interim/ADS/htmls/'
     for kounter, i in enumerate(D.index):
         auth = D.loc[i]
         #print(i, auth.apellido)
@@ -1364,7 +1437,7 @@ def S04_make_pages(*args):
         dfo.to_html(buf=str_io, index=False, index_names=False, escape=False)
         html_str = str_io.getvalue()
 
-        fname = (f'../../data/interim/ADS/htmls/{str(kounter).zfill(3)}_{str(i).zfill(3)}_'
+        fname = (f'{str(kounter).zfill(3)}_{str(i).zfill(3)}_'
                  f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.html')
         fout = f'{str(kounter).zfill(3)}_{str(i).zfill(3)}_{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.txt'
 
@@ -1376,11 +1449,6 @@ def S04_make_pages(*args):
                                           filedata=fout))
         target.close()
 
-
-     
-#################################
-#################################
-#################################
 
     yield D
 
@@ -1452,7 +1520,7 @@ data_pipeline
 
 def TST_filter_subset(*args):
     D = args[0]
-    D = D.iloc[400:420]
+    D = D.iloc[400:430]
     yield D
 
 
@@ -1503,29 +1571,28 @@ D = S02_add_GAE_data(df4); df5 = next(D)
 D = S02_add_IAFE_data(df5); df6 = next(D) 
 D = S02_add_ICATE_data(df6); df7 = next(D) 
 
-aux1 = df7.copy()
+df7c = df7.copy()
+D = S03_add_gender(df7c); aux1 = next(D)  
+D = S03_add_age(aux1); df8 = next(D)  
 
-D = S03_add_gender(aux1); aux2 = next(D)  
-D = S03_add_age(aux2); aux3 = next(D)  
+df8c = df8.copy()
 
-df7 = aux3.copy()
+D = TST_filter_subset(df8c); df9 = next(D)  # limit to 20 entries for debugging
 
-D = TST_filter_subset(df7); df8 = next(D)  # limit to 20 entries for debugging
+D = S04_pub_get_ads_entries(df9); df10 = next(D)  
+df10c = df10.copy()
 
-D = S04_pub_get_ads_entries(df8); df9 = next(D)  
-df9 = df8.copy()
+D = S04_pub_clean_papers(df10c); df11 = next(D)
+D = S04_pub_journal_index(df11); df12 = next(D)  
+D = S04_pub_add_metrics(df12); df13 = next(D)
 
-D = S04_pub_clean_papers(df9); df10 = next(D)
-D = S04_pub_journal_index(df10); df11 = next(D)  
-D = S04_pub_add_metrics(df11); df12 = next(D)
+D = S04_pub_filter_criteria(df13); df14 = next(D)
 
-D = S04_pub_filter_criteria(df12); df13 = next(D)
+D = S04_make_pages(df14); df15 = next(D)
 
-
-D = S04_make_pages(df13); df13 = next(D)
+load_final(df15)
 
 
-load_final(df12)
 
 se puede interrumppir en cualquier lado y hacer D=next(D)
 para hacer una copia: 
