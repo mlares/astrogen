@@ -283,7 +283,7 @@ def gen_spreadsheet(auth, papers):
                                 '</b>'
         lst_auths.append(aux)
 
-        if isinstance(p.title, str):
+        if p.title is not None:
             lst_title.append(p.title[0])
         else:
             lst_title.append('')
@@ -1341,7 +1341,6 @@ def S04_pub_add_metrics(*args):
     D['auth_inar'] = add_auth_inar
     D['auth_citas'] = add_auth_citas
     yield D
- 
 
 def S04_make_pages(*args):
     """
@@ -1389,34 +1388,21 @@ def S04_make_pages(*args):
     s2 = '" value="" /><br>'
     # urls
     s3 = '<a href="'
-    s4 = '">link</a>'
+    s4 = '">'
+    s5 = '</a>'
 
     source_dir = '../../data/interim/ADS/htmls/'
-    for kounter, i in enumerate(D.index):
-        auth = D.loc[i]
-        #print(i, auth.apellido)
-        k = D.index.get_loc(i)
+    for kounter, i in tqdm(enumerate(D.index)):
 
-        # papers -- -- -- -- --
-        x = D.loc[i]
-        ap = x.apellido.title()
-        fname_ap = '_'.join(ap.split())
-        nm = x.nombre
-        fname_nm = ''.join([a[0].upper() for a in nm.split()])
-        fname = '_'.join([fname_ap, fname_nm])
-        file_papers = '../../data/interim/ADS/' + fname + '_C1.pk' 
-
-        with open(file_papers, 'rb') as f:
-            p = pickle.load(f)
-        # -- -- -- -- -- -- -- --
-
+        auth = D.iloc[i]
+        p = get_papers_from_df(auth)
         df = gen_spreadsheet(auth, p)
 
         df.sort_values(by=['Año'], axis='index', inplace=True)
         S = [f'{s1}{str(i+1).zfill(3)}{s2}' for i in range(df.shape[0])]
         df['exclude'] = S
 
-        url = [f'{s3}{r}{s4}' for r in df.adsurl]
+        url = [f'{s3}{r}{s4}{t}{s5}' for r, t in zip(df.adsurl, df.Título)]
         df['linkurl'] = url
         title_links = df.apply(lambda x: x.linkurl.replace('link', x.Título), axis=1)
         if sum(auth.filter_papers)>0:
@@ -1449,29 +1435,7 @@ def S04_make_pages(*args):
                                           filedata=fout))
         target.close()
 
-
     yield D
-
-
-
-
-def S04_pub_value_added(*args):
-    """
-    STEP: S04_pub_value_added
-
-    Returns:
-    D: DataFrame containing the data (including journal index)
-    """
-    D = args[0]
-    # PLACEHOLDER
-    yield D
-
-
-
-
-###### a la parte de analizar hacerla separada ##########
-
-
 
 
 # LOAD
@@ -1538,23 +1502,22 @@ def data_pipeline(**options):
     graph.add_chain(S01_read_aaa_table,
                     S02_add_OAC_data,
                     S02_add_IATE_data,
-                    #S02_add_IALP_data,
-                    #S02_add_GAE_data,
-                    #S02_add_IAFE_data,
-                    #S02_add_ICATE_data,
+                    S02_add_IALP_data,
+                    S02_add_GAE_data,
+                    S02_add_IAFE_data,
+                    S02_add_ICATE_data,
                     S02_add_CIC_data,
-                    #
+                    ##
                     S03_add_gender,
                     S03_add_age,
                     S03_clean_and_sort,
                     TST_filter_subset,
                     ##
                     S04_pub_get_ads_entries,
-                    #S04_pub_get_orcids,
                     S04_pub_clean_papers,
                     S04_pub_journal_index,
                     S04_pub_add_metrics,
-                    #S04_pub_value_added,
+                    S04_make_pages,
                     load_final)
 
     return graph
@@ -1584,7 +1547,7 @@ df10c = df10.copy()
 
 D = S04_pub_clean_papers(df10c); df11 = next(D)
 D = S04_pub_journal_index(df11); df12 = next(D)  
-D = S04_pub_add_metrics(df12); df13 = next(D)
+
 
 D = S04_pub_filter_criteria(df13); df14 = next(D)
 
