@@ -258,7 +258,7 @@ def gen_spreadsheet(auth, papers):
 
     aind = np.arange(auth.Npapers)[auth.filter_papers]
 
-    if len(aind)<1:
+    if len(aind)<1: # no hay papers que cumplan con los criterios
         df = pd.DataFrame({'Título': lst_title,
                            'Autores': lst_auths,
                            'Afiliaciones': lst_affs,
@@ -268,18 +268,38 @@ def gen_spreadsheet(auth, papers):
                           })
         return df
 
-    for i in lst:
+    #for i in lst:
+    #    p = papers[i]
+    #    aux = p.aff.copy()
+    #    aux[auth.auth_pos[aind[i]]] = '<b>' + \
+    #                            aux[auth.auth_pos[aind[i]]] + \
+    #                            '</b>'
+    #    lst_affs.append(aux)
+    #    aux = p.author.copy()
+    #    aux[auth.auth_pos[aind[i]]] = '<b>' + \
+    #                            aux[auth.auth_pos[aind[i]]] + \
+    #                            '</b>'
+    #    lst_auths.append(aux)
+    #    if p.title is not None:
+    #        lst_title.append(p.title[0])
+    #    else:
+    #        lst_title.append('')
+    #    lst_año.append(p.year)
+    #    lst_journal.append(p.pub)
+    #    lst_bibcode.append(f'{s1}{p.bibcode}{s2}')
+
+    for i in aind:
         p = papers[i]
 
         aux = p.aff.copy()
-        aux[auth.auth_pos[aind[i]]] = '<b>' + \
-                                aux[auth.auth_pos[aind[i]]] + \
+        aux[auth.auth_pos[i]] = '<b>' + \
+                                aux[auth.auth_pos[i]] + \
                                 '</b>'
         lst_affs.append(aux)
 
         aux = p.author.copy()
-        aux[auth.auth_pos[aind[i]]] = '<b>' + \
-                                aux[auth.auth_pos[aind[i]]] + \
+        aux[auth.auth_pos[i]] = '<b>' + \
+                                aux[auth.auth_pos[i]] + \
                                 '</b>'
         lst_auths.append(aux)
 
@@ -499,7 +519,6 @@ def f(*args):
     #D = fill_empty_columns(D, UE)
     yield D
 
-
 def S02_add_ICATE_data(*args):
     """
     STEP: S02_add_ICATE_data
@@ -579,12 +598,12 @@ def S02_add_IALP_data(*args):
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
             D.at[inds[i], 'dni'] = UE.iloc[i].dni 
-    #        D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IALP' 
+            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IALP' 
 
-    #ADD = UE[~np.array(filt)]
-    #ADD = fill_empty_columns(ADD, D)
-    #ADD = ADD[list(D.columns)]  
-    #D = pd.concat([D, ADD], ignore_index=True)
+    ADD = UE[~np.array(filt)]
+    ADD = fill_empty_columns(ADD, D)
+    ADD = ADD[list(D.columns)]  
+    D = pd.concat([D, ADD], ignore_index=True)
     yield D
 
 def S02_add_IAFE_data(*args):
@@ -781,6 +800,8 @@ def S03_add_age(*args):
     today = datetime.date.today()
     today = pd.to_datetime(today)
 
+    ages = pd.read_excel('../../data/raw/collect_age.xlsx')
+
     df['fnac'] = pd.to_datetime(df['fnac'], errors='coerce')
     edad = []
     for day in df['fnac']:
@@ -790,8 +811,30 @@ def S03_add_age(*args):
             edad.append(relativedelta(today, day).years)
 
     df['fnac'] = df['fnac'].dt.strftime("%Y")
-    df['edad'] = edad 
-     
+    df['edad'] = edad
+
+    # Search for existing age or DNI ---------------
+    nms = [[[]]*4, [[]]*4]
+    for i in tqdm(df.index):
+        x = df.iloc[i]
+        if x.fnac is not np.nan:
+            continue
+        nms[0][0:2] = re_names(x.apellido)
+        nms[0][2:4] = re_names(x.nombre)        
+        for j in ages.index:
+            y = ages.iloc[j]
+            nms[1][0:2] = re_names(y.apellido)
+            nms[1][2:4] = re_names(y.nombre)
+            ll = aut_compare(*nms)
+            m = ll[0]>0.9 and ll[1]>0.9 and ll[2]<0.1
+            if m:
+                # 1) tiene la fecha de nacimietnto?
+                if y.ynac is not np.nan:
+                    df.iloc[i].ynac = y.ynac
+                # 2) tiene la edad?
+                elif y.dni is not np.nan:
+                    df.iloc[i].dni = y.dni
+
     # Estimate age from DNI ------------------------
     # 1.- select data
     filt_df = df['nac'].str.contains('arg')
@@ -856,7 +899,6 @@ def S03_clean_and_sort(*args):
     #        'nac', 'dni', 'fnac', 'edad', 'cic', 'docencia', 'status']
     #D = D[cols] 
     yield D
-
 
 
 # TRANSFORM: add publication data
@@ -996,7 +1038,6 @@ def S04_pub_clean_papers(*args):
 
     yield D
 
-
 def S04_pub_filter_criteria(*args):
     """
     CRITERIA:
@@ -1021,31 +1062,28 @@ def S04_pub_filter_criteria(*args):
     f_ar = D.apply(lambda x: x.auth_inar.count(1)/max(x.Npapers, 1), axis=1)
 
     # fraccion de papers Q1 con afiliación en Argentina
-    f_arq1 = D.apply(lambda x: 
-                     sum(np.logical_and(np.array(x.auth_inar)==1, 
-                                        np.array(x.auth_Q)==1)) / 
-                     max(sum(np.array(x.auth_Q)==1),1), axis=1)
-
+    def q1frac(series):
+         n = sum(np.logical_and(np.array(series.auth_inar)==1, 
+                                np.array(series.auth_Q)==1))
+         d = max(sum(np.array(series.auth_Q)==1),1)
+         z = n/d
+         return z
+    f_arq1 = D.apply(q1frac, axis=1)
     f_arq1 = f_arq1 > 0.75
+    # arreglar a mano algunos autores:
+    f_arq1[372] = True  # merchan, hay otro merchan afuera
+
 
     # año de la ultima publicación (activo en los ultimos 5 años)
     f_last = D.pub_años.apply(lambda x: max(x)>2016 if len(x)>0 else 0)
 
-    # arreglar a mano algunos autores:
-    f_arq1[372] = True  # merchan, hay otro merchan afuera
-
     # elegir f_ar o f_arq1 para tomar papers Q1
+    #filter_authors = f_edad | f_last
     filter_authors = f_edad & f_last & f_arq1
 
-
-
     # TEST / / / / / / / / / / / / / /   (borrar)
-
-    filter_authors = np.logical_or(filter_authors, True)
-    
+    #filter_authors = np.logical_or(filter_authors, True)
     # TEST / / / / / / / / / / / / / / 
-
-
 
     D['filter_authors'] = filter_authors
     D['ID'] = range(D.shape[0])
@@ -1063,15 +1101,11 @@ def S04_pub_filter_criteria(*args):
     # papers con menos de 50 autores en revistas Q1
     filter_papers =  D_selected.apply(lambda x: 
                              np.logical_and(np.array(x['auth_num'])<50, 
-                                            np.array(x['auth_Q'])==1),
-                             axis=1)
-
+                                            np.array(x['auth_Q'])==1), axis=1)
 
     # TEST / / / / / / / / / / / / / /  (borrar)
-
-    filter_papers = D_selected.apply(lambda x: [True for i in
-        range(x.Npapers)], axis=1)
-    
+    #filter_papers = D_selected.apply(lambda x: [True for i in
+    #    range(x.Npapers)], axis=1)
     # TEST / / / / / / / / / / / / / / 
 
     if len(filter_papers)==0:
@@ -1080,7 +1114,6 @@ def S04_pub_filter_criteria(*args):
     D_selected['filter_papers'] = filter_papers
 
     yield D_selected
-
 
 # -> auth_Q
 def S04_gen_journal_index(*args):
@@ -1154,11 +1187,32 @@ def S04_gen_journal_index(*args):
         # la lista unica de journals y sus Qs
         jnames.append(jname)
         jqs.append(jq)
+
+    fileD = '../../data/interim/Qs_saved_individual.pk'
+    with open(fileD, 'wb') as f:
+        pickle.dump([jnames, jqs], f)
+
+
+    ujnames = []
+    ujqs = []
+
+    inn = ''
+
+    for n, q in zip(jnames, jqs):
+        for i_n, i_q in zip(n, q):
+
+           if i_n in inn:
+               continue
+           else:
+               inn += i_n
+               ujnames.append(i_n)
+               ujqs.append(i_q)   
+    
     fileD = '../../data/interim/Qs_saved.pk'
     with open(fileD, 'wb') as f:
-        pickle.dump([jname, jq], f)
-    return None
+        pickle.dump([ujnames, ujqs], f)
 
+    return None
 
 def S04_pub_journal_index(*args):
     """
@@ -1252,8 +1306,6 @@ def S04_pub_journal_index(*args):
     D['pub_años'] = A_add
 
     yield D
- 
-
 
 # -> auth_inar
 def S04_pub_add_metrics(*args):
@@ -1277,8 +1329,6 @@ def S04_pub_add_metrics(*args):
         auth = ', '.join([ap, getinitials(nm)]) 
 
         p = get_papers_from_df(x)
-
-        print(len(p))
 
         add_auth_Npprs.append(len(p))
         Npapers = 0
@@ -1394,7 +1444,7 @@ def S04_make_pages(*args):
     source_dir = '../../data/interim/ADS/htmls/'
     for kounter, i in tqdm(enumerate(D.index)):
 
-        auth = D.iloc[i]
+        auth = D.loc[i]
         p = get_papers_from_df(auth)
         df = gen_spreadsheet(auth, p)
 
@@ -1461,17 +1511,17 @@ def load_final(*args):
     """   
 
     D = args[0]
-    fileD = '../../data/redux/D.pk'
+    fileD = '../../data/redux/astrogen_DB.pk'
     with open(fileD, 'wb') as f:
        pickle.dump(D, f)
 
     #
-#    fileD = '../../data/redux/D.csv'
-#    with open(fileD, 'w') as f:
-#       D.to_csv(f)
-#    #
-#    fileD = '../../data/redux/D.xlsx'
-#    D.to_excel(fileD)
+    fileD = '../../data/redux/astrogen_DB.csv'
+    with open(fileD, 'w') as f:
+       D.to_csv(f)
+    #
+    fileD = '../../data/redux/astrogen_DB.xlsx'
+    D.to_excel(fileD)
 
 
 # PIPELINE
@@ -1511,12 +1561,13 @@ def data_pipeline(**options):
                     S03_add_gender,
                     S03_add_age,
                     S03_clean_and_sort,
-                    TST_filter_subset,
+                    #TST_filter_subset,
                     ##
                     S04_pub_get_ads_entries,
                     S04_pub_clean_papers,
                     S04_pub_journal_index,
                     S04_pub_add_metrics,
+                    S04_pub_filter_criteria,
                     S04_make_pages,
                     load_final)
 
@@ -1534,26 +1585,24 @@ D = S02_add_GAE_data(df4); df5 = next(D)
 D = S02_add_IAFE_data(df5); df6 = next(D) 
 D = S02_add_ICATE_data(df6); df7 = next(D) 
 
-df7c = df7.copy()
-D = S03_add_gender(df7c); aux1 = next(D)  
-D = S03_add_age(aux1); df8 = next(D)  
+D = S02_add_CIC_data(df7); df8 = next(D) 
+D = S03_add_gender(df8); df9 = next(D)  
+D = S03_add_age(df9); df10 = next(D)  
 
-df8c = df8.copy()
+# limit to 20 entries for debugging TST TST TST
+D = TST_filter_subset(df8c); df9 = next(D)
 
-D = TST_filter_subset(df8c); df9 = next(D)  # limit to 20 entries for debugging
+D = S04_pub_get_ads_entries(df10); df11 = next(D)  
+D = S04_pub_clean_papers(df11); df12 = next(D)
+D = S04_pub_journal_index(df12); df13 = next(D)  
 
-D = S04_pub_get_ads_entries(df9); df10 = next(D)  
-df10c = df10.copy()
+D = S04_pub_add_metrics(df13); df14 = next(D)      <-  por aca, levantar df13.pk
 
-D = S04_pub_clean_papers(df10c); df11 = next(D)
-D = S04_pub_journal_index(df11); df12 = next(D)  
+D = S04_pub_filter_criteria(df14); df15 = next(D)
 
+D = S04_make_pages(df15); df16 = next(D)
 
-D = S04_pub_filter_criteria(df13); df14 = next(D)
-
-D = S04_make_pages(df14); df15 = next(D)
-
-load_final(df15)
+load_final(df16)
 
 
 
@@ -1591,3 +1640,18 @@ if __name__ == '__main__' and '__file__' in globals():
                    data_pipeline(**options),
                    services=get_services(**options)
                   )
+
+"""
+Desired outputs:
+
+the final database, in:
+    csv
+    xlsx
+    db
+
+the anonymized database, in:
+    csv
+    xlsx
+    db
+
+"""
