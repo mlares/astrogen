@@ -3,7 +3,7 @@ import pandas as pd
 import sqlite3
 
 
-with open('df14.pk', 'rb') as f:
+with open('../../data/redux/astrogen_DB.pk', 'rb') as f:
     df = pickle.load(f)
 
 df.drop(['auth_Q', 'cita_Q',
@@ -11,20 +11,37 @@ df.drop(['auth_Q', 'cita_Q',
     'auth_citas', 'filter_authors', 'filter_papers'], axis=1,
     inplace=True)
 
-
-conn = sqlite3.connect('astrogen.db')
+conn = sqlite3.connect('../../data/redux/astrogen_DB.db')
 c = conn.cursor()
 
-script = 'CREATE TABLE IF NOT EXISTS astronomers (' + \
+script = 'CREATE TABLE IF NOT EXISTS sample (' + \
          ', '.join(df.columns) + ')'
 
+c.execute(script)
+conn.commit()
+df.to_sql('sample', conn, if_exists='replace', index = False)
+
+
+
+###############################################################
+with open('../../data/redux/df14.pk', 'rb') as f:
+    df = pickle.load(f)  
+
+df.drop(['auth_Q', 'cita_Q',
+    'pub_años', 'auth_pos', 'auth_num', 'auth_inar',
+    'auth_citas'], axis=1,
+    inplace=True)
+
+script = 'CREATE TABLE IF NOT EXISTS full (' + \
+         ', '.join(df.columns) + ')'
 
 c.execute(script)
 conn.commit()
 
-df.to_sql('astronomers', conn, if_exists='replace', index = False)
+df.to_sql('full', conn, if_exists='replace', index = False)
+###############################################################
 
-
+                
 
 
 
