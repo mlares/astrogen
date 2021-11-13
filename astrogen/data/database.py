@@ -67,9 +67,8 @@ fl = ['id', 'bibcode', 'abstract', 'title', 'citation_count',
           'orcid_pub', 'aff', 'author', 'citation', 'pub', 'reference',
           'first_author', 'author_count', 'orcid_user', 
           'year', 'read_count', 'pubdate']
+
 fls = ', '.join(fl)    
-
-
 
 
 script = f'CREATE TABLE IF NOT EXISTS table1 ({fls})'
@@ -88,6 +87,11 @@ conn.commit()
 #sql = f'INSERT INTO table1({fls}) VALUES(, , , , , , , , , , ,)'
 #c.execute(sql)
 #conn.commit()
+
+
+
+
+#%%%%%%%%%%%%%%%%%%%%%%%%
 
        
 def insertMultipleRecords(recordList, sqliteConnection, fls):
@@ -112,31 +116,44 @@ def insertMultipleRecords(recordList, sqliteConnection, fls):
     #        sqliteConnection.close()
     #        print("The SQLite connection is closed")
 
-recordsToInsert = [
-        (22, 90909, 'SD df sdf asdfasdf asdaf as', 'fasdfasf', 33,
-        '00001010', 'asdfsadfsdf', 'asdfsdf', 'jtyjdjh', 'yrtyrt',
-        'qweqweqwe'),
-        (22, 90909, 'SD df sdf asdfasdf asdaf as', 'fasdfasf', 33,
-        '00001010', 'asdfsadfsdf', 'asdfsdf', 'jtyjdjh', 'yrtyrt',
-        'qweqweqwe'),
-        (22, 90909, 'SD df sdf asdfasdf asdaf as', 'fasdfasf', 33,
-        '00001010', 'asdfsadfsdf', 'asdfsdf', 'jtyjdjh', 'yrtyrt',
-        'qweqweqwe'),
-        (22, 90909, 'SD df sdf asdfasdf asdaf as', 'fasdfasf', 33,
-        '00001010', 'asdfsadfsdf', 'asdfsdf', 'jtyjdjh', 'yrtyrt',
-        'qweqweqwe')]
 
+def paper2tuple(i,x,p):
+    a0 = i
+    a00 = x.apellido
+    if isinstance(p.title, list):
+        a1 = p.title[0]
+    else:
+        a1 = ''
+    a2 = p.abstract
+    a3 = ''.join(p.author)
+    a4 = ''.join(p.aff)
+    a5 = p.author_count
+    a6 = p.bibcode
+    a7 = p.citation_count
+    a8 = p.year
+    a9 = p.pubdate
+    t = tuple((a0, a00, a1, a2, a3, a4, a5, a6, a7, a8, a9))
+    return t
+ 
 
+conn = sqlite3.connect('tstp.db')
+c = conn.cursor()
 
+fl = ['ID', 'apellido', 'title', 'abstract', 'authors', 'affilliations', 'author_count',
+      'bibcode', 'citation_count', 'year', 'pubdate']
+fls = ', '.join(fl)    
 
-p = get_papers_from_df(auth)
-pasar los papaers a tupla y escribir
+script = f'CREATE TABLE IF NOT EXISTS table1 ({fls})'
+c.execute(script)
+conn.commit()
 
+recordsToInsert = []
 
-
-
-        (4, 'Jos', 'jos@gmail.com'),
-                   (5, 'Chris', 'chris@gmail.com'),
-                   (6, 'Jonny', 'jonny@gmail.com')]
+for i in range(500, 550):
+    x = D.iloc[i]
+    p = get_papers_from_df(x)
+    for ip in p:
+        tup = paper2tuple(i, x, ip)
+        recordsToInsert.append(tup)
 
 insertMultipleRecords(recordsToInsert, conn, fls)
