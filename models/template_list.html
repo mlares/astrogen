@@ -4,12 +4,10 @@
     <body>
       <p style="font-size:2vw">ASTROGEN - Data curation</p>
       <ul>
-      \BLOCK{ for a, b in lst } 
-         <li> <a href="\VAR{ a }">\VAR{ b }</a>
+      \BLOCK{ for htmlfilename, authname, authobj in lst } 
+      <li> \VAR{ authobj.edad } <a href="\VAR{ htmlfilename }">\VAR{ authname }</a>
       \BLOCK{ endfor }
       </ul>
-
-      <!--  faltaria ver de filtrar por menos de 50 autores -->
 
     </body>
 </html> 

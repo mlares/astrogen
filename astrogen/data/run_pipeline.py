@@ -108,7 +108,7 @@ def load_10(*args):
 
 if __name__ == '__main__' and '__file__' in globals():
 
-    conn = sqlite3.connect('../../data/redux/astrogen_DB_6nqp.db')
+    conn = sqlite3.connect('../../data/redux/astrogen_DB.db')
     c = conn.cursor()
 
     #--------------------------------- LISTA DE PERSONAL
@@ -136,6 +136,34 @@ if __name__ == '__main__' and '__file__' in globals():
     D = S03_clean_and_sort(df10); df11 = next(D)
     load_5(df11)
 
+
+
+    #D = TST_filter_subset(df11); df11 = next(D)
+
+
+
+   # PUBs
+    D = S04_pub_get_ads_entries(df11); df12 = next(D)  
+    D = S04_pub_clean_papers(df12); df13 = next(D)
+    load_6(df13)
+
+    D = S04_pub_journal_index(df13); df14 = next(D)  
+    load_7(df14.drop(['auth_Q','cita_Q','pub_años'], axis=1))
+ 
+    D = S04_pub_add_metrics(df14); df15 = next(D)
+ 
+    lst= ['auth_Q', 'cita_Q', 'pub_años', 'auth_pos', 'auth_num',
+          'auth_inar', 'auth_citas']
+    load_8(df15.drop(lst, axis=1))
+ 
+    D = S04_pub_filter_criteria(df15); df16 = next(D)
+    load_9(df16.drop(lst, axis=1))
+ 
+    D = S04_make_pages(df16); df17 = next(D)
+
+    load_final(df17) 
+
+    # close DB connection
     conn.close()
 
 

@@ -18,9 +18,11 @@ source_dir = '../../data/interim/ADS/htmls/'
 source_dir = './'
 fnames = []
 anames = []
+auths = []
 for kounter, i in enumerate(D.index):
 
-    auth = D.iloc[i]
+    auth = D.loc[i]
+    auths.append(auth)
 
     fname = (f'{str(kounter).zfill(3)}_{str(i).zfill(3)}_'
              f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.html')
@@ -60,7 +62,6 @@ output_dir = '../../data/interim/ADS/htmls/'
 fname = 'index.html'
 filename = pathjoin(output_dir, fname)
 target = open(filename, 'w')
-target.write(template_page.render(lst = zip(fnames,anames)
+target.write(template_page.render(lst = zip(fnames, anames, auths)
                                   ))
 target.close()
-

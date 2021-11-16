@@ -44,7 +44,6 @@ def clean_accented(s):
      s3 = s2.decode("ascii")
      return s3
 
-
 def get_filters_by_names(D, UE):
     """
     Given two dataframes with "nombre" and "apellido" keys, 
@@ -361,13 +360,16 @@ def gen_spreadsheet(auth, papers):
                        #'selected': lst_auth_selected})
     return df 
 
-def get_papers_from_df(x):
+def get_papers_from_df(x, clean=False):
     ap = x.apellido.title()
     fname_ap = '_'.join(ap.split())
     nm = x.nombre
     fname_nm = ''.join([a[0].upper() for a in nm.split()])
     fname = '_'.join([fname_ap, fname_nm])
-    file_papers = '../../data/interim/ADS/' + fname + '_C1.pk' 
+    if clean:
+        file_papers = '../../data/interim/ADS/' + fname + '_C1.pk' 
+    else:
+        file_papers = '../../data/interim/ADS/' + fname + '.pk' 
     with open(file_papers, 'rb') as f:
         papers = pickle.load(f)
     return papers
@@ -1073,6 +1075,12 @@ def S03_clean_and_sort(*args):
     STEP: S02_clean_and_sort
 
     In this step, columns of the database are cleaned and sorted
+    - columns changed to lower case
+    - age to type integer
+    - deceased astronomers are eliminated
+    - year of birth to integer
+    - index created to assign a unique ID to each author
+    - columns are arranged for easier analysis
 
     Returns:
     D: DataFrame containing the data
@@ -1103,10 +1111,30 @@ def S03_clean_and_sort(*args):
     D['cic'] = D.cic.apply(cic_category)
     D['conicet'] = D.conicet.apply(cic_category)
 
-    colsout = ['ads_str', 'dni', 'fnac', 'nac',  'aaa_soc', 'orcid',
-               'use_orcid', 'docencia', 'area','cic_code', 'sexo']
+    # filter deceased (data from AAA)
+    # aaa_soc = F, FP or B1
+    cond1 = D.aaa_soc.str.strip()=='F'
+    cond2 = D.aaa_soc.str.strip()=='FP'
+    cond3 = D.aaa_soc.str.strip()=='B1'
+    cond = ~(cond1 | cond2 | cond3)
+    D = D[cond]
 
-    D.drop(colsout, axis=1, inplace=True)
+    # use_orcid -> bool
+    D = D.replace({np.nan: 0})
+    D.use_orcid = D.use_orcid.astype(bool)
+
+    # ynac -> int
+    D.ynac = D.ynac.astype(int)
+
+    # Add INDEX
+    D.reset_index(drop=True, inplace=True)
+    D['ID'] = D.index
+
+
+    colsout = ['ads_str', 'dni', 'fnac', 'nac',  'aaa_soc', 
+               'docencia', 'area', 'cic', 'cic_code', 'sexo']
+
+    D.drop(colsout, axis=1, inplace=True)  
 
     yield D
 
@@ -1167,13 +1195,10 @@ def S04_pub_get_ads_entries(*args):
           'first_author', 'author_count', 'orcid_user', 'metrics',
           'year', 'read_count', 'pubdate']
     rows_max = 300
-    OPTS = {'rows': rows_max, 
-            'fl': fl}
     orcid_cck = 'use_orcid' in D.columns
     if orcid_cck:
         D.use_orcid[D.use_orcid.isna()] = 0
     N = D.shape[0]
-    papers = []
 
     print('GET ADS DATA')
 
@@ -1187,27 +1212,25 @@ def S04_pub_get_ads_entries(*args):
         fname_nm = ''.join([a[0].upper() for a in nm.split()])
         fname = '_'.join([fname_ap, fname_nm])
         auth = ', '.join([ap, getinitials(nm)])
-        #print(F'{auth} --- {ap}, {nm}')
 
-        if orcid_cck:
-            if x.use_orcid:
-                OPTS['orcid'] = orcid
-            else:
-                OPTS['author'] = auth
+        OPTS = {'rows': rows_max, 'fl': fl}
+        if orcid_cck and x.use_orcid:
+            s = x.orcid
+            orcid_number = s[s.find('0'):]
+            OPTS['orcid'] = orcid_number
         else:
             OPTS['author'] = auth
 
-        apapers = list(ads.SearchQuery(**OPTS))
         filen = '../../data/interim/ADS/' + fname + '.pk'
-        with open(filen, 'wb') as f:
-            pickle.dump(apapers, f)
+        # download only if file does not exist:
+        if not path.isfile(filen):
+            print(f'writing... {filen}')
+            apapers = list(ads.SearchQuery(**OPTS))
+            print(f'# papers: {len(apapers)}')
+            with open(filen, 'wb') as f:
+                pickle.dump(apapers, f)
 
-        papers.append(apapers)
     # ##########################################################
-
-    file_papers = '../../data/interim/papers.pk'
-    with open(file_papers, 'wb') as f:
-        pickle.dump(papers, f)
 
     yield D
 
@@ -1238,7 +1261,14 @@ def S04_pub_clean_papers(*args):
             ll = authmatch(x, ip)
             tst = np.array(ll[:6]).reshape(1, -1)
             tst = scaler.transform(tst)
-            ipin.append(clf.predict(tst)[0])
+            pred = clf.predict(tst)[0]
+
+            # BAAA appears as:
+            # Boletin de la Asociacion Argentina de Astronomia La Plata Argentina
+            notbaaa = not 'rgentina' in ip.pub
+
+            includepaper = pred and notbaaa
+            ipin.append(includepaper)
 
         papers = [apapers[k] for k in range(len(ipin)) if ipin[k]]
 
@@ -1398,7 +1428,7 @@ def S04_gen_journal_index(*args):
         jnames.append(jname)
         jqs.append(jq)
 
-    fileD = '../../data/interim/Qs_saved_individual.pk'
+    fileD = '../../data/interim/SJR/Qs_saved_individual.pk'
     with open(fileD, 'wb') as f:
         pickle.dump([jnames, jqs], f)
 
@@ -1418,7 +1448,7 @@ def S04_gen_journal_index(*args):
                ujnames.append(i_n)
                ujqs.append(i_q)   
     
-    fileD = '../../data/interim/Qs_saved.pk'
+    fileD = '../../data/interim/SJR/Qs_saved.pk'
     with open(fileD, 'wb') as f:
         pickle.dump([ujnames, ujqs], f)
 
@@ -1429,7 +1459,7 @@ def S04_sort_journal_index(*args):
     This is a utility function that can be used 
     to improve the performance of step S04_pub_journal_index
     """
-    fileD = '../../data/interim/Qs_saved.pk'
+    fileD = '../../data/interim/SJR/Qs_saved.pk'
     with open(fileD, 'rb') as f:
        jname, jq = pickle.load(f) 
 
@@ -1450,7 +1480,7 @@ def S04_sort_journal_index(*args):
         jq.append(int(b))
     f.close()
 
-    fileD = '../../data/interim/Qs_saved_ordered.pk'
+    fileD = '../../data/interim/SJR/Qs_saved_ordered.pk'
     with open(fileD, 'wb') as f:
         pickle.dump([jname, jq], f)
                                   
@@ -1469,7 +1499,7 @@ def S04_pub_journal_index(*args):
     D = args[0]
 
     stop_words = set(stopwords.words('english'))
-    fileD = '../../data/interim/Qs_saved.pk'
+    fileD = '../../data/interim/SJR/Qs_saved_ordered.pk'
     with open(fileD, 'rb') as f:
        jname, jq = pickle.load(f)
 
@@ -1682,7 +1712,7 @@ def S04_make_pages(*args):
     s4 = '">'
     s5 = '</a>'
 
-    source_dir = '../../data/interim/ADS/htmls/'
+    source_dir = '../../data/interim/htmls/'
     for kounter, i in tqdm(enumerate(D.index)):
 
         auth = D.loc[i]
@@ -1774,7 +1804,7 @@ data_pipeline
 
 def TST_filter_subset(*args):
     D = args[0]
-    D = D.iloc[400:430]
+    D = D.iloc[377:387]
     yield D
 
 
