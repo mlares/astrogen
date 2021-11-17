@@ -1,36 +1,33 @@
 import datetime
 import time
-import pandas as pd
 import bonobo
-import numpy as np
-from dateutil.relativedelta import relativedelta
-import numpy as np
-from scipy.optimize import curve_fit
 import pickle
 import ads
-from sys import argv
-from Parser import Parser
 import difflib
-from os import path, system
-from os.path import join as pathjoin
-import numpy as np
-from tqdm import tqdm
-import re
 import jellyfish
 import joblib
-from io import StringIO
 import jinja2
 import sqlite3
 import unicodedata
- 
+import re
+import csv 
+import pandas as pd
+import numpy as np
+
+from dateutil.relativedelta import relativedelta
+from scipy.optimize import curve_fit
+from sys import argv
+from Parser import Parser
+from os import path, system
+from os.path import join as pathjoin
+from tqdm import tqdm
+from io import StringIO
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-import csv
-#from difflib import SequenceMatcher
-      
 from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
 from astrogen_utils import initials, getinitials, pickone, similar
- 
+
+
 # avoid SettingWithCopyWarning
 # (see https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy)
 pd.options.mode.chained_assignment = None
@@ -913,22 +910,28 @@ def S02_add_CONICET_data(*args):
 
     """     
     D = args[0] 
-    CIC = pd.read_excel('../../data/collect/collect_conicet2020.xlsx')
+    year = str(args[1])
+    filename = f'../../data/collect/collect_conicet.xlsx'
+    fieldname = f'conicet{year}'    
+
+    CIC = pd.read_excel(filename, sheet_name=year)
     CIC.drop(CIC.filter(regex="Unname"),axis=1, inplace=True)
 
     filt, inds = get_filters_by_names(D, CIC)
     D = fill_empty_columns(D, CIC)
  
+    D[fieldname] = None
     N = len(filt)
     for i in range(N):
         if filt[i]:
             b = CIC.iloc[i].conicet
             D.at[inds[i], 'cic'] = b
-            D.at[inds[i], 'conicet'] = b
+            D.at[inds[i], fieldname] = b
 
     ADD = CIC[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
     ADD = ADD[list(D.columns)]  
+    ADD[fieldname] = ADD.conicet
     D = pd.concat([D, ADD], ignore_index=True)
     yield D     
 
@@ -1875,17 +1878,3 @@ if __name__ == '__main__' and '__file__' in globals():
                    services=get_services(**options)
                   )
 
-"""
-Desired outputs:
-
-the final database, in:
-    csv
-    xlsx
-    db
-
-the anonymized database, in:
-    csv
-    xlsx
-    db
-
-"""

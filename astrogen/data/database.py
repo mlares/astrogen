@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
 import sqlite3
+from pipeline import *
 
 
 with open('../../data/redux/astrogen_DB.pk', 'rb') as f:
@@ -32,15 +33,15 @@ def insertMultipleRecords(recordList, sqliteConnection, fls):
 
 
 def paper2tuple(auth, p, k):
-    a1 = auth.ID
+    a1 = int(auth.ID)
     a2 = auth.apellido
     if isinstance(p.title, list):
         a3 = p.title[0]
     else:
         a3 = ''
     a4 = p.abstract
-    a5 = ''.join(p.author)
-    a6 = ''.join(p.aff)
+    a5 = ', '.join(p.author)
+    a6 = ', '.join(p.aff)
     a7 = p.author_count
     a8 = p.bibcode
     a9 = p.citation_count

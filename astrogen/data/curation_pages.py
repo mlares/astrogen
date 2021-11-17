@@ -2,6 +2,7 @@ import pickle
 from os import path, system
 from os.path import join as pathjoin
 import jinja2
+from pipeline import *
 
 
 file_D = '../../data/redux/astrogen_DB.pk'
@@ -14,7 +15,7 @@ df = S04_pub_filter_criteria(D)
 N = D.shape[0]
 
 
-source_dir = '../../data/interim/ADS/htmls/'
+source_dir = '../../data/interim/htmls/'
 source_dir = './'
 fnames = []
 anames = []
@@ -58,7 +59,7 @@ latex_jinja_env = jinja2.Environment(
 )
 template_page = latex_jinja_env.get_template(template_file)
 
-output_dir = '../../data/interim/ADS/htmls/'
+output_dir = '../../data/interim/htmls/'
 fname = 'index.html'
 filename = pathjoin(output_dir, fname)
 target = open(filename, 'w')

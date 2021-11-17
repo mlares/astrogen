@@ -109,6 +109,9 @@ def load_10(*args):
 if __name__ == '__main__' and '__file__' in globals():
 
     conn = sqlite3.connect('../../data/redux/astrogen_DB.db')
+
+
+    conn = sqlite3.connect('../../data/redux/DB.db')
     c = conn.cursor()
 
     #--------------------------------- LISTA DE PERSONAL
@@ -124,7 +127,16 @@ if __name__ == '__main__' and '__file__' in globals():
     load_1(df7)
 
     #D = S02_add_CIC_data(df7); df8 = next(D) 
-    D = S02_add_CONICET_data(df7); df8 = next(D) 
+    #D = S02_add_CONICET_data(df7, 2020); df8 = next(D) 
+
+    df = df7
+    for year in range(2007, 2020):
+        print(year)
+        D = S02_add_CONICET_data(df, year)
+        df = next(D)
+
+    df8 = df
+
     load_2(df8)
 
     D = S03_add_gender(df8); df9 = next(D)  
