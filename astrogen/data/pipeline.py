@@ -392,6 +392,47 @@ def ccats(c):
         return '0'
     elif 'cto' in c:
         return '-1'
+    else:
+        return None
+
+def ciccatcodes(c):
+    """
+    'Q17'  0 POST.DOCTORAL INT.
+    'Q29' -1 INTERNA DE FIN DE DOCTORADO
+    'Q30' -1 POSTGRADO TIPO I
+    'Q31' -1 POSTGRADO TIPO II
+    'Q32' -1 POSTGRADO TIPO I (3 AÑOS)
+    'Q33' -1 BECA INTERNA DOCTORAL
+    'Q51'  0 BECA INTERNA POSTDOCTORAL ESPECIAL
+    'Q52'  0 BECA INTERNA POSTDOCTORAL DE REINSERCION
+    'Q53'  0 postdoctorado
+    'Q77' -1 INTERNA DOCTORAL TEMAS ESTRATEGICOS
+    'Q80' -1 BECAS
+    'Q82'  0 POSGDO TIPO I 3AÑOS C/PAIS LAT
+    'Q86' -1 INTERNA DOCTORAL CIT
+    'Q92' -1 doctorado
+    'Q93'  0 postdoctorado
+    'X01'  None  ESTADÍAS CORTAS
+
+    'I01'  1  asistente
+    'I02'  2  adjunto
+    'I03'  3  independiente
+    'I04'  4  principal
+    'I05'  5  superior
+    """
+    switcher = {
+        'Q17':  0, 'Q29': -1, 'Q30': -1, 'Q31': -1,
+        'Q32': -1, 'Q33': -1, 'Q51':  0, 'Q52':  0,
+        'Q53':  0, 'Q77': -1, 'Q80': -1, 'Q82':  0,
+        'Q86': -1, 'Q92': -1, 'Q93':  0, 'I01':  1,
+        'I02':  2, 'I03':  3, 'I04':  4, 'I05':  5
+    }
+    return switcher.get(c, None)
+
+ 
+
+
+
 
 def cic_category(c):
     """
@@ -913,25 +954,29 @@ def S02_add_CONICET_data(*args):
     year = str(args[1])
     filename = f'../../data/collect/collect_conicet.xlsx'
     fieldname = f'conicet{year}'    
+    fieldnname = f'conicetcode{year}'    
 
     CIC = pd.read_excel(filename, sheet_name=year)
     CIC.drop(CIC.filter(regex="Unname"),axis=1, inplace=True)
 
+    CIC[fieldnname] = CIC.cic_code.apply(ciccatcodes)
+
     filt, inds = get_filters_by_names(D, CIC)
     D = fill_empty_columns(D, CIC)
  
-    D[fieldname] = None
+    #D[fieldname] = None
+    D[fieldnname] = None
     N = len(filt)
     for i in range(N):
         if filt[i]:
             b = CIC.iloc[i].conicet
             D.at[inds[i], 'cic'] = b
-            D.at[inds[i], fieldname] = b
-
+            #D.at[inds[i], fieldname] = b
+            D.at[inds[i], fieldnname] = CIC[fieldnname].iloc[i]
     ADD = CIC[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
     ADD = ADD[list(D.columns)]  
-    ADD[fieldname] = ADD.conicet
+    #ADD[fieldname] = ADD.conicet
     D = pd.concat([D, ADD], ignore_index=True)
     yield D     
 
@@ -1051,6 +1096,7 @@ def S03_add_age(*args):
     for i in range(N):
         edad = df['edad'].iloc[i]
         dni = df['dni'].iloc[i]
+        print(dni)
         if edad < 1 and not np.isnan(dni):
             edad = age(dni, *pars_age)
         if edad < 1 and np.isnan(dni):
@@ -1467,11 +1513,12 @@ def S04_sort_journal_index(*args):
        jname, jq = pickle.load(f) 
 
 
-    f=open('j.txt', 'r')
+    f=open('j.txt', 'w')
     for a, b in zip(jname, jq):
-        f.write(jname + ', ' + str(jq))
+        f.write(a + ', ' + str(b) + '\n')
 
     # ordenar a mano las revistas más usadas !!!
+    # copiar a: ../../data/interim/SJR/Qs_saved_ordered.csv
 
     f=open('j.txt', 'r')
     jname = []
@@ -1486,6 +1533,9 @@ def S04_sort_journal_index(*args):
     fileD = '../../data/interim/SJR/Qs_saved_ordered.pk'
     with open(fileD, 'wb') as f:
         pickle.dump([jname, jq], f)
+
+
+
                                   
 def S04_pub_journal_index(*args):
     """
@@ -1502,9 +1552,56 @@ def S04_pub_journal_index(*args):
     D = args[0]
 
     stop_words = set(stopwords.words('english'))
-    fileD = '../../data/interim/SJR/Qs_saved_ordered.pk'
-    with open(fileD, 'rb') as f:
-       jname, jq = pickle.load(f)
+
+    #fileD = '../../data/interim/SJR/Qs_saved_ordered.pk'
+    #with open(fileD, 'rb') as f:
+    #   jname, jq = pickle.load(f)
+
+    # selected journals (most common, to speed up the search)
+    q1_journals = ['astrophysical journal',
+                    'astronomical journal',
+                    'monthly notices royal astronomical society',
+                    'physical review b',
+                    'physical review',
+                    'publications astronomical society pacific',
+                    'astronomy astrophysics',
+                    'revista mexicana de astronomia astrofisica',
+                    'nature physics',
+                    'nature astronomy',
+                    'nature',
+                    'science',
+                    'astronomy astrophysics review',
+                    'astronomy astrophysics supplement series',
+                    'astrophysical journal supplement series',
+                    'annual review astronomy astrophysics',
+                    'advances space research',
+                    'space science reviews',
+                    'icarus']
+    q2_journals = ['astronomy computing',
+                    'astrophysics space science',
+                    'astronomische nachrichten',
+                    'international journal astrobiology',
+                    'new astronomy',
+                    'acta astronomica',
+                    'planetary space science',
+                    'frontiers physics']
+    q0_journals = ['arxiv e-prints',
+                   'boletin de la asociacion argentina de astronomia la plata argentina',
+                   'revista mexicana de astronomia astrofisica conference series']
+
+
+    fileD = '../../data/interim/SJR/Qs_saved_ordered.csv'
+    jname = []
+    jq = []
+    with open(fileD, newline='') as csvfile:
+        s = csv.reader(csvfile, delimiter=',')
+        for row in s:
+            jn = row[0].lower()
+            word_tokens = word_tokenize(jn) 
+            fname = [w for w in word_tokens if w not in stop_words]
+            journalname = ' '.join(fname)
+            jname.append(journalname)
+            jq.append(int(row[1]))
 
     N = D.shape[0]
     add_auth_Q = []
@@ -1517,26 +1614,34 @@ def S04_pub_journal_index(*args):
         cita_N = []
 
         for ip in p:
-
             jn = ip.pub.lower()
             word_tokens = word_tokenize(jn)
             fname = [w for w in word_tokens if w not in stop_words]
             sent1 = ' '.join(fname)
             journalname = sent1.replace('/', '')
-            s1m = 0
-            s2m = 0
 
-            for j, q in zip(jname, jq):
-                s1 = similar(j, journalname)
-                s2 = jellyfish.jaro_winkler(j, journalname)
-                if s1 > s1m and s2 > s2m:
-                    s1m, s2m = s1, s2
-                    Q = q
-                if s1>0.99 and s2>0.99:
-                    break
-
-            if s1m<0.92 or s2m<0.92:
+            if journalname in q1_journals:
+                Q = 1
+            elif journalname in q2_journals: 
+                Q = 2
+            elif journalname in q0_journals: 
                 Q = 0
+            else:
+                s1m = 0
+                s2m = 0
+                assigned_journal = ''
+                for j, q in zip(jname, jq):
+                    s1 = similar(j, journalname)
+                    s2 = jellyfish.jaro_winkler(j, journalname)
+                    if s1 > s1m and s2 > s2m:
+                        s1m, s2m = s1, s2
+                        Q = q
+                        assigned_journal = j
+                        if s1>0.99 and s2>0.99:
+                            break
+                if s1m<0.92 or s2m<0.92:  # not close enough
+                    Q = 0
+
             auth_Q.append(Q)
             cita_N.append(ip.citation_count)
 

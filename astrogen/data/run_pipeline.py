@@ -109,9 +109,6 @@ def load_10(*args):
 if __name__ == '__main__' and '__file__' in globals():
 
     conn = sqlite3.connect('../../data/redux/astrogen_DB.db')
-
-
-    conn = sqlite3.connect('../../data/redux/DB.db')
     c = conn.cursor()
 
     #--------------------------------- LISTA DE PERSONAL
