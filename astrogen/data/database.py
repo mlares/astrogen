@@ -15,7 +15,7 @@ def insertMultipleRecords(recordList, sqliteConnection, fls):
         print("Connected to SQLite")
 
         qm = ', '.join(['?']*len(fls.split(',')))
-        sqlite_insert_query = f"""INSERT INTO papers_rc1({fls}) 
+        sqlite_insert_query = f"""INSERT INTO papers({fls}) 
                           VALUES ({qm});"""
 
         cursor.executemany(sqlite_insert_query, recordList)
@@ -87,7 +87,7 @@ def paper2tuple_modified(auth, p, k):
  
  
 
-conn = sqlite3.connect('../../data/redux/astrogen_DB_papers_rc1.db')
+conn = sqlite3.connect('../../data/redux/astrogen_DB_papers_rc2.db')
 c = conn.cursor()
 
 fl = ['ID', 'journal', 'journal_Q', 'year', 'bibcode', 'title', 'abstract',
@@ -95,7 +95,7 @@ fl = ['ID', 'journal', 'journal_Q', 'year', 'bibcode', 'title', 'abstract',
       'author_count', 'author_pos', 'inar', 'filter']
 fls = ', '.join(fl)    
 
-script = f'CREATE TABLE IF NOT EXISTS papers_rc1 ({fls})'
+script = f'CREATE TABLE IF NOT EXISTS papers ({fls})'
 c.execute(script)
 conn.commit()
 
@@ -124,5 +124,4 @@ df = pd.DataFrame(c.fetchall(), columns=['product_name','price'])
 print (df)
 
 
-"""
- 
+""" 

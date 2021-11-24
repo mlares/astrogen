@@ -429,11 +429,6 @@ def ciccatcodes(c):
     }
     return switcher.get(c, None)
 
- 
-
-
-
-
 def cic_category(c):
     """
     Categorize the stage in CONICET
@@ -460,6 +455,8 @@ def cic_category(c):
     """
     if c is None:
         return
+    if c is np.nan:
+        return
     L = c.split(',')
     if len(L)==1:
         return ccats(L[0])
@@ -478,6 +475,36 @@ def cic_category(c):
             return -1
         else:
             return 999
+
+
+
+
+def ynac_clean(y):
+    """
+    Clean year of birth
+
+    Paramerers
+    ----------
+    y: float or None
+
+    Returns
+    -------
+    int
+
+    Notes
+    -----
+    None: missing data
+    """
+    if y is None:
+        return None
+    elif isinstance(y, float):
+        return int(y)
+    elif isinstance(y, int):
+        return y
+    elif isinstance(y, str):
+        return int(float(y))
+    else:
+        return None
 
 
 ## steps ##
@@ -1096,7 +1123,6 @@ def S03_add_age(*args):
     for i in range(N):
         edad = df['edad'].iloc[i]
         dni = df['dni'].iloc[i]
-        print(dni)
         if edad < 1 and not np.isnan(dni):
             edad = age(dni, *pars_age)
         if edad < 1 and np.isnan(dni):
@@ -1157,7 +1183,9 @@ def S03_clean_and_sort(*args):
 
     D['edad'] = D['edad'].fillna('999').astype(int).replace({999: None})
 
+    D['cic'] = D.cic.replace({np.nan: None, '': None})
     D['cic'] = D.cic.apply(cic_category)
+
     D['conicet'] = D.conicet.apply(cic_category)
 
     # filter deceased (data from AAA)
@@ -1169,16 +1197,21 @@ def S03_clean_and_sort(*args):
     D = D[cond]
 
     # use_orcid -> bool
-    D = D.replace({np.nan: 0})
+    #D = D.replace({np.nan: 0})
     D.use_orcid = D.use_orcid.astype(bool)
 
     # ynac -> int
-    D.ynac = D.ynac.astype(int)
+    #D.ynac = D.ynac.astype(int)
+    #D.ynac = D.ynac.apply(ynac_clean, reduce=False) ???
+    for i in D.index:
+        if D.at[i, 'ynac'] is None:
+            D.at[i, 'ynac'] = None
+        else:
+            D.at[i, 'ynac'] = int(D.at[i, 'ynac'])
 
     # Add INDEX
     D.reset_index(drop=True, inplace=True)
     D['ID'] = D.index
-
 
     colsout = ['ads_str', 'dni', 'fnac', 'nac',  'aaa_soc', 
                'docencia', 'area', 'cic', 'cic_code', 'sexo']

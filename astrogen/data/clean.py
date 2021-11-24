@@ -25,7 +25,8 @@ df.drop(['LT_sigla'], axis=1, inplace=True)
 
 for i in range(2007,2020):
     cname = 'conicetcode' + str(i)
-    df[cname] = df[cname].apply(int)
+    #df[cname] = df[cname].apply(int)
+    df[cname] = df[cname].convert_dtypes().replace({np.nan: None})
 
 
 df.rename(columns={'conicetcode2007': 'cc07', 
@@ -62,16 +63,16 @@ df = df.drop(lst, axis=1)
 
 
 # -> DB
-conn = sqlite3.connect('../../data/redux/astrogen_DB_papers_rc1.db')
-c = conn.cursor()
-
-fileD = '../../data/redux/astrogen_DB_10.xlsx'
+fileD = '../../data/redux/astrogen_DB_rc2.xlsx'
 df.to_excel(fileD)
 
-script = 'CREATE TABLE IF NOT EXISTS load10 ('+', '.join(df.columns)+')'
+conn = sqlite3.connect('../../data/redux/astrogen_DB_papers_rc2.db')
+c = conn.cursor()
+
+script = 'CREATE TABLE IF NOT EXISTS people ('+', '.join(df.columns)+')'
 c.execute(script)
 conn.commit()
-df.to_sql('load10', conn, if_exists='replace', index = False)
+df.to_sql('people', conn, if_exists='replace', index = False)
 
 conn.close()
 
