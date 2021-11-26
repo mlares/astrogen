@@ -42,3 +42,14 @@ FROM astronomers
 WHERE cic="Adjunto";
 
 
+
+
+SELECT * FROM people
+WHERE 
+    edad BETWEEN 25 AND 80
+    AND
+	filter_authors==1
+
+
+
+   

@@ -21,6 +21,7 @@ from Parser import Parser
 from os import path, system
 from os.path import join as pathjoin
 from tqdm import tqdm
+from datetime import date
 from io import StringIO
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -1395,9 +1396,81 @@ def S04_pub_filter_criteria(*args):
     # arreglar a mano algunos autores:
     f_arq1[372] = True  # merchan, hay otro merchan afuera
 
-
     # año de la ultima publicación (activo en los ultimos 5 años)
     f_last = D.pub_años.apply(lambda x: max(x)>2016 if len(x)>0 else 0)
+
+    # elegir f_ar o f_arq1 para tomar papers Q1
+    #filter_authors = f_edad | f_last
+    filter_authors = f_edad & f_last & f_arq1
+
+    # TEST / / / / / / / / / / / / / /   (borrar)
+    #filter_authors = np.logical_or(filter_authors, True)
+    # TEST / / / / / / / / / / / / / / 
+
+    D['filter_authors'] = filter_authors
+    D['ID'] = range(D.shape[0])
+
+    # -----  -----  -----  -----  -----  -----  -----  -----  FILTER PAPERS
+
+    # limitar el numero de autores
+    Nmax = 50
+    f_lessauth = D.auth_num.apply(lambda x: np.array(x)<=Nmax)
+
+    # papers que son Q1
+    f_Q1 = D.auth_Q.apply(lambda x: np.array(x)==1)
+
+    # papers con menos de 50 autores en revistas Q1
+    filter_papers =  D.apply(lambda x: 
+                             np.logical_and(np.array(x['auth_num'])<50, 
+                                            np.array(x['auth_Q'])==1), axis=1)
+
+    if len(filter_papers)==0:
+        filter_papers = D.apply(lambda x: [True for i in
+            range(x.Npapers)], axis=1)
+    D['filter_papers'] = filter_papers
+
+    yield D
+
+
+def S04_pub_filter_criteria_apply(*args):
+    """
+    CRITERIA:
+
+    --- AUTORES
+    1 / Al menos un paper publicado en Argentina en los últimos 3 años
+    2 / Edad entre 25 y 75 años
+    3 / Fracción de papers Q1 publicados en Argentina mayor al 75%
+
+    --- PAPERS
+    4 / Menos de 50 autores
+    5 / Revistas Q1
+    """
+    D = args[0]
+
+    # -----  -----  -----  -----  -----  -----  -----  -----  FILTER AUTHORS
+    # rango de edad
+    D.edad.fillna(0, inplace=True)
+    f_edad = D.edad.between(25, 80)
+
+    # fraccion de papers con afiliación en Argentina
+    f_ar = D.apply(lambda x: x.auth_inar.count(1)/max(x.Npapers, 1), axis=1)
+
+    # fraccion de papers Q1 con afiliación en Argentina
+    def q1frac(series):
+         n = sum(np.logical_and(np.array(series.auth_inar)==1, 
+                                np.array(series.auth_Q)==1))
+         d = max(sum(np.array(series.auth_Q)==1),1)
+         z = n/d
+         return z
+    f_arq1 = D.apply(q1frac, axis=1)
+    f_arq1 = f_arq1 > 0.75
+    # arreglar a mano algunos autores:
+    f_arq1[372] = True  # merchan, hay otro merchan afuera
+
+    current_year = date.today().year
+
+    # año de la ultima publicación (activo en los ultimos 5 años)
+    f_last = D.pub_años.apply(lambda x: max(x)>(current_year-5) if len(x)>0 else 0)
 
     # elegir f_ar o f_arq1 para tomar papers Q1
     #filter_authors = f_edad | f_last
@@ -1413,22 +1486,19 @@ def S04_pub_filter_criteria(*args):
 
     # -----  -----  -----  -----  -----  -----  -----  -----  FILTER PAPERS
 
+    """ NO SE USA???
     # limitar el numero de autores
     Nmax = 50
     f_lessauth = D_selected.auth_num.apply(lambda x: np.array(x)<=Nmax)
 
     # papers que son Q1
     f_Q1 = D_selected.auth_Q.apply(lambda x: np.array(x)==1)
+    """
 
     # papers con menos de 50 autores en revistas Q1
     filter_papers =  D_selected.apply(lambda x: 
                              np.logical_and(np.array(x['auth_num'])<50, 
                                             np.array(x['auth_Q'])==1), axis=1)
-
-    # TEST / / / / / / / / / / / / / /  (borrar)
-    #filter_papers = D_selected.apply(lambda x: [True for i in
-    #    range(x.Npapers)], axis=1)
-    # TEST / / / / / / / / / / / / / / 
 
     if len(filter_papers)==0:
         filter_papers = D_selected.apply(lambda x: [True for i in
@@ -1436,6 +1506,11 @@ def S04_pub_filter_criteria(*args):
     D_selected['filter_papers'] = filter_papers
 
     yield D_selected
+
+     
+
+
+
 
 # -> auth_Q
 def S04_gen_journal_index(*args):
