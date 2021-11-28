@@ -130,12 +130,12 @@ if __name__ == '__main__' and '__file__' in globals():
     D = S02_add_ICATE_data(df6); df7 = next(D) 
 
     df = df7
-    for year in range(2007, 2020):
+    for year in range(2007, 2021):
         print(year)
         D = S02_add_CONICET_data(df, year)
         df = next(D)
 
-    df8 = df
+    df8 = df.copy()
     D = S03_add_gender(df8); df9 = next(D)  
     D = S03_add_age(df9); df10 = next(D)  
     D = S03_clean_and_sort(df10); df11 = next(D)

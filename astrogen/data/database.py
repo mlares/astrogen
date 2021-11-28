@@ -125,3 +125,31 @@ print (df)
 
 
 """ 
+
+"""
+LOAD DATA FROM SQL INTO PYTHON
+
+con pandas:
+
+conn = sqlite3.connect('file.db')
+sql = 'SELECT ...'
+df = pd.read_sql(sql, conn)
+
+sin pandas:
+
+conn = sqlite3.connect('file.db')
+conn.row_factory = sqlite3.Row
+
+cur = conn.cursor()
+sql = 'SELECT ...'
+cur.execute(sql)
+
+cur is a list...
+
+"""
+
+
+
+
+
+
