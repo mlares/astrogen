@@ -91,7 +91,3 @@ The curated dataset allows to construct sevarl indices:
 + H-index
 + relative position of a given author in the authors list
 
-
-
-
-

@@ -11,6 +11,7 @@ import sqlite3
 import unicodedata
 import re
 import csv 
+import warnings
 import pandas as pd
 import numpy as np
 
@@ -19,7 +20,6 @@ from scipy.optimize import curve_fit
 from sys import argv
 from Parser import Parser
 from os import path, system
-from os.path import join as pathjoin
 from tqdm import tqdm
 from datetime import date
 from io import StringIO
@@ -301,73 +301,56 @@ def gen_spreadsheet(auth, papers):
 
     lst = range(len(papers))
     apos = auth.auth_pos
-
     s1 = 'https://ui.adsabs.harvard.edu/abs/'
     s2 = '/abstract'
 
     aind = np.arange(auth.Npapers)[auth.filter_papers]
+    aind = np.arange(auth.Npapers)#[auth.filter_papers]
+    aind = np.ravel(aind)
 
-    if len(aind)<1: # no hay papers que cumplan con los criterios
-        df = pd.DataFrame({'Título': lst_title,
-                           'Autores': lst_auths,
-                           'Afiliaciones': lst_affs,
-                           'Año': lst_año,
-                           'Journal': lst_journal,
-                           'adsurl': lst_bibcode
-                          })
-        return df
+    if len(aind)>0:
+        for i in aind:
+            p = papers[i]
 
-    for i in aind:
-        p = papers[i]
+            aux = p.aff.copy()
+            aux[auth.auth_pos[i]] = f'<b>{aux[auth.auth_pos[i]]}</b>'
+            lst_affs.append(aux)
 
-        aux = p.aff.copy()
-        aux[auth.auth_pos[i]] = '<b>' + \
-                                aux[auth.auth_pos[i]] + \
-                                '</b>'
-        lst_affs.append(aux)
+            aux = p.author.copy()
+            aux[auth.auth_pos[i]] = f'<b>{aux[auth.auth_pos[i]]}</b>'
+            lst_auths.append(aux)
 
-        aux = p.author.copy()
-        aux[auth.auth_pos[i]] = '<b>' + \
-                                aux[auth.auth_pos[i]] + \
-                                '</b>'
-        lst_auths.append(aux)
-
-        if p.title is not None:
-            lst_title.append(p.title[0])
-        else:
-            lst_title.append('')
-        lst_año.append(p.year)
-        lst_journal.append(p.pub)
-        lst_bibcode.append(f'{s1}{p.bibcode}{s2}')
-
-        #lst_auth_selected.append(p.filter_authors)
-
-        #k = apos[i]
-        #lst_auth_aff.append(p.aff[k])
-        #lst_auth_nam.append(p.author[k])
+            if p.title is not None:
+                lst_title.append(p.title[0])
+            else:
+                lst_title.append('')
+            lst_año.append(p.year)
+            lst_journal.append(p.pub)
+            lst_bibcode.append(f'{s1}{p.bibcode}{s2}')
 
     df = pd.DataFrame({'Título': lst_title,
                        'Autores': lst_auths,
-                       #'auth_name': lst_auth_nam,
                        'Afiliaciones': lst_affs,
-                       #'auth_aff': lst_auth_aff,
                        'Año': lst_año,
                        'Journal': lst_journal,
                        'adsurl': lst_bibcode
                        })
-                       #'selected': lst_auth_selected})
     return df 
 
-def get_papers_from_df(x, clean=False):
-    ap = x.apellido.title()
-    fname_ap = '_'.join(ap.split())
-    nm = x.nombre
-    fname_nm = ''.join([a[0].upper() for a in nm.split()])
-    fname = '_'.join([fname_ap, fname_nm])
+def get_papers_from_df(x, clean=True):
+    #ap = x.apellido.title()
+    #fname_ap = '_'.join(ap.split())
+    #nm = x.nombre
+    #fname_nm = ''.join([a[0].upper() for a in nm.split()])
+    #fname = '_'.join([fname_ap, fname_nm])
+    folder = '../../data/interim/ADS/'
+
     if clean:
-        file_papers = '../../data/interim/ADS/' + fname + '_C1.pk' 
+        #file_papers = '../../data/interim/ADS/' + fname + '_C1.pk' 
+        file_papers = fnames(x, folder, '_C1.pk')
     else:
-        file_papers = '../../data/interim/ADS/' + fname + '.pk' 
+        #file_papers = '../../data/interim/ADS/' + fname + '.pk' 
+        file_papers = fnames(x, folder, '.pk')
     with open(file_papers, 'rb') as f:
         papers = pickle.load(f)
     return papers
@@ -1277,7 +1260,7 @@ def S04_pub_get_ads_entries(*args):
           'orcid_pub', 'aff', 'author', 'citation', 'pub', 'reference',
           'first_author', 'author_count', 'orcid_user', 'metrics',
           'year', 'read_count', 'pubdate']
-    rows_max = 300
+    rows_max = 500
     orcid_cck = 'use_orcid' in D.columns
     if orcid_cck:
         D.use_orcid[D.use_orcid.isna()] = 0
@@ -1289,12 +1272,6 @@ def S04_pub_get_ads_entries(*args):
     for i in range(N):
         print(i, N)
         x = D.iloc[i]
-        ap = x.apellido.title()
-        fname_ap = '_'.join(ap.split())
-        nm = x.nombre
-        fname_nm = ''.join([a[0].upper() for a in nm.split()])
-        fname = '_'.join([fname_ap, fname_nm])
-        auth = ', '.join([ap, getinitials(nm)])
 
         OPTS = {'rows': rows_max, 'fl': fl}
         if orcid_cck and x.use_orcid:
@@ -1302,9 +1279,14 @@ def S04_pub_get_ads_entries(*args):
             orcid_number = s[s.find('0'):]
             OPTS['orcid'] = orcid_number
         else:
+            ap = x.apellido.title()
+            nm = x.nombre
+            auth = ', '.join([ap, getinitials(nm)])
             OPTS['author'] = auth
 
-        filen = '../../data/interim/ADS/' + fname + '.pk'
+        folder = '../../data/interim/ADS/'
+        filen = fnames(x, folder, '.pk')
+
         # download only if file does not exist:
         if not path.isfile(filen):
             print(f'writing... {filen}')
@@ -1326,15 +1308,16 @@ def S04_pub_clean_papers(*args):
     # FILTRAR: calcular el filtro :::::::::::::::::::::::::
     lst = D.index
     apin = []
+    folder = '../../data/interim/ADS/'
     for i in tqdm(lst): # LISTA DE AUTORES
         x = D.loc[i]
-
-        ap = x.apellido.title()
-        fname_ap = '_'.join(ap.split())
-        nm = x.nombre
-        fname_nm = ''.join([a[0].upper() for a in nm.split()])
-        fname = '_'.join([fname_ap, fname_nm])
-        file_papers = '../../data/interim/ADS/' + fname + '.pk' 
+        #ap = x.apellido.title()
+        #fname_ap = '_'.join(ap.split())
+        #nm = x.nombre
+        #fname_nm = ''.join([a[0].upper() for a in nm.split()])
+        #fname = '_'.join([fname_ap, fname_nm])
+        #file_papers = '../../data/interim/ADS/' + fname + '.pk' 
+        file_papers = fnames(x, folder, '.pk')
 
         with open(file_papers, 'rb') as f:
             apapers = pickle.load(f)
@@ -1355,7 +1338,7 @@ def S04_pub_clean_papers(*args):
 
         papers = [apapers[k] for k in range(len(ipin)) if ipin[k]]
 
-        file_papers_out = '../../data/interim/ADS/' + fname + '_C1.pk' 
+        file_papers_out = fnames(x, folder, '_C1.pk')
         with open(file_papers_out, 'wb') as f:
            pickle.dump(papers, f)     
 
@@ -1430,85 +1413,6 @@ def S04_pub_filter_criteria(*args):
     D['filter_papers'] = filter_papers
 
     yield D
-
-
-def S04_pub_filter_criteria_apply(*args):
-    """
-    CRITERIA:
-
-    --- AUTORES
-    1 / Al menos un paper publicado en Argentina en los últimos 3 años
-    2 / Edad entre 25 y 75 años
-    3 / Fracción de papers Q1 publicados en Argentina mayor al 75%
-
-    --- PAPERS
-    4 / Menos de 50 autores
-    5 / Revistas Q1
-    """
-    D = args[0]
-
-    # -----  -----  -----  -----  -----  -----  -----  -----  FILTER AUTHORS
-    # rango de edad
-    D.edad.fillna(0, inplace=True)
-    f_edad = D.edad.between(25, 80)
-
-    # fraccion de papers con afiliación en Argentina
-    f_ar = D.apply(lambda x: x.auth_inar.count(1)/max(x.Npapers, 1), axis=1)
-
-    # fraccion de papers Q1 con afiliación en Argentina
-    def q1frac(series):
-         n = sum(np.logical_and(np.array(series.auth_inar)==1, 
-                                np.array(series.auth_Q)==1))
-         d = max(sum(np.array(series.auth_Q)==1),1)
-         z = n/d
-         return z
-    f_arq1 = D.apply(q1frac, axis=1)
-    f_arq1 = f_arq1 > 0.75
-    # arreglar a mano algunos autores:
-    f_arq1[372] = True  # merchan, hay otro merchan afuera
-
-    current_year = date.today().year
-
-    # año de la ultima publicación (activo en los ultimos 5 años)
-    f_last = D.pub_años.apply(lambda x: max(x)>(current_year-5) if len(x)>0 else 0)
-
-    # elegir f_ar o f_arq1 para tomar papers Q1
-    #filter_authors = f_edad | f_last
-    filter_authors = f_edad & f_last & f_arq1
-
-    # TEST / / / / / / / / / / / / / /   (borrar)
-    #filter_authors = np.logical_or(filter_authors, True)
-    # TEST / / / / / / / / / / / / / / 
-
-    D['filter_authors'] = filter_authors
-    D['ID'] = range(D.shape[0])
-    D_selected = D[D.filter_authors].copy()
-
-    # -----  -----  -----  -----  -----  -----  -----  -----  FILTER PAPERS
-
-    """ NO SE USA???
-    # limitar el numero de autores
-    Nmax = 50
-    f_lessauth = D_selected.auth_num.apply(lambda x: np.array(x)<=Nmax)
-
-    # papers que son Q1
-    f_Q1 = D_selected.auth_Q.apply(lambda x: np.array(x)==1)
-    """
-
-    # papers con menos de 50 autores en revistas Q1
-    filter_papers =  D_selected.apply(lambda x: 
-                             np.logical_and(np.array(x['auth_num'])<50, 
-                                            np.array(x['auth_Q'])==1), axis=1)
-
-    if len(filter_papers)==0:
-        filter_papers = D_selected.apply(lambda x: [True for i in
-            range(x.Npapers)], axis=1)
-    D_selected['filter_papers'] = filter_papers
-
-    yield D_selected
-
-     
-
 
 
 
@@ -1883,11 +1787,13 @@ def S04_make_pages(*args):
     """
     STEP: S04_make pages
 
-    Generate web pages with the list of candidate publication entries. Each entry has a checkbox
-    that, when marked, selects the entry for elimination of the list.
-    The webpage allows check "by eye" the list of entries and to save a filter to further clean the 
-    list of publications. Additionally, the page contains links to the ADSABS pages of each author,
-    preselected with the following criteria:
+    Generate web pages with the list of candidate publication entries. Each
+    entry has a checkbox that, when marked, selects the entry for elimination
+    of the list. The webpage allows check "by eye" the list of entries and 
+    to save a filter to further clean the list of publications. Additionally,
+    the page contains links to the ADSABS pages of each author, preselected
+    with the following criteria:
+
     - less than 50 authors
     - refereed papers
     - Q1 journals
@@ -1922,37 +1828,44 @@ def S04_make_pages(*args):
 
     # checkboxes
     s1 = '<input type="checkbox" name="check'
-    s2 = '" value="" /><br>'
+    s2 = ' /><br>'
     # urls
     s3 = '<a href="'
     s4 = '">'
     s5 = '</a>'
 
     source_dir = '../../data/interim/htmls/'
-    for kounter, i in tqdm(enumerate(D.index)):
+    for i in tqdm(D.index):
 
         auth = D.loc[i]
-        p = get_papers_from_df(auth)
-        df = gen_spreadsheet(auth, p)
+        papers = get_papers_from_df(auth)
+        df = gen_spreadsheet(auth, papers)
 
         df.sort_values(by=['Año'], axis='index', inplace=True)
-        S = [f'{s1}{str(i+1).zfill(3)}{s2}' for i in range(df.shape[0])]
-        df['exclude'] = S
+
+        FP = np.array(auth.filter_papers)
+
+        if FP.size>0:
+            S = []
+            for i, x in enumerate(FP.reshape([-1])):
+                ck = 'checked' if not bool(x) else ''
+                S.append(f'{s1}{str(i+1).zfill(3)}" value="" {ck}{s2}')
+            df['exclude'] = S
+        else:
+            df['exclude'] = []
 
         url = [f'{s3}{r}{s4}{t}{s5}' for r, t in zip(df.adsurl, df.Título)]
         df['linkurl'] = url
         title_links = df.apply(lambda x: x.linkurl.replace('link', x.Título), axis=1)
-        if sum(auth.filter_papers)>0:
+        if FP.size>0:        
             df['title_links'] = title_links
         else:
             df['title_links'] = [] 
         df['counter'] = np.arange(1,df.shape[0]+1)
 
         dfo = df.iloc[:, [9,3,4,8,6,1,2]].copy()
-
         dfo = dfo.assign(Autores=dfo.Autores.apply(lambda x: '<br>'.join(x)))
         dfo = dfo.assign(Afiliaciones=dfo.Afiliaciones.apply(lambda x: '<br>'.join(x)))
-
         N = df.shape[0]
 
         #--- template
@@ -1960,19 +1873,84 @@ def S04_make_pages(*args):
         dfo.to_html(buf=str_io, index=False, index_names=False, escape=False)
         html_str = str_io.getvalue()
 
-        fname = (f'{str(kounter).zfill(3)}_{str(i).zfill(3)}_'
-                 f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.html')
-        fout = f'{str(kounter).zfill(3)}_{str(i).zfill(3)}_{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.txt'
+        #fname = (f'{str(i).zfill(3)}_'
+        #         f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.html')
+        #fout = (f'{str(i).zfill(3)}_'
+        #        f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.txt')
+        filename = fnames(auth, source_dir, '.html')
+        fout = fnames(auth, source_dir, '.txt')
 
-        filename = pathjoin(source_dir, fname)
         target = open(filename, 'w')
         target.write(template_page.render(N=N,
                                           html_str=html_str,
                                           auth=auth,
                                           filedata=fout))
         target.close()
+    yield D
+
+def S04_load_check_filters(*args):
+    """
+    STEP: S04 check pages
+
+    Use filters to further select papers
+
+    Returns:
+    D: DataFrame containing the data (including journal index)
+    """
+    D = args[0]
+
+    source_dir = '../../data/interim/htmls/'
+    filters = []
+    for i in tqdm(D.index):
+        auth = D.loc[i]
+        p = get_papers_from_df(auth)
+        N = len(p)
+        #nn = getinitialscompact(auth.nombre)
+        #fout = (f'{source_dir}{str(i).zfill(3)}_'
+        #        f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.txt')
+        fout = fnames(auth, source_dir, '.txt')
+ 
+        # si existe usarlo, sino, crearlo con todo true
+        from os.path import isfile
+        if isfile(fout):
+            # read
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                fltr = np.loadtxt(fout, dtype=bool)
+        else:
+            # create using software generated Q index
+            fltr = [x==1 for x in auth.auth_Q]
+
+            np.savetxt(fout, fltr, fmt='%.0i')
+        filters.append(fltr)
+    D['filter_papers'] = filters
+    yield D
+
+
+
+def S05_anonymize(*args):
+    """
+    STEP: S05: anonymize
+
+    In this step, columns of the database that are linked directly
+    to people are eliminated.
+
+    Returns:
+    D: DataFrame containing the data
+
+    """     
+    D = args[0] 
+
+    colsout = ['apellido', 'nombre']
+
+    D.drop(colsout, axis=1, inplace=True)  
 
     yield D
+
+
+
+
+
 
 
 # LOAD

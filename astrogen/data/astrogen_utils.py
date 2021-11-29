@@ -124,8 +124,6 @@ def ds2(ap1, ap2, nom1, nom2):
     names_dist = np.sqrt(d_apel**2 + d_nomb**2)
     return names_dist
 
-
-
 def initials(initials, string):
     """
     Check if the initials of two names coincide.
@@ -172,6 +170,20 @@ def getinitials(nombre):
     """
     res = ' '.join([a[0].upper()+'.' for a in nombre.split()])
     return res
+
+def getinitialscompact(nombre):
+    """
+    Get the initials of a full name
+
+    e.g.: 'Jose Facundo' --> 'JF'
+
+    Args:
+
+    Returns:
+
+    """
+    res = ''.join([a[0].upper() for a in nombre.split()])
+    return res  
  
 def pickone(df, au, sift):
     """
@@ -195,8 +207,27 @@ def pickone(df, au, sift):
     return sift
  
 def similar(a, b):
-    r = SequenceMatcher(None, a, b).ratio()
+    r = difflib.SequenceMatcher(None, a, b).ratio()
     return r
+
+# DATA GOVERNANCE :::::::::::::::::::::::::::::::::::::::
+
+def fnames(auth, folder, extension):
+    """
+    build the file name
+    """
+    from os.path import join as pathjoin
+
+    ap = auth.apellido.title()
+    fname_ap = '_'.join(ap.split())
+    nm = auth.nombre
+
+    fname_nm = ''.join([a[0].upper() for a in nm.split()])
+    fname = '_'.join([fname_ap, fname_nm])
+
+    filen = pathjoin(folder, fname + extension)
+    return filen
+
 
 
 # TEXT MANIPULATION ::::::::::::::::::::::::::::::::::::::::::::

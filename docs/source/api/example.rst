@@ -1,8 +1,6 @@
 Example
 ======================
 
-
-
 This project is organized as an API to be used from a python prompt.
 
 Steps:
@@ -211,4 +209,25 @@ This structure must be used with the configuration file defaults. If a
 different structure is needed, the corresponding names of the
 directories must be changed, of the code edited so as to ignore the
 parsing of the configuration file and override the default values.
+
+
+
+
+Once the settings have been saved, run the pipeline:
+
+.. code-block:: bash
+
+   cd astrogen/astrogen/data
+   python pipeline
+   python clean
+   python database
+
+
+
+
+
+
+
+
+
 
