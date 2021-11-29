@@ -63,8 +63,8 @@ def paper2tuple(auth, p, k):
 def paper2tuple_modified(auth, p, k):
     a1 = int(auth.ID)
     a2 = p.pub
-    a3 = auth.auth_Q[k]
-    a4 = p.year
+    a3 = int(auth.auth_Q[k])
+    a4 = int(p.year)
     a5 = p.bibcode
     if isinstance(p.title, list):
         a6 = p.title[0]
@@ -73,11 +73,11 @@ def paper2tuple_modified(auth, p, k):
     a7 = p.abstract
     a8 = ', '.join(p.author)
     a9 = ', '.join(p.aff)
-    a10 = p.citation_count
-    a11 = p.author_count
-    a12 = auth.auth_pos[k]
-    a13 = auth.auth_inar[k]
-    a14 = auth.filter_papers[k]
+    a10 = int(p.citation_count)
+    a11 = int(p.author_count)
+    a12 = int(auth.auth_pos[k])
+    a13 = int(auth.auth_inar[k])
+    a14 = bool(auth.filter_papers[k])
     a14 = 1 if a14 else 0
 
     t = tuple((a1, a2, a3, a4, a5, a6, a7, a8, a9,
@@ -90,9 +90,20 @@ def paper2tuple_modified(auth, p, k):
 conn = sqlite3.connect('../../data/redux/astrogen_DB_papers_rc2.db')
 c = conn.cursor()
 
-fl = ['ID', 'journal', 'journal_Q', 'year', 'bibcode', 'title', 'abstract',
-      'authors', 'affilliations', 'citation_count', 
-      'author_count', 'author_pos', 'inar', 'filter']
+fl = ['ID',
+      'journal',
+      'journal_Q',
+      'year',
+      'bibcode',
+      'title',
+      'abstract',
+      'authors',
+      'affilliations',
+      'citation_count', 
+      'author_count',
+      'author_pos',
+      'inar',
+      'filter']
 fls = ', '.join(fl)    
 
 script = f'CREATE TABLE IF NOT EXISTS papers ({fls})'
@@ -125,31 +136,3 @@ print (df)
 
 
 """ 
-
-"""
-LOAD DATA FROM SQL INTO PYTHON
-
-con pandas:
-
-conn = sqlite3.connect('file.db')
-sql = 'SELECT ...'
-df = pd.read_sql(sql, conn)
-
-sin pandas:
-
-conn = sqlite3.connect('file.db')
-conn.row_factory = sqlite3.Row
-
-cur = conn.cursor()
-sql = 'SELECT ...'
-cur.execute(sql)
-
-cur is a list...
-
-"""
-
-
-
-
-
-

@@ -53,3 +53,32 @@ WHERE
 
 
    
+select 
+	bibcode,
+	ID,
+	COUNT(*) as cc
+FROM papers
+group by ID
+HAVING cc>200
+
+
+
+
+--create TABLE pp
+--AS
+select *,
+       COUNT(*) as cc,
+	   MAX(p.year) as ymx
+    FROM papers as p
+	INNER JOIN people as g
+    WHERE 
+	    p.ID==g.ID
+		AND
+		g.edad BETWEEN 40 AND 85
+		AND
+		p.journal_Q==1
+		AND
+		p.author_count<51
+		AND
+		p.inar==1
+	GROUP BY p.ID

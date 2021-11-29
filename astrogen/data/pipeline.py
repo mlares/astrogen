@@ -1134,8 +1134,7 @@ def S03_add_age(*args):
 
 
     # Ahora revisar la lista de edades de conicet
-    filename = f'../../data/collect/collect_conicet.xlsx'
-    CIC = pd.read_excel(filename, sheet_name='2019')
+    CIC = pd.read_excel('../../data/collect/collect_conicet.xlsx')
     CIC.drop(CIC.filter(regex="Unname"),axis=1, inplace=True)
     filt, inds = get_filters_by_names(df, CIC)
     df = fill_empty_columns(df, CIC)
