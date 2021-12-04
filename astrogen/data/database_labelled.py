@@ -4,7 +4,7 @@ import sqlite3
 from pipeline import *
 
 
-with open('../../data/redux/astrogen_DB.pk', 'rb') as f:
+with open('../../data/redux/astrogen_DB_labelled.pk', 'rb') as f:
     df = pickle.load(f)
 
 
@@ -32,32 +32,32 @@ def insertMultipleRecords(recordList, sqliteConnection, fls):
     #        print("The SQLite connection is closed")
 
 
-def paper2tuple(auth, p, k):
-    a1 = int(auth.ID)
-    a2 = auth.apellido  #!
-    if isinstance(p.title, list):
-        a3 = p.title[0]
-    else:
-        a3 = ''
-    a4 = p.abstract
-    a5 = ', '.join(p.author)
-    a6 = ', '.join(p.aff)
-    a7 = p.author_count
-    a8 = p.bibcode
-    a9 = p.citation_count
-    a10 = p.year
-    a11 = p.pubdate
-    a12 = auth.auth_Q[k]
-    a13 = auth.cita_Q[k]
-    a14 = auth.auth_pos[k]
-    a15 = auth.auth_num[k] #!
-    a16 = auth.auth_inar[k]
-    a17 = auth.filter_papers[k]
-    a17 = 1 if a17 else 0
-
-    t = tuple((a1, a2, a3, a4, a5, a6, a7, a8, a9,
-               a10, a11, a12, a13, a14, a15, a16, a17))
-    return t
+#def paper2tuple(auth, p, k):
+#    a1 = int(auth.ID)
+#    a2 = auth.apellido  #!
+#    if isinstance(p.title, list):
+#        a3 = p.title[0]
+#    else:
+#        a3 = ''
+#    a4 = p.abstract
+#    a5 = ', '.join(p.author)
+#    a6 = ', '.join(p.aff)
+#    a7 = p.author_count
+#    a8 = p.bibcode
+#    a9 = p.citation_count
+#    a10 = p.year
+#    a11 = p.pubdate
+#    a12 = auth.auth_Q[k]
+#    a13 = auth.cita_Q[k]
+#    a14 = auth.auth_pos[k]
+#    a15 = auth.auth_num[k] #!
+#    a16 = auth.auth_inar[k]
+#    a17 = auth.filter_papers[k]
+#    a17 = 1 if a17 else 0
+#
+#    t = tuple((a1, a2, a3, a4, a5, a6, a7, a8, a9,
+#               a10, a11, a12, a13, a14, a15, a16, a17))
+#    return t
 
 
 def paper2tuple_modified(auth, p, k):
@@ -77,17 +77,14 @@ def paper2tuple_modified(auth, p, k):
     a11 = int(p.author_count)
     a12 = int(auth.auth_pos[k])
     a13 = int(auth.auth_inar[k])
-    a14 = bool(auth.filter_papers[k])
+    a14 = bool(auth.filter_papers.reshape([-1])[k])
     a14 = 1 if a14 else 0
 
     t = tuple((a1, a2, a3, a4, a5, a6, a7, a8, a9,
                a10, a11, a12, a13, a14))
     return t
  
- 
- 
-
-conn = sqlite3.connect('../../data/redux/astrogen_DB_papers_rc2.db')
+conn = sqlite3.connect('../../data/redux/astrogen_DB_labelled.db')
 c = conn.cursor()
 
 fl = ['ID',

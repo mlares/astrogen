@@ -212,7 +212,7 @@ def similar(a, b):
 
 # DATA GOVERNANCE :::::::::::::::::::::::::::::::::::::::
 
-def fnames(auth, folder, extension):
+def fnames(auth, folder, extension, include_path=True):
     """
     build the file name
     """
@@ -224,8 +224,11 @@ def fnames(auth, folder, extension):
 
     fname_nm = ''.join([a[0].upper() for a in nm.split()])
     fname = '_'.join([fname_ap, fname_nm])
+    if include_path:
+        filen = pathjoin(folder, fname + extension)
+    else:
+        filen = fname + extension
 
-    filen = pathjoin(folder, fname + extension)
     return filen
 
 

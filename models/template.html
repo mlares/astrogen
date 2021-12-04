@@ -48,10 +48,11 @@ ${check\VAR{ '%03d' % i }}
       <p style="font-size:2vw">\VAR{ auth.apellido }, \VAR{ auth.nombre }</p>
       <ul>
          <li> Edad: \VAR{ auth.edad | int } </li> 
-         <li> CIC: \VAR{ auth.cic }  </li>
+         <li> CIC: <a href="\VAR{ auth.cic }">\VAR{ auth.cic }</a> </li>
          <li> Afiliación conocida: \VAR{ auth.aff }  </li>
          <li> ORCID: \VAR{ auth.orcid }  </li>
-         <li> Cantidad de papers (filtrados automáticamente): \VAR{ N } </li>
+         <li> Cantidad de artículos publicados (sin BAAA): \VAR{ N } </li>
+         <li> Cantidad de papers Q1 con menos de 51 autores: \VAR{ Ni } </li>
          <li> <a
        href="https://ui.adsabs.harvard.edu/search/p_=0&q=%20author%3A%22\VAR{ auth.apellido }%2C%20\VAR{ auth.nombre[0] }.%22&sort=date%20desc%2C%20bibcode%20desc">Link ADS (solo por nombre)</a> </li>
 
@@ -61,7 +62,8 @@ ${check\VAR{ '%03d' % i }}
       </ul>
 
        <br>
-       Seleccionar los articulos <b>que deben ser descartados</b>
+       Seleccionar los articulos <b>de la submuestra seleccionada</b>
+       de revistas Q1 con menos de 51 autores.
        <br>
        <br>
        

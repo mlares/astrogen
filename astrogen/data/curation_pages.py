@@ -8,9 +8,14 @@ from astrogen_utils import fnames
 
 # READ DATA
 
-file_D = '../../data/redux/astrogen_DB.pk'
+file_D = '../../data/redux/astrogen_DB_labelled.pk'
 with open(file_D, 'rb') as f:
     D = pickle.load(f)
+
+# sortear random
+N = D.shape[0]
+ids = np.random.choice(range(N), N, replace=False)
+D = D.loc[ids]
 
 # APPLY TEMPLATE
 

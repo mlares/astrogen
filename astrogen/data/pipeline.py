@@ -25,7 +25,7 @@ from datetime import date
 from io import StringIO
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2
+from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2, fnames
 from astrogen_utils import initials, getinitials, pickone, similar
 
 
@@ -489,6 +489,25 @@ def ynac_clean(y):
         return int(float(y))
     else:
         return None
+
+
+def focus_authors(s, pos):
+    """
+    show a small sample of authors that include the given author.
+    """
+    N = len(s)
+    imin = max(pos-5, 0)
+    imax = min(pos+5, N)
+    S = []
+    if imin>1:
+        S.append(s[0])
+        S.append('...')
+    for i in range(imin, imax):
+        S.append(s[i])
+    if imax<(N-2):
+        S.append('...')
+        S.append(s[-1])
+    return S  
 
 
 ## steps ##
@@ -1199,7 +1218,6 @@ def S03_clean_and_sort(*args):
 
     colsout = ['ads_str', 'dni', 'fnac', 'nac',  'aaa_soc', 
                'docencia', 'area', 'cic', 'cic_code', 'sexo']
-
     D.drop(colsout, axis=1, inplace=True)  
 
     yield D
@@ -1841,18 +1859,20 @@ def S04_make_pages(*args):
         papers = get_papers_from_df(auth)
         df = gen_spreadsheet(auth, papers)
 
-        df.sort_values(by=['Año'], axis='index', inplace=True)
+        #df.sort_values(by=['Año'], axis='index', inplace=True)
+        idx = np.argsort(df.Año.values)
+        df = df.loc[idx, :]
+        FP = np.array(auth.filter_papers.reshape([-1])[idx])
 
-        FP = np.array(auth.filter_papers)
-
+        # mark checkboxes according to the estimated subsampling
         if FP.size>0:
             S = []
             for i, x in enumerate(FP.reshape([-1])):
-                ck = 'checked' if not bool(x) else ''
+                ck = 'checked' if bool(x) else ''
                 S.append(f'{s1}{str(i+1).zfill(3)}" value="" {ck}{s2}')
-            df['exclude'] = S
+            df['include'] = S
         else:
-            df['exclude'] = []
+            df['include'] = []
 
         url = [f'{s3}{r}{s4}{t}{s5}' for r, t in zip(df.adsurl, df.Título)]
         df['linkurl'] = url
@@ -1864,9 +1884,17 @@ def S04_make_pages(*args):
         df['counter'] = np.arange(1,df.shape[0]+1)
 
         dfo = df.iloc[:, [9,3,4,8,6,1,2]].copy()
+
+        for k in dfo.index:
+            aut = focus_authors(dfo.Autores[k], auth.auth_pos[k])
+            dfo.at[k, 'Autores'] = aut
+            aff = focus_authors(dfo.Afiliaciones[k], auth.auth_pos[k])
+            dfo.at[k, 'Afiliaciones'] = aff
+
         dfo = dfo.assign(Autores=dfo.Autores.apply(lambda x: '<br>'.join(x)))
         dfo = dfo.assign(Afiliaciones=dfo.Afiliaciones.apply(lambda x: '<br>'.join(x)))
         N = df.shape[0]
+        Ni = sum(FP)
 
         #--- template
         str_io = StringIO()
@@ -1878,15 +1906,17 @@ def S04_make_pages(*args):
         #fout = (f'{str(i).zfill(3)}_'
         #        f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.txt')
         filename = fnames(auth, source_dir, '.html')
-        fout = fnames(auth, source_dir, '.txt')
+        fout = fnames(auth, source_dir, '.txt', False)
 
         target = open(filename, 'w')
         target.write(template_page.render(N=N,
+                                          Ni=Ni,
                                           html_str=html_str,
                                           auth=auth,
                                           filedata=fout))
         target.close()
     yield D
+
 
 def S04_load_check_filters(*args):
     """
@@ -1919,8 +1949,9 @@ def S04_load_check_filters(*args):
                 fltr = np.loadtxt(fout, dtype=bool)
         else:
             # create using software generated Q index
-            fltr = [x==1 for x in auth.auth_Q]
-
+            fltr1 = [x==1 for x in auth.auth_Q]
+            fltr2 = [True if x<51 else False for x in auth.auth_num]
+            fltr = np.logical_and(np.array(fltr1), np.array(fltr2))
             np.savetxt(fout, fltr, fmt='%.0i')
         filters.append(fltr)
     D['filter_papers'] = filters
@@ -1941,7 +1972,8 @@ def S05_anonymize(*args):
     """     
     D = args[0] 
 
-    colsout = ['apellido', 'nombre']
+    colsout = ['apellido', 'nombre', 'ynac', 'aff', 'orcid',
+            'use_orcid', 'LT_sigla', 'conicet']
 
     D.drop(colsout, axis=1, inplace=True)  
 
@@ -1974,8 +2006,29 @@ def load_final(*args):
     D: DataFrame containing the data
 
     """   
-
     D = args[0]
+    fileD = '../../data/redux/astrogen_DB_labelled.pk'
+    with open(fileD, 'wb') as f:
+       pickle.dump(D, f)
+
+    ##
+    #fileD = '../../data/redux/astrogen_DB_labelled.csv'
+    #with open(fileD, 'w') as f:
+    #   D.to_csv(f)
+    ##
+    #fileD = '../../data/redux/astrogen_DB_labelled.xlsx'
+    #D.to_excel(fileD)
+
+
+def load_anonymized(*args):
+    """
+    """   
+    D = args[0]
+
+    # antes de anonimizar correr curation pages
+    D = S05_anonymize(D)
+    D = next(D)
+
     fileD = '../../data/redux/astrogen_DB.pk'
     with open(fileD, 'wb') as f:
        pickle.dump(D, f)
@@ -1986,7 +2039,8 @@ def load_final(*args):
        D.to_csv(f)
     #
     fileD = '../../data/redux/astrogen_DB.xlsx'
-    D.to_excel(fileD)
+    D.to_excel(fileD) 
+
 
 # PIPELINE
 """

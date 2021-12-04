@@ -42,13 +42,16 @@ if __name__ == '__main__' and '__file__' in globals():
     D = S04_load_check_filters(df17); df18 = next(D)
 
     load_final(df18)
-
-    D = S05_anonymize(df18); df19 = next(D)
+#    load_anonymized(df18)
 
 
 """
 Then, run:
-    clean
-    curation_pages
-    database
+PYTHON:
+    clean.py
+    curation_pages.py
+    database.py
+
+SQL:
+
 """

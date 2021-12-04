@@ -4,7 +4,7 @@ import sqlite3
 from pipeline import *
 
 
-with open('../../data/redux/astrogen_DB.pk', 'rb') as f:
+with open('../../data/redux/astrogen_DB_labelled.pk', 'rb') as f:
     df = pickle.load(f)  
 
 df.drop(['filter_papers'], axis=1, inplace=True)
@@ -51,22 +51,26 @@ for i in df.index:
         l = ', '.join(list(s)).strip()
         df.at[i, 'aff'] = l
 
+lst= ['auth_Q', 'cita_Q', 'pub_años', 'auth_pos', 'auth_num',
+          'auth_inar', 'auth_citas']
+
+df = df.drop(lst, axis=1)
 
 cols = df.columns.tolist()
 cc = [cols[19]] + cols[:4] + cols[17:19] + cols[20:] + cols[4:17]
 
-df = df[cc]
+df = df[cc]   
 
-lst= ['auth_Q', 'cita_Q', 'pub_años', 'auth_pos', 'auth_num',
-          'auth_inar', 'auth_citas']
-df = df.drop(lst, axis=1)
 
 
 # -> DB
-fileD = '../../data/redux/astrogen_DB_rc2.xlsx'
+fileD = '../../data/redux/astrogen_DB_labelled.xlsx'
 df.to_excel(fileD)
 
-conn = sqlite3.connect('../../data/redux/astrogen_DB_papers_rc2.db')
+fileD = '../../data/redux/astrogen_DB_labelled.csv'
+df.to_csv(fileD)
+
+conn = sqlite3.connect('../../data/redux/astrogen_DB_labelled.db')
 c = conn.cursor()
 
 script = 'CREATE TABLE IF NOT EXISTS people ('+', '.join(df.columns)+')'
@@ -75,10 +79,3 @@ conn.commit()
 df.to_sql('people', conn, if_exists='replace', index = False)
 
 conn.close()
-
-
-
-
-
-
-
