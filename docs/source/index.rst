@@ -45,7 +45,9 @@ Here we describe the tools (software) to retrieve, curate and analyze data relat
 
    api/astrogen_utils
    api/pipeline
+   project/etl
    api/example
+   project/figures
 
 
 ********************

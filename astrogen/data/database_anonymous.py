@@ -78,6 +78,8 @@ for i in df.index:
 
 insertMultipleRecords(recordsToInsert, conn, fls)
 
+conn.commit()
+
 conn.close()
 
 """

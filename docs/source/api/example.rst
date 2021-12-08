@@ -219,15 +219,6 @@ Once the settings have been saved, run the pipeline:
 
    cd astrogen/astrogen/data
    python pipeline
-   python clean
-   python database
-
-
-
-
-
-
-
-
-
+   python clean_anonymous
+   python database_anonymous
 
