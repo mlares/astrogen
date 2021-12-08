@@ -1,8 +1,6 @@
 Example
 ======================
 
-
-
 This project is organized as an API to be used from a python prompt.
 
 Steps:
@@ -27,6 +25,9 @@ The list of requirements is given in the file "requirements.txt":
 + scipy
 + ads
 + sklearn
+
+In order to run the data pipeline, which connects to the ADS online database,
+an API KEY is required. Documentation for obtaining and using this key can be found in the `ADS API documentation <https://ui.adsabs.harvard.edu/help/api/>`_.
 
 
 .. code-block:: bash
@@ -188,14 +189,15 @@ The directory tree structure is defined as follows:
     ├── astrogen
     │   ├── data
     │   ├── dataviz
-    │   └── models
+    │   ├── models
+    │   └── sql
     ├── data
     │   ├── external
     │   │   ├── ADS
     │   │   └── ORCID
     │   ├── interim
     │   │   └── ADS
-    │   ├── raw
+    │   ├── collect
     │   └── redux
     ├── docs
     │   └── source
@@ -204,6 +206,7 @@ The directory tree structure is defined as follows:
     │       └── project
     ├── models
     ├── notebooks
+    ├── figures
     └── sets
 
 
@@ -212,3 +215,21 @@ different structure is needed, the corresponding names of the
 directories must be changed, of the code edited so as to ignore the
 parsing of the configuration file and override the default values.
 
+
+
+
+Once the settings have been saved, run the pipeline:
+
+.. code-block:: bash
+
+   cd astrogen/astrogen/data
+   python pipeline
+
+This code generates a pickle file containing a pandas dataframe with
+the full dataset. An SQL data file similar to the one provided can be
+generated adding the following steps:
+
+.. code-block:: bash
+
+   python clean_anonymous
+   python database_anonymous

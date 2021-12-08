@@ -29,10 +29,11 @@ of the gender representations in the astronomical community in Argentina.
 
    project/proposal
    project/datapipeline
-   project/references
    project/output
+   project/dataset
    project/aboutus
 
+.. project/references
 
 Here we describe the tools (software) to retrieve, curate and analyze data related to the project.
 
@@ -45,6 +46,7 @@ Here we describe the tools (software) to retrieve, curate and analyze data relat
    api/astrogen_utils
    api/pipeline
    api/example
+   project/figures
 
 
 ********************

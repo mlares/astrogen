@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <script language="Javascript">
+         /* Run script after DOMContentLoaded event to ensure form element is 
+         present */
+         document.addEventListener("DOMContentLoaded", function() {
+           /* Obtain form element via querySelector */
+           const form = document.querySelector('form[name="addtext"]');
+
+           /* Bind listener to forms submit event */
+           form.addEventListener("submit", function(event) {
+             /* Prevent browsers default submit and page-reload behavior */
+             event.preventDefault();
+
+             /* Obtain values from each field in form */
+
+\BLOCK{ for i in range(1,N+1) }
+const check\VAR{ '%03d' % i } = form.querySelector('input[name="check\VAR{ '%03d' % i }"]').checked; 
+\BLOCK{ endfor }
+
+const filename = '\VAR{ filedata }'
+
+
+/* Compose text file content */
+const text = `\BLOCK{ for i in range(1, N+1) }
+${check\VAR{ '%03d' % i }}
+\BLOCK{ endfor }`;
+
+             /* Create temporary link element and trigger file download  */
+             const link = document.createElement("a");
+             const href = "data:text/plain;charset=utf-8," + encodeURIComponent(text);
+             link.setAttribute("href", href);
+             link.setAttribute("download", filename);
+
+             document.body.appendChild(link);
+             link.click();
+             document.body.removeChild(link);
+
+           });
+         });
+        </script>
+    </head>
+
+    <body>
+
+      <p style="font-size:2vw">\VAR{ auth.apellido }, \VAR{ auth.nombre }</p>
+      <ul>
+         <li> Edad: \VAR{ auth.edad | int } </li> 
+         <li> CIC: <a href="\VAR{ auth.cic }">\VAR{ auth.cic }</a> </li>
+         <li> Afiliación conocida: \VAR{ auth.aff }  </li>
+         <li> ORCID: \VAR{ auth.orcid }  </li>
+         <li> Cantidad de artículos publicados (sin BAAA): \VAR{ N } </li>
+         <li> Cantidad de papers Q1 con menos de 51 autores: \VAR{ Ni } </li>
+         <li> <a
+       href="https://ui.adsabs.harvard.edu/search/p_=0&q=%20author%3A%22\VAR{ auth.apellido }%2C%20\VAR{ auth.nombre[0] }.%22&sort=date%20desc%2C%20bibcode%20desc">Link ADS (solo por nombre)</a> </li>
+
+        <li> <a
+         href="https://ui.adsabs.harvard.edu/search/filter_bibstem_facet_fq_bibstem_facet=NOT&filter_bibstem_facet_fq_bibstem_facet=*%3A*&filter_bibstem_facet_fq_bibstem_facet=bibstem_facet%3A%22BAAA%22&filter_property_fq_property=AND&filter_property_fq_property=property%3A%22refereed%22&fq=%7B!type%3Daqp%20v%3D%24fq_property%7D&fq=%7B!type%3Daqp%20v%3D%24fq_bibstem_facet%7D&fq_bibstem_facet=(*%3A*%20NOT%20bibstem_facet%3A%22BAAA%22)&fq_property=(property%3A%22refereed%22)&p_=0&q=%20author%3A%22\VAR{ auth.apellido }%2C%20\VAR{ auth.nombre[0] }.%22%20%20author_count%3A%5B0%20TO%2051%5D&sort=date%20desc%2C%20bibcode%20desc">Link ADS (refereed, excluding BAAA, menos de 51 autores)</a> </li>
+       
+      </ul>
+
+       <br>
+       Seleccionar los articulos <b>de la submuestra seleccionada</b>
+       de revistas Q1 con menos de 51 autores.
+       <br>
+       <br>
+       
+      <!-- Ensure that the name attribute does not include invalid characters 
+      or nested "" which cause confusion-->
+      <form name="addtext">
+
+\VAR{ html_str }
+      
+<!--  <td><input type="checkbox" name="check0" value="" /><br></td> -->
+
+
+<br>
+
+<div style="text-align:center;">
+        <input type="submit" value="Guardar" />
+</div>
+
+<br>
+<br>
+      </form>
+
+    </body>
+</html> 
+
+
