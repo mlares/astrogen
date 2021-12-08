@@ -1,7 +1,9 @@
 References
 ============
 
-In this section we list several data sources.
+In this section we list several information
+services, social networks and government departments that promote
+positive discrimination based on gender.
 
 
 in the news

@@ -20,6 +20,22 @@ UNC
    python visualize_unc
 
 
+
+.. image:: ../../../figures/graduates_by_year.png
+    :width: 400
+    :align: center
+
+.. image:: ../../../figures/time_to_graduation.png
+    :width: 400
+    :align: center
+
+.. image:: ../../../figures/dropout_rates_normalized.png
+    :width: 400
+    :align: center
+
+
+
+
 CONICET
 --------
 
@@ -27,6 +43,15 @@ CONICET
 
    cd astrogen/astrogen/dataviz
    python visualize_conicet
+
+.. image:: ../../../figures/violins_conicet.png
+    :width: 400
+    :align: center
+
+.. image:: ../../../figures/vio.png
+    :width: 400
+    :align: center
+
 
 
 PUBLICATIONS

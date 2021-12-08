@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <script language="Javascript">
+         /* Run script after DOMContentLoaded event to ensure form element is 
+         present */
+         document.addEventListener("DOMContentLoaded", function() {
+           /* Obtain form element via querySelector */
+           const form = document.querySelector('form[name="addtext"]');
+
+           /* Bind listener to forms submit event */
+           form.addEventListener("submit", function(event) {
+             /* Prevent browsers default submit and page-reload behavior */
+             event.preventDefault();
+
+             /* Obtain values from each field in form */
+
+const check001 = form.querySelector('input[name="check001"]').checked; 
+const check002 = form.querySelector('input[name="check002"]').checked; 
+const check003 = form.querySelector('input[name="check003"]').checked; 
+const check004 = form.querySelector('input[name="check004"]').checked; 
+const check005 = form.querySelector('input[name="check005"]').checked; 
+const check006 = form.querySelector('input[name="check006"]').checked; 
+const check007 = form.querySelector('input[name="check007"]').checked; 
+const check008 = form.querySelector('input[name="check008"]').checked; 
+const check009 = form.querySelector('input[name="check009"]').checked; 
+const check010 = form.querySelector('input[name="check010"]').checked; 
+const check011 = form.querySelector('input[name="check011"]').checked; 
+const check012 = form.querySelector('input[name="check012"]').checked; 
+const check013 = form.querySelector('input[name="check013"]').checked; 
+const check014 = form.querySelector('input[name="check014"]').checked; 
+const check015 = form.querySelector('input[name="check015"]').checked; 
+const check016 = form.querySelector('input[name="check016"]').checked; 
+const check017 = form.querySelector('input[name="check017"]').checked; 
+const check018 = form.querySelector('input[name="check018"]').checked; 
+const check019 = form.querySelector('input[name="check019"]').checked; 
+const check020 = form.querySelector('input[name="check020"]').checked; 
+const check021 = form.querySelector('input[name="check021"]').checked; 
+const check022 = form.querySelector('input[name="check022"]').checked; 
+const check023 = form.querySelector('input[name="check023"]').checked; 
+const check024 = form.querySelector('input[name="check024"]').checked; 
+const check025 = form.querySelector('input[name="check025"]').checked; 
+const check026 = form.querySelector('input[name="check026"]').checked; 
+const check027 = form.querySelector('input[name="check027"]').checked; 
+const check028 = form.querySelector('input[name="check028"]').checked; 
+const check029 = form.querySelector('input[name="check029"]').checked; 
+const check030 = form.querySelector('input[name="check030"]').checked; 
+const check031 = form.querySelector('input[name="check031"]').checked; 
+const check032 = form.querySelector('input[name="check032"]').checked; 
+const check033 = form.querySelector('input[name="check033"]').checked; 
+const check034 = form.querySelector('input[name="check034"]').checked; 
+
+const filename = '../../data/interim/htmls/Lares_M.txt'
+
+
+/* Compose text file content */
+const text = `${check001}
+${check002}
+${check003}
+${check004}
+${check005}
+${check006}
+${check007}
+${check008}
+${check009}
+${check010}
+${check011}
+${check012}
+${check013}
+${check014}
+${check015}
+${check016}
+${check017}
+${check018}
+${check019}
+${check020}
+${check021}
+${check022}
+${check023}
+${check024}
+${check025}
+${check026}
+${check027}
+${check028}
+${check029}
+${check030}
+${check031}
+${check032}
+${check033}
+${check034}
+`;
+
+             /* Create temporary link element and trigger file download  */
+             const link = document.createElement("a");
+             const href = "data:text/plain;charset=utf-8," + encodeURIComponent(text);
+             link.setAttribute("href", href);
+             link.setAttribute("download", filename);
+
+             document.body.appendChild(link);
+             link.click();
+             document.body.removeChild(link);
+
+           });
+         });
+        </script>
+    </head>
+
+    <body>
+
+      <p style="font-size:2vw">lares, marcelo</p>
+      <ul>
+         <li> Edad: 44 </li> 
+         <li> CIC: <a href=""></a> </li>
+         <li> Afiliación conocida: oac oac iate  </li>
+         <li> ORCID: https://orcid.org/0000-0001-8180-5780  </li>
+         <li> Cantidad de artículos publicados (sin BAAA): 34 </li>
+         <li> Cantidad de papers Q1 con menos de 51 autores: 19 </li>
+         <li> <a
+       href="https://ui.adsabs.harvard.edu/search/p_=0&q=%20author%3A%22lares%2C%20m.%22&sort=date%20desc%2C%20bibcode%20desc">Link ADS (solo por nombre)</a> </li>
+
+        <li> <a
+         href="https://ui.adsabs.harvard.edu/search/filter_bibstem_facet_fq_bibstem_facet=NOT&filter_bibstem_facet_fq_bibstem_facet=*%3A*&filter_bibstem_facet_fq_bibstem_facet=bibstem_facet%3A%22BAAA%22&filter_property_fq_property=AND&filter_property_fq_property=property%3A%22refereed%22&fq=%7B!type%3Daqp%20v%3D%24fq_property%7D&fq=%7B!type%3Daqp%20v%3D%24fq_bibstem_facet%7D&fq_bibstem_facet=(*%3A*%20NOT%20bibstem_facet%3A%22BAAA%22)&fq_property=(property%3A%22refereed%22)&p_=0&q=%20author%3A%22lares%2C%20m.%22%20%20author_count%3A%5B0%20TO%2051%5D&sort=date%20desc%2C%20bibcode%20desc">Link ADS (refereed, excluding BAAA, menos de 51 autores)</a> </li>
+       
+      </ul>
+
+       <br>
+       Seleccionar los articulos <b>de la submuestra seleccionada</b>
+       de revistas Q1 con menos de 51 autores.
+       <br>
+       <br>
+       
+      <!-- Ensure that the name attribute does not include invalid characters 
+      or nested "" which cause confusion-->
+      <form name="addtext">
+
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>counter</th>
+      <th>Año</th>
+      <th>Journal</th>
+      <th>title_links</th>
+      <th>include</th>
+      <th>Autores</th>
+      <th>Afiliaciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>2004</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2004MNRAS.352..501L/abstract">Dynamical segregation of galaxies into groups and clusters</a></td>
+      <td><input type="checkbox" name="check001" value="" checked /><br></td>
+      <td><b>Lares, M.</b><br>Lambas, D. G.<br>Sánchez, A. G.</td>
+      <td><b>Grupo de Investigaciones en Astronomía Teórica y Experimental (IATE), Observatorio Astronómico de Córdoba, UNC, Argentina; Consejo Nacional de Investigaciones Científicas y Tecnológicas (CONICET), Argentina</b><br>Grupo de Investigaciones en Astronomía Teórica y Experimental (IATE), Observatorio Astronómico de Córdoba, UNC, Argentina; Consejo Nacional de Investigaciones Científicas y Tecnológicas (CONICET), Argentina<br>Grupo de Investigaciones en Astronomía Teórica y Experimental (IATE), Observatorio Astronómico de Córdoba, UNC, Argentina; Consejo Nacional de Investigaciones Científicas y Tecnológicas (CONICET), Argentina</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>2006</td>
+      <td>Astronomy and Astrophysics</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2006A&A...445...51G/abstract">The faint-end of the galaxy luminosity function in groups</a></td>
+      <td><input type="checkbox" name="check002" value="" checked /><br></td>
+      <td>González, R. E.<br><b>Lares, M.</b><br>Lambas, D. G.<br>Valotto, C.</td>
+      <td>Departamento de Astronomía y Astrofísica, Pontificia Universidad Católica de Chile, Casilla 306, Santiago 22, Chile<br><b>Grupo de Investigaciones en Astronomía Teórica y Experimental (IATE), Observatorio Astronómico de Córdoba, UNC, and Consejo Nacional de Investigaciones Científicas y Tecnológicas. (CONICET), Argentina</b><br>Grupo de Investigaciones en Astronomía Teórica y Experimental (IATE), Observatorio Astronómico de Córdoba, UNC, and Consejo Nacional de Investigaciones Científicas y Tecnológicas. (CONICET), Argentina<br>Grupo de Investigaciones en Astronomía Teórica y Experimental (IATE), Observatorio Astronómico de Córdoba, UNC, and Consejo Nacional de Investigaciones Científicas y Tecnológicas. (CONICET), Argentina</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>2011</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2011MNRAS.415..964L/abstract">Future virialized structures: an analysis of superstructures in the SDSS-DR7</a></td>
+      <td><input type="checkbox" name="check003" value="" checked /><br></td>
+      <td>Luparello, H.<br><b>Lares, M.</b><br>Lambas, D. G.<br>Padilla, N.</td>
+      <td>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854, X5000BGR, Córdoba, Argentina<br><b>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854, X5000BGR, Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854, X5000BGR, Córdoba, Argentina<br>Departamento de Astronomía y Astrofísica, Pontificia Universidad Católica de Chile, Santiago, Chile</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>2011</td>
+      <td>The Astronomical Journal</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2011AJ....142...13L/abstract">Properties of Satellite Galaxies in the SDSS Photometric Survey: Luminosities, Colors, and Projected Number Density Profiles</a></td>
+      <td><input type="checkbox" name="check004" value="" checked /><br></td>
+      <td><b>Lares, M.</b><br>Lambas, D. G.<br>Domínguez, M. J.</td>
+      <td><b>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba (UNC), Laprida 854, X5000BGR, Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba (UNC), Laprida 854, X5000BGR, Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba (UNC), Laprida 854, X5000BGR, Córdoba, Argentina</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>2012</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2012MNRAS.426..708Y/abstract">The influence of superstructures on bright galaxy environments: clustering properties</a></td>
+      <td><input type="checkbox" name="check005" value="" checked /><br></td>
+      <td>Yaryura, C. Y.<br><b>Lares, M.</b><br>Luparello, H. E.<br>Paz, D. J.<br>Lambas, D. G.<br>Padilla, N.</td>
+      <td>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854 X5000BGR Córdoba, Argentina<br><b>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854 X5000BGR Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854 X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854 X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854 X5000BGR Córdoba, Argentina<br>Departamento de Astronomía y Astrofísica, Pontificia Universidad Católica de Chile, Santiago, Chile; Centro de Astro-Ingeniería, Pontificia Universidad Católica de Chile, Santiago, Chile</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>2013</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2013MNRAS.434.1435C/abstract">Clues on void evolution - I. Large-scale galaxy distributions around voids</a></td>
+      <td><input type="checkbox" name="check006" value="" checked /><br></td>
+      <td>Ceccarelli, L.<br>Paz, D.<br><b>Lares, M.</b><br>Padilla, N.<br>Lambas, D. García</td>
+      <td>Instituto de Astronomía Teórica y Experimental, UNC-CONICET, X5000BGR, Córdoba, Argentina; Observatorio Astronómico de Córdoba, UNC, X5000BGR, Córdoba, Argentina;<br>Instituto de Astronomía Teórica y Experimental, UNC-CONICET, X5000BGR, Córdoba, Argentina; Observatorio Astronómico de Córdoba, UNC, X5000BGR, Córdoba, Argentina<br><b>Instituto de Astronomía Teórica y Experimental, UNC-CONICET, X5000BGR, Córdoba, Argentina; Observatorio Astronómico de Córdoba, UNC, X5000BGR, Córdoba, Argentina</b><br>Departamento de Astronomía y Astrofísica, Pontificia Universidad Católica de Chile, Santiago, Chile<br>Instituto de Astronomía Teórica y Experimental, UNC-CONICET, X5000BGR, Córdoba, Argentina; Observatorio Astronómico de Córdoba, UNC, X5000BGR, Córdoba, Argentina</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>2013</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2013MNRAS.432.1367L/abstract">Effects of superstructure environment on galaxy groups</a></td>
+      <td><input type="checkbox" name="check007" value="" checked /><br></td>
+      <td>Luparello, H. E.<br><b>Lares, M.</b><br>Yaryura, C. Y.<br>Paz, D.<br>Padilla, N.<br>Lambas, D. G.</td>
+      <td>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina;<br><b>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina<br>Departamento de Astronomía y Astrofísica, Pontificia Universidad Católica de Chile, Santiago, Chile; Centro de Astro-Ingeniería, Pontificia Universidad Católica de Chile, Santiago, Chile<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC), Observatorio Astronómico de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>2013</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2013MNRAS.436.3480P/abstract">Clues on void evolution-II. Measuring density and velocity profiles on SDSS galaxy redshift space distortions</a></td>
+      <td><input type="checkbox" name="check008" value="" checked /><br></td>
+      <td>Paz, Dante<br><b>Lares, Marcelo</b><br>Ceccarelli, Laura<br>Padilla, Nelson<br>Lambas, Diego García</td>
+      <td>Instituto de Astronomía Teórica y Experimental, UNC-CONICET, Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Argentina;<br><b>Instituto de Astronomía Teórica y Experimental, UNC-CONICET, Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental, UNC-CONICET, Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Argentina<br>Departamento de Astronomía y Astrofísica, Pontificia Universidad Católica de Chile, Santiago, Chile<br>Instituto de Astronomía Teórica y Experimental, UNC-CONICET, Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Argentina</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>2015</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2015MNRAS.448.1471R/abstract">Clues on void evolution - III. Structure and dynamics in void shells</a></td>
+      <td><input type="checkbox" name="check009" value="" checked /><br></td>
+      <td>Ruiz, Andrés N.<br>Paz, Dante J.<br><b>Lares, Marcelo</b><br>Luparello, Heliana E.<br>Ceccarelli, Laura<br>Lambas, Diego García</td>
+      <td>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, Laprida 854, X5000BGR Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, Laprida 854, X5000BGR Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina<br><b>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, Laprida 854, X5000BGR Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, Laprida 854, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, Laprida 854, X5000BGR Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, Laprida 854, X5000BGR Córdoba, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Laprida 854, X5000BGR Córdoba, Argentina</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>2015</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2015MNRAS.448.1483L/abstract">Brightest group galaxies and the large-scale environment</a></td>
+      <td><input type="checkbox" name="check010" value="" checked /><br></td>
+      <td>Luparello, H. E.<br><b>Lares, M.</b><br>Paz, D.<br>Yaryura, C. Y.<br>Lambas, D. G.<br>Padilla, N.</td>
+      <td>Instituto de Astronomía Teórica y Experimental (CONICET-UNC). Observatorio Astronómico de Córdoba, Córdoba, 5000, Argentina<br><b>Instituto de Astronomía Teórica y Experimental (CONICET-UNC). Observatorio Astronómico de Córdoba, Córdoba, 5000, Argentina</b><br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC). Observatorio Astronómico de Córdoba, Córdoba, 5000, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC). Observatorio Astronómico de Córdoba, Córdoba, 5000, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC). Observatorio Astronómico de Córdoba, Córdoba, 5000, Argentina<br>Departamento de Astronomía y Astrofísica, Pontificia Universidad Católica de Chile, Santiago, 32349 Chile; Centro de Astro-Ingeniería, Pontificia Universidad Católica de Chile, Santiago, 32349 Chile</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>2016</td>
+      <td>The Astrophysical Journal Supplement Series</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016ApJS..225....8A/abstract">Supplement: “Localization and Broadband Follow-up of the Gravitational-wave Transient GW150914” (2016, ApJL, 826, L13)</a></td>
+      <td><input type="checkbox" name="check011" value=""  /><br></td>
+      <td>Abbott, B. P.<br>...<br>Cabral, J.<br>Colazo, C.<br>Dominguez, M.<br>Sanchez, B.<br>Gurovich, S.<br><b>Lares, M.</b><br>Marshall, J. L.<br>DePoy, D. L.<br>Padilla, N.<br>Pereyra, N. A.<br>...<br>VISTA Collaboration</td>
+      <td>LIGO, California Institute of Technology, Pasadena, CA 91125, USA<br>...<br>Universidad Nacional de Córdoba, IATE, Laprida 854, Córdoba, Argentina<br>Mitchell Institute for Fundamental Physics and Astronomy, Department of Physics and Astronomy, Texas A&amp;M University, 4242 TAMU, College Station, TX 77843, USA<br>Mitchell Institute for Fundamental Physics and Astronomy, Department of Physics and Astronomy, Texas A&amp;M University, 4242 TAMU, College Station, TX 77843, USA<br>Instituto de Astrofísica, Pontificia Universidad Católica de Chile, Av. Vicuña Mackenna 4860, Santiago, Chile<br>The University of Texas Rio Grande Valley, Brownsville, TX 78520, USA<br><b>The University of Texas Rio Grande Valley, Brownsville, TX 78520, USA</b><br>-<br>Department of Physics and Astronomy, University of Leicester, Leicester, LE1 7RH, UK<br>Department of Physics and Astronomy, University of Leicester, Leicester, LE1 7RH, UK<br>University of Warwick, Department of Physics, Gibbet Hill Road, Coventry, CV4 7AL, UK<br>...<br>-</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>2016</td>
+      <td>The Astrophysical Journal</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016ApJ...826L..13A/abstract">Localization and Broadband Follow-up of the Gravitational-wave Transient GW150914</a></td>
+      <td><input type="checkbox" name="check012" value=""  /><br></td>
+      <td>Abbott, B. P.<br>...<br>Cabral, J.<br>Colazo, C.<br>Dominguez, M.<br>Sanchez, B.<br>Gurovich, S.<br><b>Lares, M.</b><br>Marshall, J. L.<br>DePoy, D. L.<br>Padilla, N.<br>Pereyra, N. A.<br>...<br>VISTA Collaboration</td>
+      <td>LIGO, California Institute of Technology, Pasadena, CA 91125, USA<br>...<br>Universidad Nacional de Córdoba, IATE, Laprida 854, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Laprida 854, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Laprida 854, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Laprida 854, Córdoba, Argentina<br>Mitchell Institute for Fundamental Physics and Astronomy, Department of Physics and Astronomy, Texas A&amp;M University, 4242 TAMU, College Station, TX 77843, USA<br><b>Mitchell Institute for Fundamental Physics and Astronomy, Department of Physics and Astronomy, Texas A&amp;M University, 4242 TAMU, College Station, TX 77843, USA</b><br>Instituto de Astrofísica, Pontificia Universidad Católica de Chile, Av. Vicuña Mackenna 4860, Santiago, Chile<br>The University of Texas Rio Grande Valley, Brownsville, TX 78520, USA<br>The University of Texas Rio Grande Valley, Brownsville, TX 78520, USA<br>-<br>...<br>-</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>2016</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016MNRAS.461.4013C/abstract">The sparkling Universe: a scenario for cosmic void motions</a></td>
+      <td><input type="checkbox" name="check013" value="" checked /><br></td>
+      <td>Ceccarelli, Laura<br>Ruiz, Andrés N.<br><b>Lares, Marcelo</b><br>Paz, Dante J.<br>Maldonado, Victoria E.<br>Luparello, Heliana E.<br>Garcia Lambas, Diego</td>
+      <td>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC and Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba X5000BGR, Argentina<br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC and Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba X5000BGR, Argentina<br><b>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC and Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba X5000BGR, Argentina</b><br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC and Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba X5000BGR, Argentina<br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC and Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba X5000BGR, Argentina<br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC and Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba X5000BGR, Argentina<br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC and Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba X5000BGR, Argentina</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>2016</td>
+      <td>The Zeldovich Universe: Genesis and Growth of the Cosmic Web</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016IAUS..308..530P/abstract">Void Dynamics</a></td>
+      <td><input type="checkbox" name="check014" value=""  /><br></td>
+      <td>Padilla, Nelson D.<br>Paz, Dante<br><b>Lares, Marcelo</b><br>Ceccarelli, Laura<br>Lambas, Diego Garcí A.<br>Cai, Yan-Chuan<br>Li, Baojiu</td>
+      <td>Instituto de Astrofí sica, Universidad Católica de Chile, Vicuña Mackenna 4860, Santiago, Chile<br>Instituto de Astrofí sica, Universidad Católica de Chile, Vicuña Mackenna 4860, Santiago, Chile<br><b>Instituto de Astrofí sica, Universidad Católica de Chile, Vicuña Mackenna 4860, Santiago, Chile</b><br>Instituto de Astrofí sica, Universidad Católica de Chile, Vicuña Mackenna 4860, Santiago, Chile<br>Instituto de Astrofí sica, Universidad Católica de Chile, Vicuña Mackenna 4860, Santiago, Chile<br>Instituto de Astrofí sica, Universidad Católica de Chile, Vicuña Mackenna 4860, Santiago, Chile<br>Instituto de Astrofí sica, Universidad Católica de Chile, Vicuña Mackenna 4860, Santiago, Chile</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>2016</td>
+      <td>VizieR Online Data Catalog</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016yCat..35860041P/abstract">VizieR Online Data Catalog: LMC star clusters catalog (Palma+, 2016)</a></td>
+      <td><input type="checkbox" name="check015" value=""  /><br></td>
+      <td>Palma, T.<br>Gramajo, L. V.<br>Claria, J. J.<br><b>Lares, M.</b><br>Geisler, D.<br>Ahumada, A. V.</td>
+      <td>-<br>-<br>-<br><b>-</b><br>-<br>-</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>2016</td>
+      <td>APS April Meeting Abstracts</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016APS..APRR14005B/abstract">Results of optical follow-up observations of advanced LIGO triggers from O1 in the southern hemisphere</a></td>
+      <td><input type="checkbox" name="check016" value=""  /><br></td>
+      <td>Colazo, Carlos<br>Diaz, Mario<br>Dominguez, Mariano<br>Garcia Lambas, Diego<br>Gurovich, Sebastian<br><b>Lares, Marcelo</b><br>Macri, Lucas<br>Penuela, Tania<br>Rodriguez, Horacio<br>Sanchez, Bruno</td>
+      <td>-<br>-<br>-<br>-<br>-<br><b>-</b><br>-<br>-<br>-<br>-</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>2016</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016MNRAS.455L..99L/abstract">The sparkling Universe: the coherent motions of cosmic voids</a></td>
+      <td><input type="checkbox" name="check017" value="" checked /><br></td>
+      <td>Lambas, Diego García<br><b>Lares, Marcelo</b><br>Ceccarelli, Laura<br>Ruiz, Andrés N.<br>Paz, Dante J.<br>Maldonado, Victoria E.</td>
+      <td>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba (X5000BGR), Argentina<br><b>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba (X5000BGR), Argentina</b><br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba (X5000BGR), Argentina<br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba (X5000BGR), Argentina<br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba (X5000BGR), Argentina<br>Instituto de Astronomía Teórica y Experimental (IATE), CONICET-UNC Observatorio Astronómico, Universidad Nacional de Córdoba, Córdoba (X5000BGR), Argentina</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>2016</td>
+      <td>Astronomy and Astrophysics</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016A&A...586A..41P/abstract">Catalogue of Large Magellanic Cloud star clusters observed in the Washington photometric system</a></td>
+      <td><input type="checkbox" name="check018" value="" checked /><br></td>
+      <td>Palma, T.<br>Gramajo, L. V.<br>Clariá, J. J.<br><b>Lares, M.</b><br>Geisler, D.<br>Ahumada, A. V.</td>
+      <td>Millennium Institute of Astrophysics, Nuncio Monseñor Sotero Sanz 100, Providencia, Santiago, Chile ; Instituto de Astrofísica, Pontificia Universidad Católica de Chile, Av. Vicuña Mackenna 4860, 782-0436 Macul, Santiago, Chile; Observatorio Astronómico, Universidad Nacional de Córdoba, Laprida 854, 5000, Córdoba, Argentina<br>Observatorio Astronómico, Universidad Nacional de Córdoba, Laprida 854, 5000, Córdoba, Argentina<br>Observatorio Astronómico, Universidad Nacional de Córdoba, Laprida 854, 5000, Córdoba, Argentina; Consejo Nacional de Investigaciones Científicas y Técnicas (CONICET), Argentina<br><b>Observatorio Astronómico, Universidad Nacional de Córdoba, Laprida 854, 5000, Córdoba, Argentina; Consejo Nacional de Investigaciones Científicas y Técnicas (CONICET), Argentina; Instituto de Astronomía Teórica y Experimental (IATE), 922 Laprida, Córdoba, Argentina</b><br>Departamento de Astronomía, Universidad de Concepción, Casilla 160-C, Concepción, Chile<br>Observatorio Astronómico, Universidad Nacional de Córdoba, Laprida 854, 5000, Córdoba, Argentina; Consejo Nacional de Investigaciones Científicas y Técnicas (CONICET), Argentina</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>2016</td>
+      <td>The Astrophysical Journal</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2016ApJ...828L..16D/abstract">GW150914: First Search for the Electromagnetic Counterpart of a Gravitational-wave Event by the TOROS Collaboration</a></td>
+      <td><input type="checkbox" name="check019" value="" checked /><br></td>
+      <td>Díaz, Mario C.<br>...<br>Cabral, Juan<br>Colazo, Carlos<br>Domínguez, Mariano<br>Sánchez, Bruno<br>Gurovich, Sebastián<br><b>Lares, Marcelo</b><br>Schneiter, Matías<br>Graña, Darío<br>Renzi, Víctor<br>Rodriguez, Horacio<br>...<br>Key, Joey</td>
+      <td>Center for Gravitational Wave Astronomy, University of Texas Rio Grande Valley, Brownsville, TX, USA<br>...<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina; Ministerio de Educación de la Provincia de Córdoba, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br><b>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina</b><br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>...<br>Center for Gravitational Wave Astronomy, University of Texas Rio Grande Valley, Brownsville, TX, USA</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>2017</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2017MNRAS.468.4822L/abstract">The sparkling Universe: clustering of voids and void clumps</a></td>
+      <td><input type="checkbox" name="check020" value="" checked /><br></td>
+      <td><b>Lares, Marcelo</b><br>Ruiz, Andrés N.<br>Luparello, Heliana E.<br>Ceccarelli, Laura<br>Garcia Lambas, Diego</td>
+      <td><b>Instituto de Astronomía Teórica y Experimental (CONICET-UNC) and Observatorio Astronómico (UNC), Laprida 854, X5000BGR Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC) and Observatorio Astronómico (UNC), Laprida 854, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC) and Observatorio Astronómico (UNC), Laprida 854, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC) and Observatorio Astronómico (UNC), Laprida 854, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental (CONICET-UNC) and Observatorio Astronómico (UNC), Laprida 854, X5000BGR Córdoba, Argentina</td>
+    </tr>
+    <tr>
+      <td>21</td>
+      <td>2017</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2017MNRAS.470...85L/abstract">Voids and superstructures: correlations and induced large-scale velocity flows</a></td>
+      <td><input type="checkbox" name="check021" value="" checked /><br></td>
+      <td><b>Lares, Marcelo</b><br>Luparello, Heliana E.<br>Maldonado, Victoria<br>Ruiz, Andrés N.<br>Paz, Dante J.</td>
+      <td><b>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, Argentina</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>2017</td>
+      <td>The Astrophysical Journal</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2017ApJ...848L..29D/abstract">Observations of the First Electromagnetic Counterpart to a Gravitational-wave Source by the TOROS Collaboration</a></td>
+      <td><input type="checkbox" name="check022" value=""  /><br></td>
+      <td>Díaz, M. C.<br>...<br>Gonçalves, D. R.<br>Gonçalves, T. S.<br>Gurovich, S.<br>Jiménez-Teja, Y.<br>Kanaan, A.<br><b>Lares, M.</b><br>Lopes de Oliveira, R.<br>López-Cruz, O.<br>Marshall, J. L.<br>Melia, R.<br>...<br>Zadrożny, A.</td>
+      <td>Center for Gravitational Wave Astronomy and Department of Physics &amp; Astronomy, University of Texas—Río Grande Valley, Brownsville, TX, USA<br>...<br>Observatorio do Valongo, Universidade Federal do Rio de Janeiro, Río de Janeiro, RJ, Brazil<br>Observatorio do Valongo, Universidade Federal do Rio de Janeiro, Río de Janeiro, RJ, Brazil<br>IATE-OAC, Universidad Nacional de Córdoba-CONICET, Córdoba, Argentina<br>Departamento de Astronomia, Observatório Nacional, Rio de Janeiro, RJ, Brazil<br>Departamento de Física, Universidade Federal de Santa Catarina, Florianópolis, SC, Brazil<br><b>IATE-OAC, Universidad Nacional de Córdoba-CONICET, Córdoba, Argentina</b><br>Departamento de Física, Universidade Federal de Sergipe, São Cristóvão, SE, Brazil; X-ray Astrophysics Laboratory and CRESST, NASA Goddard Space Flight Center, Greenbelt, MD, USA<br>Instituto Nacional de Astrofísica, Óptica y Electrónica, Tonantzintla, Puebla, México<br>George P. and Cynthia W. Mitchell Institute for Fundamental Physics &amp; Astronomy, Department of Physics &amp; Astronomy, Texas A&amp;M University, College Station, TX, USA<br>IATE-OAC, Universidad Nacional de Córdoba-CONICET, Córdoba, Argentina<br>...<br>Center for Gravitational Wave Astronomy and Department of Physics &amp; Astronomy, University of Texas—Río Grande Valley, Brownsville, TX, USA</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>2017</td>
+      <td>The Astrophysical Journal</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2017ApJ...848L..12A/abstract">Multi-messenger Observations of a Binary Neutron Star Merger</a></td>
+      <td><input type="checkbox" name="check023" value=""  /><br></td>
+      <td>Abbott, B. P.<br>...<br>Gonçalves, D. R.<br>Gonçalves, T. S.<br>Gurovich, S.<br>Jiménez-Teja, Y.<br>Kanaan, A.<br><b>Lares, M.</b><br>Lopes de Oliveira, R.<br>López-Cruz, O.<br>Melia, R.<br>Molino, A.<br>...<br>South Africa/MeerKAT, SKA</td>
+      <td>LIGO, California Institute of Technology, Pasadena, CA 91125, USA<br>...<br>Center for Gravitational Wave Astronomy and Department of Physics &amp; Astronomy, University of Texas—Río Grande Valley, Brownsville, TX, USA; Ludwig Maximilian Universität Munich, Faculty of Physics, Munich, Germany<br>Department of Physics, University of Notre Dame, Notre Dame, IN, USA ; Joint Institute for Nuclear Astrophysics—Center for the Evolution of the Elements, USA<br>IATE-OAC, Universidad Nacional de Córdoba-CONICET, Córdoba, Argentina<br>Departamento de Física y Astronomía, Universidad de La Serena, La Serena, Chile<br>IATE-OAC, Universidad Nacional de Córdoba-CONICET, Córdoba, Argentina<br><b>Observatorio do Valongo, Universidade Federal do Rio de Janeiro, Río de Janeiro, RJ, Brazil</b><br>Instituto Nacional de Astrofísica, Óptica y Electrónica, Tonantzintla, Puebla, México<br>IATE-OAC, Universidad Nacional de Córdoba-CONICET, Córdoba, Argentina<br>Instituto de Astronomia, Geofísica e Ciências Atmosféricas da U. de São Paulo, São Paulo, SP, Brazil<br>IATE-OAC, Universidad Nacional de Córdoba-CONICET, Córdoba, Argentina<br>...<br>-</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>2017</td>
+      <td>Astronomy and Computing</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2017A&C....20..140C/abstract">Corral framework: Trustworthy and fully functional data intensive parallel astronomical pipelines</a></td>
+      <td><input type="checkbox" name="check024" value=""  /><br></td>
+      <td>Cabral, J. B.<br>Sánchez, B.<br>Beroiz, M.<br>Domínguez, M.<br><b>Lares, M.</b><br>Gurovich, S.<br>Granitto, P.</td>
+      <td>Instituto De Astronomía Teórica y Experimental - Observatorio Astronómico Córdoba (IATE-OAC-UNC-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina<br>Instituto De Astronomía Teórica y Experimental - Observatorio Astronómico Córdoba (IATE-OAC-UNC-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina<br>University of Texas Rio Grande Valley (UTRGV), One West University Blvd. Brownsville, TX 78520, USA<br>Instituto De Astronomía Teórica y Experimental - Observatorio Astronómico Córdoba (IATE-OAC-UNC-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina<br><b>Instituto De Astronomía Teórica y Experimental - Observatorio Astronómico Córdoba (IATE-OAC-UNC-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina</b><br>Instituto De Astronomía Teórica y Experimental - Observatorio Astronómico Córdoba (IATE-OAC-UNC-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina<br>Centro Internacional Franco Argentino de Ciencias de la Información y de Sistemas (CIFASIS, CONICET-UNR), Ocampo y Esmeralda, S2000EZP, Rosario, Argentina</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>2018</td>
+      <td>Terceras Jornadas de Astrof&iacute;sica Estelar</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2018tjae.conf..138L/abstract">A formal approach to compute density profiles and CMD fitting in stellar associations</a></td>
+      <td><input type="checkbox" name="check025" value=""  /><br></td>
+      <td><b>Lares, M.</b><br>Gramajo, L.<br>Sánchez, B.</td>
+      <td><b>-</b><br>-<br>-</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>2018</td>
+      <td>Astrophysics Source Code Library</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2018ascl.soft08003C/abstract">CPF: Corral Pipeline Framework</a></td>
+      <td><input type="checkbox" name="check026" value=""  /><br></td>
+      <td>Cabral, Juan<br>Sanchez, Bruno<br>Beroiz, Martin<br>Dominguez, Mariano<br><b>Lares, Marcelo</b><br>Gurovich, Sebastian<br>Granitto, Pablo</td>
+      <td>-<br>-<br>-<br>-<br><b>-</b><br>-<br>-</td>
+    </tr>
+    <tr>
+      <td>27</td>
+      <td>2018</td>
+      <td>VizieR Online Data Catalog</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2018yCat..18489029D/abstract">VizieR Online Data Catalog: Opt. follow-up of GW170817 counterpart (Diaz+, 2017)</a></td>
+      <td><input type="checkbox" name="check027" value=""  /><br></td>
+      <td>Diaz, M. C.<br>...<br>Goncalves, D. R.<br>Goncalves, T. S.<br>Gurovich, S.<br>Jimenez-Teja, Y.<br>Kanaan, A.<br><b>Lares, M.</b><br>Lopes de Oliveira, R.<br>Lopez-Cruz, O.<br>Marshall, J. L.<br>Melia, R.<br>...<br>Zadrozny, A.</td>
+      <td>-<br>...<br>-<br>-<br>-<br>-<br>-<br><b>-</b><br>-<br>-<br>-<br>-<br>...<br>-</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>2019</td>
+      <td>Astronomy and Computing</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2019A&C....2800284S/abstract">Machine learning on difference image analysis: A comparison of methods for transient detection</a></td>
+      <td><input type="checkbox" name="check028" value=""  /><br></td>
+      <td>Sánchez, B.<br>Domínguez R., M. J.<br><b>Lares, M.</b><br>Beroiz, M.<br>Cabral, J. B.<br>Gurovich, S.<br>Quiñones, C.<br>...<br>Díaz, M. C.</td>
+      <td>Instituto De Astronomía Teórica y Experimental (IATE-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina<br>Instituto De Astronomía Teórica y Experimental (IATE-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina<br><b>Instituto De Astronomía Teórica y Experimental (IATE-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina</b><br>University of Texas Rio Grande Valley (UTRGV), One West University Blvd. Brownsville, TX 78520, USA<br>Instituto De Astronomía Teórica y Experimental (IATE-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina<br>Instituto De Astronomía Teórica y Experimental (IATE-CONICET), Laprida 854, X5000BGR, Córdoba, Argentina<br>Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba (OAC-UNC), Laprida 854, X5000BGR, Córdoba, Argentina<br>...<br>Center for Gravitational Wave Astronomy, University of Texas Rio Grande Valley, Brownsville, TX, USA</td>
+    </tr>
+    <tr>
+      <td>29</td>
+      <td>2019</td>
+      <td>Astrophysics Source Code Library</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2019ascl.soft04025S/abstract">Properimage: Image coaddition and subtraction</a></td>
+      <td><input type="checkbox" name="check029" value=""  /><br></td>
+      <td>Sánchez, Bruno O.<br>Cabral, Juan B.<br>Beroiz, M.<br>Domínguez, M.<br><b>Lares, M.</b></td>
+      <td>-<br>-<br>-<br>-<br><b>-</b></td>
+    </tr>
+    <tr>
+      <td>30</td>
+      <td>2020</td>
+      <td>International Journal of Astrobiology</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2020IJAsB..19..393L/abstract">Monte Carlo estimation of the probability of causal contacts between communicating civilizations</a></td>
+      <td><input type="checkbox" name="check030" value=""  /><br></td>
+      <td><b>Lares, M.</b><br>Funes, J. G.<br>Gramajo, L.</td>
+      <td><b>-</b><br>-<br>-</td>
+    </tr>
+    <tr>
+      <td>31</td>
+      <td>2020</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2020MNRAS.493.2207A/abstract">TOROS optical follow-up of the advanced LIGO-VIRGO O2 second observational campaign</a></td>
+      <td><input type="checkbox" name="check031" value=""  /><br></td>
+      <td>Artola, Rodolfo<br>...<br>Graña, Darío<br>Girardini, Carla<br>Gurovich, Sebastián<br>Kanaan, Antonio<br>Lambas, Diego G.<br><b>Lares, Marcelo</b><br>Hinojosa, Alejandro F.<br>Hinojosa, Andrea<br>Hinojosa, Americo F.<br>López-Cruz, Omar<br>...<br>Zadrożny, Adam</td>
+      <td>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>...<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br>Universidade Federal de Santa Catarina, Florianópolis, 88040-900, Brazil<br>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina<br><b>Universidad Nacional de Córdoba, IATE, Córdoba, Argentina</b><br>Center for Gravitational Wave Astronomy, The University of Texas Rio Grande Valley, Brownsville, 78500 TX, USA<br>Center for Gravitational Wave Astronomy, The University of Texas Rio Grande Valley, Brownsville, 78500 TX, USA<br>Center for Gravitational Wave Astronomy, The University of Texas Rio Grande Valley, Brownsville, 78500 TX, USA<br>Instituto Nacional de Astrofísica, Óptica y Electrónica, Tonantzintla, Puebla, México<br>...<br>Center for Gravitational Wave Astronomy, The University of Texas Rio Grande Valley, Brownsville, 78500 TX, USA; National Centre for Nuclear Research, Astrophysics Division, ul. Pasteura 7, PL 02-093 Warsaw, Poland</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>2020</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2020MNRAS.494.3227S/abstract">Spatial correlations of extended cosmological structures</a></td>
+      <td><input type="checkbox" name="check032" value="" checked /><br></td>
+      <td>Santucho, V.<br>Luparello, H. E.<br><b>Lares, M.</b><br>Lambas, D. G.<br>Ruiz, A. N.<br>Sgró, M. A.</td>
+      <td>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, X5000BGR Córdoba, Argentina<br><b>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, X5000BGR Córdoba, Argentina</b><br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, X5000BGR Córdoba, Argentina<br>Instituto de Astronomía Teórica y Experimental, CONICET-UNC, and Observatorio Astronómico de Córdoba, X5000BGR Córdoba, Argentina</td>
+    </tr>
+    <tr>
+      <td>33</td>
+      <td>2021</td>
+      <td>Monthly Notices of the Royal Astronomical Society</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2021MNRAS.506.4667D/abstract">Improved two-point correlation function estimates using glass-like distributions as a reference sample</a></td>
+      <td><input type="checkbox" name="check033" value="" checked /><br></td>
+      <td>Dávila-Kurbán, Federico<br>Sánchez, Ariel G.<br><b>Lares, Marcelo</b><br>Ruiz, Andrés N.</td>
+      <td>Instituto de Astronomía Teórica y Experimental (CCT Córdoba, CONICET, UNC), Laprida 854, X5000BGR, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Laprida 854, X5000BGR, Argentina;<br>Max-Planck-Institut für Extraterrestrische Physik, Postfach 1312, Giessenbachstr, D-85741 Garching, Germany<br><b>Instituto de Astronomía Teórica y Experimental (CCT Córdoba, CONICET, UNC), Laprida 854, X5000BGR, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Laprida 854, X5000BGR, Argentina;</b><br>Instituto de Astronomía Teórica y Experimental (CCT Córdoba, CONICET, UNC), Laprida 854, X5000BGR, Argentina; Observatorio Astronómico de Córdoba, Universidad Nacional de Córdoba, Laprida 854, X5000BGR, Argentina</td>
+    </tr>
+    <tr>
+      <td>34</td>
+      <td>2021</td>
+      <td>Astronomy and Astrophysics</td>
+      <td><a href="https://ui.adsabs.harvard.edu/abs/2021A&A...652A.151C/abstract">Drifting features: Detection and evaluation in the context of automatic RR Lyrae identification in the VVV</a></td>
+      <td><input type="checkbox" name="check034" value="" checked /><br></td>
+      <td>Cabral, J. B.<br><b>Lares, M.</b><br>Gurovich, S.<br>Minniti, D.<br>Granitto, P. M.</td>
+      <td>Centro Internacional Franco Argentino de Ciencias de la Información y de Sistemas (CIFASIS, CONICET-UNR), Rosario, Argentina ; Instituto De Astronomía Teórica y Experimental - Observatorio Astronómico Córdoba (IATE-OAC-UNC-CONICET), Córdoba, Argentina<br><b>Instituto De Astronomía Teórica y Experimental - Observatorio Astronómico Córdoba (IATE-OAC-UNC-CONICET), Córdoba, Argentina</b><br>Instituto De Astronomía Teórica y Experimental - Observatorio Astronómico Córdoba (IATE-OAC-UNC-CONICET), Córdoba, Argentina<br>Departamento de Física, Facultad de Ciencias Exactas, Universidad Andrés Bello, Av. Fernandez Concha 700, Las Condes, Santiago, Chile; Instituto Milenio de Astrofísica, Santiago, 7500912, Chile; Vatican Observatory, 00120, Vatican City State, Italy<br>Centro Internacional Franco Argentino de Ciencias de la Información y de Sistemas (CIFASIS, CONICET-UNR), Rosario, Argentina</td>
+    </tr>
+  </tbody>
+</table>
+      
+<!--  <td><input type="checkbox" name="check0" value="" /><br></td> -->
+
+
+<br>
+
+<div style="text-align:center;">
+        <input type="submit" value="Guardar" />
+</div>
+
+<br>
+<br>
+      </form>
+
+    </body>
+</html> 
+

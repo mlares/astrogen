@@ -417,16 +417,13 @@ def cic_category(c):
     """
     Categorize the stage in CONICET
 
-    Paramerers
-    ----------
+    Parameters
     c: str
 
     Returns
-    -------
     int: A number from the set {-1, 0, 1, 2, 3, 4, 5, 999}
 
     Notes
-    -----
     -1: beca doctoral
     0: beca postdoctoral
     1: inv. asistente
@@ -467,16 +464,13 @@ def ynac_clean(y):
     """
     Clean year of birth
 
-    Paramerers
-    ----------
+    Parameters
     y: float or None
 
     Returns
-    -------
     int
 
     Notes
-    -----
     None: missing data
     """
     if y is None:

@@ -38,6 +38,7 @@ autodoc_mock_imports = ['numpy',
                         'scipy',
                         'ads',
                         'Parser',
+                        'nltk',
                         'astrogen_tools'
                        ]
 
