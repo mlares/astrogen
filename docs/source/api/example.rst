@@ -14,6 +14,11 @@ Installation
 
 First, download the latest version of the code repository `ASTROGEN <https://github.com/mlares/astrogen>`_ in GitHub.
 
+.. code-block:: bash
+
+    $ git clone git@github.com:mlares/astrogen.git
+
+
 The code has been tested in the following python versions:
 
 + 3.8.5
@@ -21,10 +26,31 @@ The code has been tested in the following python versions:
 
 The list of requirements is given in the file "requirements.txt":
 
-+ numpy
-+ scipy
-+ ads
-+ sklearn
++ ads==0.12.3
++ bonobo==0.6.4
++ jellyfish==0.8.9
++ Jinja2==2.11.3
++ kaleido==0.2.1
++ matplotlib==3.5.0
++ nltk==3.6.5
++ openpyxl==3.0.9
++ pandas==1.3.4
++ plotly==5.4.0
++ scipy==1.7.3
++ seaborn==0.11.2
++ scikit-learn==1.0.1
+
+However, in order to reproduce the plots from the SQL database, the
+following packages will suffice:
+
++ scipy==1.7.3
++ matplotlib==3.5.0
++ seaborn==0.11.2
++ pandas==1.3.4
++ plotly==5.4.0
++ kaleido==0.2.1
+
+
 
 In order to run the data pipeline, which connects to the ADS online database,
 an API KEY is required. Documentation for obtaining and using this key can be found in the `ADS API documentation <https://ui.adsabs.harvard.edu/help/api/>`_.
@@ -32,9 +58,9 @@ an API KEY is required. Documentation for obtaining and using this key can be fo
 
 .. code-block:: bash
 
-    $ conda create --name astrogen ads==0.12.3 bonobo==0.6.4 docutils==0.17.1 jellyfish==0.8.8 joblib==1.1.0 matplotlib==3.4.3 numpy==1.21.2 openpyxl==3.0.9 pandas==1.3.3 scikit-learn==1.0 scipy==1.7.1 
+    $ conda create --name astrogen
 
-However, the reccommended method is to create a virtual environment
+The recommended method is to create a virtual environment
 (using either conda or virtualenv) and then:
 
 .. code-block:: bash
@@ -46,9 +72,11 @@ Data
 ..............
 
 
-The files that need to be copied are:
+The file that needs to be copied is:
 
+astrogen_DB_anonymous.db
 
+and must be placed in the directory data/redux.
 
 
 
