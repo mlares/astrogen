@@ -42,6 +42,32 @@ However, the reccommended method is to create a virtual environment
     pip install -r requirements.txt
 
 
+Data
+..............
+
+
+The files that need to be copied are:
+
+
+
+
+
+
+
+
+Full run
+..............
+
+The full run data is not available since it contains personal data.
+Here we privide a guide to run the full data reduction pipeline.
+The first step is to make spreadsheets with the following data:
+
+
+
+
+
+
+
 Configuration
 ..............
 
