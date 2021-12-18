@@ -4,7 +4,11 @@ import numpy as np
 import sqlite3
 from os import path
 from matplotlib import pyplot as plt
- 
+
+
+from matplotlib import rc
+rc('font',**{'family':'serif','serif':['DejaVu Serif']})
+rc('text', usetex=False)
 
 # %%
 conn = sqlite3.connect('../../data/redux/astrogen_DB_anonymous.db')
@@ -16,11 +20,9 @@ c.execute('''
 
 cnames = ['year_in', 'mi', 'fi', 'me', 'fe', 'year', 'duration']
 df = pd.DataFrame(c.fetchall(), columns=cnames)
-print (df)
-
 conn.close()
 
-
+# %%
 plotdir = '../../figures/'
 colora = 'mediumpurple'
 coloro = 'lightseagreen'
@@ -37,18 +39,25 @@ fig = plt.figure(figsize=(8,8))
 
 ax1 = fig.add_subplot(2,1,1)
 ax1.plot(byear.index, byear['fi'], 
-         color=colora, label='estudiantes mujeres')
+         color=colora, label='female students')
 ax1.plot(byear.index, byear['mi'], 
-         color=coloro, label='estudiantes varones')
-ax1.legend()
-ax1.set_xlabel('year')
-ax1.set_ylabel('dN/d(year)')
+         color=coloro, label='male students')
+ax1.legend(title='STUDENTS', fontsize=20)
+ax1.set_xlabel('year', fontsize=20)
+ax1.set_ylabel('dN/d(year)', fontsize=20)
+ax1.set_xticks([2008, 2012, 2016, 2020])
+ax1.tick_params(axis='both', which='major', labelsize=20)
 
 ax2 = fig.add_subplot(2,1,2)
-ax2.plot(byear.index, byear['fe'].cumsum(), color=colora, label='egresadas mujeres')
-ax2.plot(byear.index, byear['me'].cumsum(), color=coloro, label='egresados varones')
-ax2.legend()
-ax2.set_xlabel('year')
+ax2.plot(byear.index, byear['fe'].cumsum(), color=colora,
+        label='females graduates')
+ax2.plot(byear.index, byear['me'].cumsum(), color=coloro,
+        label='male graduates')
+ax2.legend(title='GRADUATES', fontsize=20)
+ax2.set_xlabel('year', fontsize=20)
+ax2.set_ylabel('N(<year)', fontsize=20)
+ax2.set_xticks([2008, 2012, 2016, 2020])
+ax2.tick_params(axis='both', which='major', labelsize=20)
 
 plt.tight_layout()
 fig.savefig(plotdir + 'graduates_by_year.png')
@@ -61,28 +70,48 @@ fig.savefig(plotdir + 'graduates_by_year.png')
 dur_m = []
 for r in df[df.me>0].itertuples():
     dur_m = dur_m + int(r.me) * [r.duration]
+dur_m = np.array(dur_m)
 
 dur_f = []
 for r in df[df.fe>0].itertuples():
     dur_f = dur_f + int(r.fe) * [r.duration]
+dur_f = np.array(dur_f)
 
 bins = np.arange(4.5, 14.5)
 
-
-fig = plt.figure(figsize=(6,6))
+fig = plt.figure(figsize=(8,8))
 # #7aeae3
 ax1 = fig.add_subplot()
+ax1.tick_params(axis='both', which='major', labelsize=20)
 ax1.hist(dur_f, bins=bins, histtype='stepfilled', linewidth=0,
-         color='#a084e1', alpha=0.5, label='estudiantes mujeres')
+         color='#a084e1', alpha=0.5, label='female')
 ax1.hist(dur_f, bins=bins, histtype='step', linewidth=1,
          color=colora)
 
-ax1.hist(dur_m, bins=bins, histtype='step', linewidth=2,
-         color=coloro, label='estudiantes varones')
+ax1.hist(dur_m, bins=bins, histtype='step', linewidth=6,
+         color='white')
+ax1.hist(dur_m, bins=bins, histtype='step', linewidth=3,
+         color=coloro, label='male')
 
-ax1.legend()
-ax1.set_xlabel('duración de la carrera en años')
-ax1.set_ylabel('número de estudiantes recibidos')
+mn_m = dur_m.mean()
+mn_f = dur_f.mean()
+er_m = np.sqrt(dur_m.var()/len(dur_m))
+er_f = np.sqrt(dur_f.var()/len(dur_f))
+
+ax1.axvline(mn_m, color=coloro)
+ax1.axvline(mn_f, color=colora)
+
+ax1.plot([np.percentile(dur_m, 25), np.percentile(dur_m, 75)], [1,1],
+        linestyle='--', color=coloro)
+ax1.plot([np.percentile(dur_f, 25), np.percentile(dur_f, 75)], [0.8,0.8],
+        linestyle='--', color=colora)
+
+ax1.plot([mn_m-er_m, mn_m+er_m], [1,1], lw=3, color=coloro)
+ax1.plot([mn_f-er_f, mn_f+er_f], [.8,.8], lw=3, color=colora)
+
+ax1.legend(fontsize=20)
+ax1.set_xlabel('years to complete graduation, y', fontsize=20)
+ax1.set_ylabel('frequency of graduates, dN/dy', fontsize=20)
 
 plt.tight_layout()
 fig.savefig(path.join(plotdir, 'time_to_graduation.png'))
@@ -123,7 +152,7 @@ for a in range(2006, 2015):
     ax1 = fig.add_subplot()
 
     dfss = df[df.year_in==a]
-          
+
     y = dfss.year - a + 1
     m_fade = dfss.mi
     f_fade = dfss.fi
@@ -151,7 +180,6 @@ for a in range(2006, 2015):
 
     plt.tight_layout()
     fig.savefig(path.join(plotdir, f'dropout_rates_{a}.png'))
-
 
 # %%
 
@@ -196,8 +224,6 @@ ax1.set_xlim(0.5, 8.5)
 
 plt.tight_layout()
 fig.savefig(path.join(plotdir, 'dropout_rates_f.png'))
-                                    
-
 
 # %%
 # FIGURA
@@ -238,5 +264,98 @@ ax1.set_xlim(0.5, 12.5)
 plt.tight_layout()
 fig.savefig(path.join(plotdir, 'dropout_rates_normalized.png'))
 
+# %% NORMALIZED MODEL                                                     %%
+
+def model(t, alfa, beta):
+    return np.exp(-((t-1)**(1/beta))/alfa)
+
+from scipy.optimize import curve_fit
+
+xdata = np.arange(2, 13)
+ydata = mn[1:12]
+p0 = [2, 1.5]
+pars, cm = curve_fit(model, xdata, ydata, [2, 1.5])
 
 
+# %% NORMALIZED PLOT                                                      %%
+
+fig = plt.figure(figsize=(10,8))
+ax1 = fig.add_subplot()
+ax1.set_xlim(0.5, 12.5)
+ax1.tick_params(axis='both', which='major', labelsize=20)
+mn = np.zeros(30)
+cn = np.zeros(30)
+mnf = np.zeros(30)
+cnf = np.zeros(30)
+mnm = np.zeros(30)
+cnm = np.zeros(30)
+k=0
+for a in range(2006, 2015):
+    dfss = df[df.year_in==a]
+    y = dfss.year - a + 1
+    m_fade = dfss.mi
+    f_fade = dfss.fi
+    f_fade = f_fade / f_fade.max()
+    m_fade = m_fade / m_fade.max()
+    ax1.axhline(0, linestyle='--', color='silver', linewidth=1)
+    ax1.plot(y[1:], m_fade[1:], color=coloro, lw=0.5)
+    ax1.plot(y[1:], f_fade[1:], color=colora, lw=1.0,
+    linestyle=':')
+    mn[:len(f_fade)] = mn[:len(f_fade)] + f_fade
+    mn[:len(m_fade)] = mn[:len(m_fade)] + m_fade
+    cn[:len(f_fade)] +=1
+    cn[:len(m_fade)] +=1
+
+    mnf[:len(f_fade)] = mnf[:len(f_fade)] + f_fade
+    cnf[:len(f_fade)] +=1
+    mnm[:len(f_fade)] = mnm[:len(f_fade)] + m_fade
+    cnm[:len(f_fade)] +=1
+    k+=1
+ax1.scatter(1, 1, color='k')
+flt = cn>0
+mn[flt] = mn[flt] / cn[flt]
+mnf[flt] = mnf[flt] / cnf[flt]
+mnm[flt] = mnm[flt] / cnm[flt]
+err = np.sqrt(20*mn*(1-mn))/20
+ax1.set_xlabel(f'years from enrollment', fontsize=20)
+ax1.set_ylabel('retention fraction', fontsize=20)
+k = list(cn).index(0)
+#ax1.plot(range(2,k+1), mn[1:k], linestyle='--', linewidth=3, color='green')
+#ax1.plot(range(2,k+1), mn[1:k]+err[:k], linestyle='--', linewidth=1, color='green')
+#ax1.plot(range(2,k+1), mn[1:k]-err[:k], linestyle='--', linewidth=1, color='green')
+
+t = np.linspace(2, 12, 100)
+#ax1.plot(t, model(t, *pars), color='red')
+p = model(t, *pars)
+e = np.sqrt(25*p*(1-p))/25
+#ax1.plot(t, model(t, *pars)+e, color='red')
+#ax1.plot(t, model(t, *pars)-e, color='red')
+
+op = {'linewidth': 2, 'linestyle': '--'}
+ax1.plot(range(2,13), mnm[1:12], color=coloro, **op, label='avg. male')
+ax1.plot(range(2,13), mnf[1:12], color=colora, **op, label='avg. female')
+
+Px = np.concatenate([t, t[::-1]])
+Py = np.concatenate([model(t, *pars)+e, (model(t, *pars)-e)[::-1]])
+ax1.fill(Px, Py, color='blanchedalmond', label='theoretical uncertainty')
+ax1.legend(fontsize=20)
+
+plt.tight_layout()
+fig.savefig(path.join(plotdir, 'dropout_rates_normalized_model.png'))
+
+# %% END                                                                  %%
+
+"""
+Para ver las fuentes disponibles, en un jupyter notebook:
+
+import matplotlib.font_manager
+from IPython.core.display import HTML
+
+def make_html(fontname):
+    return "<p>{font}: <span style='font-family:{font}; font-size: 24px;'>{font}</p>".format(font=fontname)
+
+code = "\n".join([make_html(font) for font in sorted(set([f.name for f in matplotlib.font_manager.fontManager.ttflist]))])
+
+HTML("<div style='column-count: 2;'>{}</div>".format(code))
+
+"""

@@ -60,6 +60,13 @@ an API KEY is required. Documentation for obtaining and using this key can be fo
 
     $ conda create --name astrogen
 
+or with virtualenv:
+
+.. code-block:: bash
+
+    $ virtualenv astrogen
+
+
 The recommended method is to create a virtual environment
 (using either conda or virtualenv) and then:
 
@@ -100,9 +107,19 @@ Configuration
 ..............
 
 The main configurations are set in a configuration file writen in a
-configuration file.
+configuration file, with ini format.
 
-An example of the configuration file is as follows:
+The configuration file has several sections, namely:
+
++ experiment: identifier if several experiments are made
++ dirs: where to find and save files
++ pp: selection of pipeline steps
++ UX: user experience settings
+
+In what follows we show examples for the different parts of the configuration file.
+
+The "experiment" block allows the option of adding a sufix to
+disttiinguish several experiments.
 
 .. code-block::
 
@@ -111,12 +128,22 @@ An example of the configuration file is as follows:
 
    # Experiment ID.  Useful to compare and save experiments.
    # A directory will be created with this name under [out]dir_output
-   experiment_ID = TRNT_001
+   experiment_ID = ARG_001
+
+   # Add experiment_ID to output files
+   add_id = False
+
+
+The "dirs" block allows to set the names and locations of the
+directories containing data files and plots.
+
+.. code-block::
 
    # _____________________________________________________
    [dirs] # Directory structure (relative to: astrogen/)
 
    # locations of data files
+   # relative to astrogen root directory
    datadir_root = data/
 
    # locations of external data files
@@ -127,21 +154,21 @@ An example of the configuration file is as follows:
    # relative to $datadir_root
    datadir_interim = interim
 
-   # locations of raw data files
-   # relative to $datadir_root
-   datadir_raw = raw
-
    # locations of redux data files
    # relative to $datadir_root
    datadir_redux = redux
 
    # locations of ADS data files
-   # relative to $datadir_root/$datadir_redux
+   # relative to $datadir_root/$datadir_interim
    datadir_ADS = ADS
 
+   # locations of html files
+   # relative to $datadir_root/$datadir_interim
+   datadir_htmls = htmls
+
    # locations of orcid data files
-   # relative to $datadir_root/$datadir_redux
-   datadir_orcid = ordic
+   # relative to $datadir_root/$datadir_interim
+   datadir_orcid = orcid
 
    # locations of model files
    # relative to $datadir_root
@@ -151,6 +178,10 @@ An example of the configuration file is as follows:
    # relative to $datadir_root
    datadir_report = report
 
+
+The "pp" block allows to set the steps of the data pipeline:
+
+.. code-block::
 
    # _____________________________________________________
    [pp] # PIPELINE
@@ -201,21 +232,9 @@ An example of the configuration file is as follows:
    build_valueadded_pub = yes
 
 
-   # _____________________________________________________
-   [run] # CONFIGURATIONS FOR EXPERIMENT AND COMPUTATIONS
+The "UX" block allows to set the verbosity of the outputs.
 
-   # performance computing ---
-
-   # number of jobs, to be passed to joblib.  Ignored if not run_parallel:
-   n_jobs = 1
-   # whether to run serial or parallel:
-   run_parallel = no
-
-
-   # _____________________________________________________
-   [out] # OUTPUT SETTINGS
-
-
+.. code-block::
 
    # _____________________________________________________
    [UX] # USER EXPERIENCE
@@ -235,7 +254,8 @@ An example of the configuration file is as follows:
 
 
 
-The directory tree structure is defined as follows:
+The directory tree structure defined in the example configuration file
+is defined as follows:
 
 .. code-block:: html
     :linenos:
@@ -247,10 +267,9 @@ The directory tree structure is defined as follows:
     │   └── sql
     ├── data
     │   ├── external
+    │   ├── interim
     │   │   ├── ADS
     │   │   └── ORCID
-    │   ├── interim
-    │   │   └── ADS
     │   ├── collect
     │   └── redux
     ├── docs

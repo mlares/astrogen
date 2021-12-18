@@ -3,7 +3,7 @@ import difflib
 import pandas as pd
 import numpy as np
 import operator
-import re 
+import re
 import os
 from openpyxl import load_workbook
 from pathlib import Path
@@ -40,7 +40,7 @@ class bcolors:
 
 # NAME MATCHING :::::::::::::::::::::::::::::::::::::::
 
-def ds(a, b):                                           
+def ds(a, b):
     """
     Get distance between two words.
 
@@ -60,10 +60,10 @@ def ds(a, b):
 
     """
     d1 = jellyfish.damerau_levenshtein_distance(a, b)
-    d2 = jellyfish.jaro_distance(a, b)     
-    d3 = jellyfish.levenshtein_distance(a, b)                          
-    s = difflib.SequenceMatcher(None, a, b)                            
-    d4 = s.ratio()                                                
+    d2 = jellyfish.jaro_distance(a, b)
+    d3 = jellyfish.levenshtein_distance(a, b)
+    s = difflib.SequenceMatcher(None, a, b)
+    d4 = s.ratio()
     res = np.array([d1, d2, d3, d4])
     return res
 
@@ -85,20 +85,45 @@ def ds1(s1, s2):
         res (array): Numpy array with the list of distances
            between the two words.
 
-    """ 
+    """
     s1l = s1.lower().split()
     s2l = s2.lower().split()
-    n1 = len(s1l)
-    n2 = len(s2l)
-    if n1 > 1: s1l.append(s1.lower())
-    if n2 > 1: s2l.append(s2.lower())
-    dm = 99
+    #n1 = len(s1l)
+    #n2 = len(s2l)
+    #if n1 > 1: s1l.append(s1.lower())
+    #if n2 > 1: s2l.append(s2.lower())
+    dm = []
     for p1 in s1l:
         for p2 in s2l:
             s = difflib.SequenceMatcher(None, p1, p2)
-            d = 1 - s.ratio()                                                
-            dm = min(dm, d)
+            d = 1 - s.ratio()
+            dm.append(d)
     return dm
+
+def ds0(s1, s2):
+    """
+    Get distance between two words.
+
+    This function is used to obtain the distance between two names
+    or surnames. Uses different distances in word space, namely,
+    Damerau Levenshtein distance, Jaro distance, Levenstein
+    distance and SequenceMatcher. The later from the difflib package
+    and the other ones from the Jellyfish package.
+
+    Args:
+        a (string): one of the strings
+        b (string): the other string to compare
+
+    Returns:
+        res (array): Numpy array with the list of distances
+           between the two words.
+
+    """
+    s1l = ''.join(s1.split())
+    s2l = ''.join(s2.split())
+    s = difflib.SequenceMatcher(None, s1l, s2l)
+    d = 1 - s.ratio()
+    return d
 
 def ds2(ap1, ap2, nom1, nom2):
     """
@@ -118,11 +143,39 @@ def ds2(ap1, ap2, nom1, nom2):
         res (array): Numpy array with the list of distances
            between the two words.
 
-    """    
-    d_apel = ds1(ap1, ap2)
-    d_nomb = ds1(nom1, nom2)
-    names_dist = np.sqrt(d_apel**2 + d_nomb**2)
-    return names_dist
+    test:
+    'lopez', 'lopez', 'pablo', 'pablo') --> T
+    'lopez', 'lopez', 'pablo', 'pablo alejandro' --> T
+    'lopez obrador', 'lopez', 'pablo', 'pablo' --> T
+    'lopez obrador', 'lopez obrador', 'pablo', 'pablo' --> T
+    'lopez obrador', 'lopez obrador', 'pablo alejandro', 'pablo alejandro' --> T
+    'romero garcia', 'lopez obrador', 'juan jose', 'pablo alejandro' --> F
+    'romero garcia', 'romero obrador', 'juan jose', 'juan jose' --> F
+    """
+    ds_apel = ds1(ap1, ap2)
+    ds_nomb = ds1(nom1, nom2)
+    ds_apel = np.array(ds_apel)
+    ds_nomb = np.array(ds_nomb)
+
+    ds_apel = np.append(ds_apel, 99.)
+    ds_nomb = np.append(ds_nomb, 99.)
+    ds_apel = np.append(ds_apel, 99.)
+    ds_nomb = np.append(ds_nomb, 99.)
+
+    nombres1 = nom1.split()
+    nombres2 = nom2.split()
+    apellidos1 = ap1.split()
+    apellidos2 = ap2.split()
+
+    nn = abs(len(nom1.split()) - len(nom2.split()))
+    na = abs(len(ap1.split()) - len(ap2.split()))
+    mn = min(len(nom1.split()), len(nom2.split()))
+    ma = min(len(ap1.split()), len(ap2.split()))
+    dsa = ds_apel[np.argpartition(ds_apel, ma)][:ma]
+    dsn = ds_nomb[np.argpartition(ds_nomb, mn)][:mn]
+
+    dfinal = np.sqrt(dsa.sum()**2 + dsn.sum()**2)
+    return dfinal
 
 def initials(initials, string):
     """

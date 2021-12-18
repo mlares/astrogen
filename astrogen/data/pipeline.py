@@ -10,7 +10,7 @@ import jinja2
 import sqlite3
 import unicodedata
 import re
-import csv 
+import csv
 import warnings
 import pandas as pd
 import numpy as np
@@ -28,25 +28,23 @@ from nltk.tokenize import word_tokenize
 from astrogen_utils import bcolors, ds, ds1, ds2, get_gender2, fnames
 from astrogen_utils import initials, getinitials, pickone, similar
 
-
 # avoid SettingWithCopyWarning
 # (see https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy)
 pd.options.mode.chained_assignment = None
 pd.options.display.html.border = 1
 #pd.options.display.max_rows = None
 
-
-def clean_accented(s):
+def clean_accented(s):# {{{
      s1 = unicodedata.normalize("NFKD", s)
      s2 = s1.encode("ascii","ignore")
      s3 = s2.decode("ascii")
-     return s3
+     return s3# }}}
 
-def get_filters_by_names(D, UE):
+def get_filters_by_names(D, UE):# {{{
     """
-    Given two dataframes with "nombre" and "apellido" keys, 
-    find the entries in the second dataframe (UE) that match 
-    any entry in the first dataframe.
+    Given two dataframes with "nombre" and "apellido" keys,
+    find the entries in the second dataframe (UE) that match
+    an entry in the first dataframe (D).
 
     Args:
     D: DataFrame, base data
@@ -58,7 +56,6 @@ def get_filters_by_names(D, UE):
     An ndarray of dimension len(D)
 
     inds: int ndarray
-
     """
     filt = []
     inds = []
@@ -84,12 +81,66 @@ def get_filters_by_names(D, UE):
 
     filt = np.array(filt)
     inds = np.array(inds)
-    return filt, inds
+    return filt, inds# }}}
 
-def get_filters_by_dnis(D, UE):
+def get_filters_by_names_and_DNI(D, UE):# {{{
     """
-    Given two dataframes with "dni" keys, 
-    find the entries in the second dataframe (UE) that match 
+    Given two dataframes with "nombre" and "apellido" keys,
+    find the entries in the second dataframe (UE) that match
+    an entry in the first dataframe (D).
+
+    Args:
+    D: DataFrame, base data
+
+    UE: DataFrame, data to be added
+
+    Returns:
+    filt: boolean array, of dimension len(D)
+
+    inds: int ndarray
+    """
+    filt = []
+    inds = []
+
+    L1 = zip(UE['nombre'], UE['apellido'], UE['dni'])
+    L2 = zip(D['nombre'], D['apellido'])
+
+    for i, (n1, a1, d1) in enumerate(L1):
+        closest = 99
+        has_dni_1 = not np.isnan(d1)
+
+        if has_dni_1:
+           try:
+               k = np.where(abs(D.dni-d1)<0.5)[0][0]
+               filt.append(True)
+           except IndexError:
+               k = -99
+               filt.append(False)
+           inds.append(k)
+        else:
+            for j, (n2, a2) in enumerate(L2):
+                aa1 = clean_accented(a1)
+                aa2 = clean_accented(a2)
+                nn1 = clean_accented(n1)
+                nn2 = clean_accented(n2)
+                d = ds2(aa1, aa2, nn1, nn2)
+                if d < closest:
+                    closest = d
+                    ind = j
+                    nc2 = nn2
+                    ac2 = aa2
+            cond = closest < 0.02
+            filt.append(cond)
+            inds.append(ind)
+
+    filt = np.array(filt)
+    inds = np.array(inds)
+    return filt, inds# }}}
+
+def get_filters_by_dnis(D, UE):# {{{
+    """
+    Given two dataframes with "dni" keys,
+    find the entries in the second dataframe (UE) that match
     any entry in the first dataframe.
 
     Args:
@@ -117,9 +168,9 @@ def get_filters_by_dnis(D, UE):
         inds.append(j)
 
     inds = np.array(inds)
-    return filt, inds
+    return filt, inds# }}}
 
-def set_empty_with_type(tipo):
+def set_empty_with_type(tipo):# {{{
     """
     Returns an empty object of a given type.
 
@@ -138,9 +189,9 @@ def set_empty_with_type(tipo):
     elif tipo == type([]):
         return []
     else:
-        return np.nan
+        return np.nan# }}}
 
-def fill_empty_columns(df1, df2):
+def fill_empty_columns(df1, df2):# {{{
     """
     add empty columns to df1 that are in df2 but not in df1
 
@@ -154,9 +205,9 @@ def fill_empty_columns(df1, df2):
         if c not in df1.columns:
             df1[c] = set_empty_with_type(type(t))
 
-    return df1
+    return df1# }}}
 
-def ft_year(s):
+def ft_year(s):# {{{
     """
     Returns the year from a datetime object
 
@@ -168,9 +219,9 @@ def ft_year(s):
         y=s.year
     except AttributeError:
         y=-1
-    return y
- 
-def ft_low(s):
+    return y# }}}
+
+def ft_low(s):# {{{
     """
     Returns the affiliation in lower case format
 
@@ -179,9 +230,9 @@ def ft_low(s):
         y = s.lower()
     else:
         y = s
-    return y
+    return y# }}}
 
-def re_names(string):
+def re_names(string):# {{{
     """
     Dado un nombre, devuelve los nombres completos o iniciales
 
@@ -202,9 +253,9 @@ def re_names(string):
     if len(fullnames)>0 and len(iniciales)==0:
         for s in fullnames:
             iniciales.append(getinitials(s))
-    return ' '.join(fullnames), ' '.join(iniciales)
+    return ' '.join(fullnames), ' '.join(iniciales)# }}}
 
-def aut_compare(aut1, aut2):
+def aut_compare(aut1, aut2):# {{{
     """
     each author: ap_full, ap_inic, nom_full, nom_inic
 
@@ -218,8 +269,8 @@ def aut_compare(aut1, aut2):
 
     d_ap = difflib.SequenceMatcher(None, a1, a2).ratio()
     d1_ap = jellyfish.damerau_levenshtein_distance(a1, a2)
-    d2_ap = jellyfish.jaro_distance(a1, a2)     
-    d3_ap = jellyfish.levenshtein_distance(a1, a2)                          
+    d2_ap = jellyfish.jaro_distance(a1, a2)
+    d3_ap = jellyfish.levenshtein_distance(a1, a2)
 
     # comparar nombres:
     if len(aut2[2])>0: # tiene nombre completo
@@ -227,22 +278,22 @@ def aut_compare(aut1, aut2):
         a2 = aut2[2]
         d_n = difflib.SequenceMatcher(None, a1, a2).ratio()
         d1_n = jellyfish.damerau_levenshtein_distance(a1, a2)
-        d2_n = jellyfish.jaro_distance(a1, a2)     
-        d3_n = jellyfish.levenshtein_distance(a1, a2)                          
+        d2_n = jellyfish.jaro_distance(a1, a2)
+        d3_n = jellyfish.levenshtein_distance(a1, a2)
 
     else: # tiene solo iniciales
         a1 = aut1[3]
         a2 = aut2[3]
         d_n = difflib.SequenceMatcher(None, a1, a2).ratio()
         d1_n = jellyfish.damerau_levenshtein_distance(a1, a2)
-        d2_n = jellyfish.jaro_distance(a1, a2)     
-        d3_n = jellyfish.levenshtein_distance(a1, a2)                          
+        d2_n = jellyfish.jaro_distance(a1, a2)
+        d3_n = jellyfish.levenshtein_distance(a1, a2)
 
     return [d_ap, d_n, d1_ap, d1_n, d2_ap, d2_n, d3_ap, d3_n,
-           len(aut1[0]), len(aut2[0]), 
-           len(aut1[1]), len(aut2[1])]
+           len(aut1[0]), len(aut2[0]),
+           len(aut1[1]), len(aut2[1])]# }}}
 
-def authmatch(x, ip, show=False):
+def authmatch(x, ip, show=False):# {{{
     """
     Dado un autor y un paper, determinar si ese paper
     es de ese autor.
@@ -286,9 +337,9 @@ def authmatch(x, ip, show=False):
             else:
                 print(f'   \u001b[46;1m{au} \u001b[0m{af[:80]}')
 
-    return lmx
-         
-def gen_spreadsheet(auth, papers):
+    return lmx# }}}
+
+def gen_spreadsheet(auth, papers):# {{{
     lst_title = []
     lst_auths = []
     lst_affs = []
@@ -335,9 +386,9 @@ def gen_spreadsheet(auth, papers):
                        'Journal': lst_journal,
                        'adsurl': lst_bibcode
                        })
-    return df 
+    return df # }}}
 
-def get_papers_from_df(x, clean=True):
+def get_papers_from_df(x, clean=True):# {{{
     #ap = x.apellido.title()
     #fname_ap = '_'.join(ap.split())
     #nm = x.nombre
@@ -353,13 +404,13 @@ def get_papers_from_df(x, clean=True):
         file_papers = fnames(x, folder, '.pk')
     with open(file_papers, 'rb') as f:
         papers = pickle.load(f)
-    return papers
+    return papers# }}}
 
-def ccats(c):
+def ccats(c):# {{{
     """
     c is assumed a string
-    sUPErior, pRINcipal, indepeNDIente, aDJUnto, asISTente, 
-    POSdoctoral, doCTOral 
+    sUPErior, pRINcipal, indepeNDIente, aDJUnto, asISTente,
+    POSdoctoral, doCTOral
     """
     c = c.lower()
     if 'upe' in c:
@@ -377,9 +428,9 @@ def ccats(c):
     elif 'cto' in c:
         return '-1'
     else:
-        return None
+        return None# }}}
 
-def ciccatcodes(c):
+def ciccatcodes(c):# {{{
     """
     'Q17'  0 POST.DOCTORAL INT.
     'Q29' -1 INTERNA DE FIN DE DOCTORADO
@@ -411,9 +462,9 @@ def ciccatcodes(c):
         'Q86': -1, 'Q92': -1, 'Q93':  0, 'I01':  1,
         'I02':  2, 'I03':  3, 'I04':  4, 'I05':  5
     }
-    return switcher.get(c, None)
+    return switcher.get(c, None)# }}}
 
-def cic_category(c):
+def cic_category(c):# {{{
     """
     Categorize the stage in CONICET
 
@@ -451,16 +502,13 @@ def cic_category(c):
         elif len(b)==0:
             return ccats(a)
         elif (a.lower()=='beca') and (b.lower()=='doctorado'):
-            return -1                     
+            return -1
         elif (b.lower()=='beca') and (a.lower()=='doctorado'):
             return -1
         else:
-            return 999
+            return 999# }}}
 
-
-
-
-def ynac_clean(y):
+def yob_clean(y):# {{{
     """
     Clean year of birth
 
@@ -482,10 +530,9 @@ def ynac_clean(y):
     elif isinstance(y, str):
         return int(float(y))
     else:
-        return None
+        return None# }}}
 
-
-def focus_authors(s, pos):
+def focus_authors(s, pos):# {{{
     """
     show a small sample of authors that include the given author.
     """
@@ -501,8 +548,7 @@ def focus_authors(s, pos):
     if imax<(N-2):
         S.append('...')
         S.append(s[-1])
-    return S  
-
+    return S# }}}
 
 ## steps ##
 """
@@ -517,7 +563,7 @@ SX_anonymize
 
 # EXTRACT
 
-def S01_read_aaa_table():
+def S01_read_aaa_table():# {{{
     """
     STEP: S01_read_aaa_table
 
@@ -526,12 +572,12 @@ def S01_read_aaa_table():
     information from other data sources.
 
     | Columns:
-    | 1) apellido 
-    | 2) nombre   
+    | 1) apellido
+    | 2) nombre
     | 3) ads_str: string to look for in ADS
     | 4) dni: documento nacional de identidad
     | 5) fnac: day of birth
-    | 6) ynac: year of birth
+    | 6) yob: year of birth
     | 7) aff: affiliation
     | 8) nac: nacionality
     | 9) aaa_soc: aaa situation
@@ -559,21 +605,19 @@ def S01_read_aaa_table():
     """
     D = pd.read_excel('../../data/collect/collect_AAA.xlsx')
 
-    D['ynac'] = D.ynac.apply(ft_year)
+    D['yob'] = D.yob.apply(ft_year)
     D['dni'] = D['dni'].apply(lambda x: x if np.isreal(x) else np.NaN)
- 
-    yield D
-
+    yield D# }}}
 
 # TRANSFORM: add data from institutes
-""" 
+"""
 | In these steps the following columns are added:
 |     - cic
 |     - docencia
 |     - area
 |     - orcid
 |     - use_orcid
-| 
+|
 | The steps are contained in the following functions:
 |     - S02_add_OAC_data
 |     - S02_add_IATE_data
@@ -581,20 +625,20 @@ def S01_read_aaa_table():
 |     - S02_add_ICATE_data
 |     - S02_add_GAE_data
 |     - S02_add_CIC_data
-""" 
+"""
 
-def S02_add_OAC_data(*args):
+def S02_add_OAC_data(*args):# {{{
     """
     STEP: S02_add_OAC_data
 
     In this step, the database is combined with data from the OAC
 
     | Columns:
-    | 1) apellido  
-    | 2) nombre    
-    | 3) ads_str   
+    | 1) apellido
+    | 2) nombre
+    | 3) ads_str
     | 4) dni
-    | 5) ynac      
+    | 5) yob
     | 6) cic (+)
     | 7) docencia (+)
     | 8) area (+)
@@ -604,9 +648,9 @@ def S02_add_OAC_data(*args):
     Returns:
     D: DataFrame containing the data
 
-    """     
+    """
 
-    D = args[0] 
+    D = args[0]
     UE = pd.read_excel('../../data/collect/collect_OAC.xlsx')
     UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
 
@@ -629,27 +673,27 @@ def S02_add_OAC_data(*args):
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni 
+            D.at[inds[i], 'dni'] = UE.iloc[i].dni
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' OAC'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
     ADD = UE[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
-    ADD = ADD[list(D.columns)]  
+    ADD = ADD[list(D.columns)]
     D = pd.concat([D, ADD], ignore_index=True)
-    yield D
+    yield D# }}}
 
-def S02_add_IATE_data(*args):
+def S02_add_IATE_data(*args):# {{{
     """
     STEP: S02_add_IATE_data
 
     In this step, the database is combined with data from the IATE
 
     | Columns:
-    | 1) apellido  
-    | 2) nombre    
-    | 3) ads_str   
-    | 4) ynac      
+    | 1) apellido
+    | 2) nombre
+    | 3) ads_str
+    | 4) yob
     | 5) cic (+)
     | 6) docencia (+)
     | 7) area (+)
@@ -659,9 +703,9 @@ def S02_add_IATE_data(*args):
     Returns:
     D: DataFrame containing the data
 
-    """     
+    """
 
-    D = args[0] 
+    D = args[0]
 
     UE = pd.read_excel('../../data/collect/collect_IATE.xlsx')
     UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
@@ -675,7 +719,7 @@ def S02_add_IATE_data(*args):
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni 
+            D.at[inds[i], 'dni'] = UE.iloc[i].dni
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IATE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
@@ -688,47 +732,47 @@ def S02_add_IATE_data(*args):
         # TEST: diferencias
         for i, emb in enumerate(filt):
             if not emb:
-                print(i, emb, UE.iloc[i].apellido)  
+                print(i, emb, UE.iloc[i].apellido)
     # TEST ///
 
 
     ADD = UE[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
-    ADD = ADD[list(D.columns)]  
+    ADD = ADD[list(D.columns)]
     D = pd.concat([D, ADD], ignore_index=True)
-    yield D
+    yield D# }}}
 
-def f(*args):
-    D = args[0] 
+def f(*args):# {{{
+    D = args[0]
     UE = pd.read_excel('../../data/collect/collect_IATE.xlsx')
     UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
     #filt, inds = get_filters_by_names(D, UE)
     #D = fill_empty_columns(D, UE)
-    yield D
+    yield D# }}}
 
-def S02_add_ICATE_data(*args):
+def S02_add_ICATE_data(*args):# {{{
     """
     STEP: S02_add_ICATE_data
 
     In this step, the database is combined with data from the ICATE
 
-    | Columns: 
-    | 1) apellido  
-    | 2) nombre    
-    | 3) ads_str   
+    | Columns:
+    | 1) apellido
+    | 2) nombre
+    | 3) ads_str
     | 4) dni
-    | 5) ynac      
+    | 5) yob
     | 6) cic (+)
     | 7) docencia (+)
     | 8) area (+)
     | 9) orcid (+)
-    | 10) use_orcid (+) 
+    | 10) use_orcid (+)
 
     Returns:
     D: DataFrame containing the data
 
-    """     
-    D = args[0] 
+    """
+    D = args[0]
     UE = pd.read_excel('../../data/collect/collect_ICATE.xlsx')
     UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
 
@@ -741,40 +785,40 @@ def S02_add_ICATE_data(*args):
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni 
-            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' ICATE' 
+            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' ICATE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
 
     ADD = UE[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
-    ADD = ADD[list(D.columns)]  
+    ADD = ADD[list(D.columns)]
     D = pd.concat([D, ADD], ignore_index=True)
-    yield D
+    yield D# }}}
 
-def S02_add_IALP_data(*args):
+def S02_add_IALP_data(*args):# {{{
     """
     STEP: S02_add_IALP_data
 
     In this step, the database is combined with data from the IALP
 
     | Columns:
-    | 1) apellido  
-    | 2) nombre    
-    | 3) ads_str   
+    | 1) apellido
+    | 2) nombre
+    | 3) ads_str
     | 4) dni
-    | 5) ynac      
+    | 5) yob
     | 6) cic (+)
     | 7) docencia (+)
     | 8) area (+)
     | 9) orcid (+)
-    | 10) use_orcid (+) 
+    | 10) use_orcid (+)
 
     Returns:
     D: DataFrame containing the data
 
-    """     
-    D = args[0] 
+    """
+    D = args[0]
     UE = pd.read_excel('../../data/collect/collect_IALP.xlsx')
     UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
 
@@ -787,39 +831,39 @@ def S02_add_IALP_data(*args):
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni 
-            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IALP' 
+            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IALP'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
     ADD = UE[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
-    ADD = ADD[list(D.columns)]  
+    ADD = ADD[list(D.columns)]
     D = pd.concat([D, ADD], ignore_index=True)
-    yield D
+    yield D# }}}
 
-def S02_add_IAFE_data(*args):
+def S02_add_IAFE_data(*args):# {{{
     """
     STEP: S02_add_IAFE_data
 
     In this step, the database is combined with data from the IAFE
 
     | Columns:
-    | 1) apellido  
-    | 2) nombre    
-    | 3) ads_str   
+    | 1) apellido
+    | 2) nombre
+    | 3) ads_str
     | 4) dni
-    | 5) ynac      
+    | 5) yob
     | 6) cic (+)
     | 7) docencia (+)
     | 8) area (+)
     | 9) orcid (+)
-    | 10) use_orcid (+) 
+    | 10) use_orcid (+)
 
     Returns:
     D: DataFrame containing the data
 
-    """     
-    D = args[0] 
+    """
+    D = args[0]
     UE = pd.read_excel('../../data/collect/collect_IAFE.xlsx')
     UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
 
@@ -832,39 +876,39 @@ def S02_add_IAFE_data(*args):
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni 
-            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IAFE' 
+            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IAFE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
     ADD = UE[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
-    ADD = ADD[list(D.columns)]  
+    ADD = ADD[list(D.columns)]
     D = pd.concat([D, ADD], ignore_index=True)
-    yield D
+    yield D# }}}
 
-def S02_add_GAE_data(*args):
+def S02_add_GAE_data(*args):# {{{
     """
     STEP: S02_add_GAE_data
 
     In this step, the database is combined with data from the GAE
 
     | Columns:
-    | 1) apellido  
-    | 2) nombre    
-    | 3) ads_str   
+    | 1) apellido
+    | 2) nombre
+    | 3) ads_str
     | 4) dni
-    | 5) ynac      
+    | 5) yob
     | 6) cic (+)
     | 7) docencia (+)
     | 8) area (+)
     | 9) orcid (+)
-    | 10) use_orcid (+) 
+    | 10) use_orcid (+)
 
     Returns:
     D: DataFrame containing the data
 
-    """     
-    D = args[0] 
+    """
+    D = args[0]
     UE = pd.read_excel('../../data/collect/collect_GAE.xlsx')
     UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
 
@@ -877,16 +921,27 @@ def S02_add_GAE_data(*args):
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni 
-            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' GAE' 
+            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' GAE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
     ADD = UE[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
-    ADD = ADD[list(D.columns)]  
+    ADD = ADD[list(D.columns)]
     D = pd.concat([D, ADD], ignore_index=True)
-    yield D
+    yield D# }}}
 
+def S02_check_outliers(*args):# {{{
+    """
+    The purpose of this step is to check the validity of the DNI
+    numbers. No columns or rows are deleted, but outlier values
+    are replaced by NANs.
+    """
+    D = args[0]
+    fltr = D.dni>4.1e7
+    D.dni[fltr] = np.nan
+
+    yield D# }}}
 
 
 # TRANSFORM: add data from CONICET
@@ -894,7 +949,7 @@ def S02_add_GAE_data(*args):
 Add data for the scientific research career at CONICET
 """
 
-def S02_add_CIC_data(*args):
+def S02_add_CIC_data(*args):# {{{
     """
     STEP: S03_add_CIC_data
 
@@ -919,14 +974,14 @@ def S02_add_CIC_data(*args):
     indicada en las planillas de institutos se le suma la categoría
     de la planilla de conicet.
 
-    """     
-    D = args[0] 
+    """
+    D = args[0]
     CIC = pd.read_excel('../../data/collect/collect_CIC.xlsx')
     CIC.drop(CIC.filter(regex="Unname"),axis=1, inplace=True)
 
     filt, inds = get_filters_by_names(D, CIC)
     D = fill_empty_columns(D, CIC)
- 
+
     N = len(filt)
     for i in range(N):
         if filt[i]:
@@ -944,11 +999,11 @@ def S02_add_CIC_data(*args):
 
     ADD = CIC[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
-    ADD = ADD[list(D.columns)]  
+    ADD = ADD[list(D.columns)]
     D = pd.concat([D, ADD], ignore_index=True)
-    yield D     
+    yield D# }}}
 
-def S02_add_CONICET_data(*args):
+def S02_add_CONICET_data(*args):# {{{
     """
     STEP: S03_add_OAC_data
 
@@ -964,6 +1019,7 @@ def S02_add_CONICET_data(*args):
     | 7) l (+)
     | 8) tema (+)
     | 9) sn (+)
+    | 10) age (+)
 
     Returns:
     D: DataFrame containing the data
@@ -973,37 +1029,41 @@ def S02_add_CONICET_data(*args):
     indicada en las planillas de institutos se le suma la categoría
     de la planilla de conicet.
 
-    """     
-    D = args[0] 
+    """
+    D = args[0]
     year = str(args[1])
     filename = f'../../data/collect/collect_conicet.xlsx'
-    fieldname = f'conicet{year}'    
-    fieldnname = f'conicetcode{year}'    
+    fieldnname = f'conicetcode{year}'
 
     CIC = pd.read_excel(filename, sheet_name=year)
     CIC.drop(CIC.filter(regex="Unname"),axis=1, inplace=True)
 
     CIC[fieldnname] = CIC.cic_code.apply(ciccatcodes)
 
-    filt, inds = get_filters_by_names(D, CIC)
+    #filt, inds = get_filters_by_names(D, CIC)
+    filt, inds = get_filters_by_names_and_DNI(D, CIC)
     D = fill_empty_columns(D, CIC)
- 
-    #D[fieldname] = None
+
     D[fieldnname] = None
     N = len(filt)
     for i in range(N):
         if filt[i]:
             b = CIC.iloc[i].conicet
             D.at[inds[i], 'cic'] = b
-            #D.at[inds[i], fieldname] = b
             D.at[inds[i], fieldnname] = CIC[fieldnname].iloc[i]
+            D.at[inds[i], fieldnname] = CIC[fieldnname].iloc[i]
+            # age
+            # check if age is present, if not, load from the tables
+            try:
+                a = int(D.at[inds[i], 'yob'])
+            except ValueError:
+                D.at[inds[i], 'yob'] = CIC['yob'].iloc[i]
+
     ADD = CIC[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
-    ADD = ADD[list(D.columns)]  
-    #ADD[fieldname] = ADD.conicet
+    ADD = ADD[list(D.columns)]
     D = pd.concat([D, ADD], ignore_index=True)
-    yield D     
-
+    yield D# }}}
 
 # TRANSFORM: add common data
 """
@@ -1012,7 +1072,7 @@ S03_add_age
 S03_clean_and_sort
 """
 
-def S03_add_gender(*args):
+def S03_add_gender(*args):# {{{
     """
     STEP: S03_add_gender
 
@@ -1027,7 +1087,7 @@ def S03_add_gender(*args):
     Returns:
     D: DataFrame containing the data
 
-    """   
+    """
     D = args[0]
     N = D.shape[0]
     gender = []
@@ -1035,17 +1095,19 @@ def S03_add_gender(*args):
         name = D['nombre'].iloc[i]
         g = get_gender2(name)
         gender.append(g)
-    D['genero'] = gender 
-    yield D
+    D['genero'] = gender
+    yield D# }}}
 
-def S03_add_age(*args):
+def S03_get_yob_from_DNI(*args):# {{{
     """
-    STEP: S02_add_age
+    STEP: S02_get_age_from_DNI
 
-    In this step, age is computed and added.
+    In this step, age is computed from the DNI number if
+    DNI is present but age is not.
 
-    Columns:
-    1) edad
+    Returns:
+    D: DataFrame containing the data
+    Columns replaced: / yob
 
     Notes:
     When the year of birth is not available, a relacion between the
@@ -1053,15 +1115,76 @@ def S03_add_age(*args):
     DNI (Documento nacional de identidad) number is assigned
     correlatively after inscription of newborns, which is mandatory in
     Argentina.
+    """
+    df = args[0]
+
+    # Estimate age from DNI ------------------------
+    # 1.- select data
+    filt_df = df['nac'].str.contains('arg')
+    filt_df[filt_df.isna()] = False
+    filt = filt_df.values
+
+    df.yob[df.yob<0] = np.nan
+
+    Darg = df[filt & df.yob.notnull()]
+    dft = Darg[Darg['dni'].between(1.e7, 4.e7) & Darg['yob'].between(1900,2030)]
+    x = dft['dni'].values
+    y = dft['yob'].values
+
+    # 2.- eliminate outliers and fit model
+    K = 100
+    while K > 3:
+        a, b = np.polyfit(x, y, 1)
+        fltr = abs(a*x+b-y) < (y.max()-y.min())/20
+        x = x[fltr]
+        y = y[fltr]
+        K = len(fltr) - sum(fltr)
+    x.sort()
+
+    # 3.- add regression of YOB for missing values
+    N = df.shape[0]
+    yob_fit = []
+    for i in range(N):
+        yob = df['yob'].iloc[i]
+        dni = df['dni'].iloc[i]
+        try:
+            yob = int(yob)
+        except ValueError:
+            if not np.isnan(dni):
+                yob = int(a*dni+b)
+        yob_fit.append(yob)
+
+    df.drop(columns=['yob'], inplace=True)
+    df['yob'] = yob_fit
+
+    yield df# }}}
+
+def S03_add_age_list(*args):# {{{
+    """
+    STEP: S02_add_age
+
+    In this step, age is searched or computed and added to the
+    dataframe. The source of ages is a list compiled from information
+    obtained in the web.
 
     Returns:
     D: DataFrame containing the data
+    Columns added: + edad
 
-    """    
+    Notes:
+    Age data is taken from the AAA or CONICET tables. If the age
+    is not available in the AAA table, the a cross-match is performed
+    onto CONICET tables, based on DNI if available, or using the name
+    and surname strings.
+    When the year of birth is not available, a relacion between the
+    DNI and the age is fitted aud used to complete the data.
+    DNI (Documento nacional de identidad) number is assigned
+    correlatively after inscription of newborns, which is mandatory in
+    Argentina.
+    """
     df = args[0]
     today = datetime.date.today()
     today = pd.to_datetime(today)
-
     ages = pd.read_excel('../../data/collect/collect_age.xlsx')
 
     df['fnac'] = pd.to_datetime(df['fnac'], errors='coerce')
@@ -1082,7 +1205,7 @@ def S03_add_age(*args):
         if x.fnac is not np.nan:
             continue
         nms[0][0:2] = re_names(x.apellido)
-        nms[0][2:4] = re_names(x.nombre)        
+        nms[0][2:4] = re_names(x.nombre)
         for j in ages.index:
             y = ages.iloc[j]
             nms[1][0:2] = re_names(y.apellido)
@@ -1091,8 +1214,8 @@ def S03_add_age(*args):
             m = ll[0]>0.9 and ll[1]>0.9 and ll[2]<0.1
             if m:
                 # 1) tiene la fecha de nacimietnto?
-                if y.ynac is not np.nan:
-                    df.iloc[i].ynac = y.ynac
+                if y.yob is not np.nan:
+                    df.iloc[i].yob = y.yob
                 # 2) tiene la edad?
                 elif y.dni is not np.nan:
                     df.iloc[i].dni = y.dni
@@ -1137,12 +1260,29 @@ def S03_add_age(*args):
     N = len(filt)
     for i in range(N):
         if filt[i]:
-            b = CIC.iloc[i].ynac
-            df.at[inds[i], 'ynac'] = b
+            b = CIC.iloc[i].yob
+            df.at[inds[i], 'yob'] = b
 
-    yield df
+    yield df# }}}
 
-def S03_clean_and_sort(*args):
+def S03_add_age(*args):# {{{
+    """
+    STEP: S02_add_age
+
+    In this step, age is searched or computed and added to the
+    dataframe.
+
+    Returns:
+    D: DataFrame containing the data
+    Columns added: + age
+    """
+    df = args[0]
+    today = datetime.date.today()
+    df['age'] = df.yob.mul(-1).add(2021)
+
+    yield df# }}}
+
+def S03_clean_and_sort(*args):# {{{
     """
     STEP: S02_clean_and_sort
 
@@ -1157,8 +1297,8 @@ def S03_clean_and_sort(*args):
     Returns:
     D: DataFrame containing the data
 
-    """     
-    D = args[0] 
+    """
+    D = args[0]
 
     # Fill missing data with None -> Null in SQL
     aux = D.replace({'': None})
@@ -1178,8 +1318,6 @@ def S03_clean_and_sort(*args):
     if 'subarea' in D:
         D['subarea'] = D.subarea.apply(ft_low)
 
-    D['edad'] = D['edad'].fillna('999').astype(int).replace({999: None})
-
     D['cic'] = D.cic.replace({np.nan: None, '': None})
     D['cic'] = D.cic.apply(cic_category)
 
@@ -1197,24 +1335,24 @@ def S03_clean_and_sort(*args):
     #D = D.replace({np.nan: 0})
     D.use_orcid = D.use_orcid.astype(bool)
 
-    # ynac -> int
-    #D.ynac = D.ynac.astype(int)
-    #D.ynac = D.ynac.apply(ynac_clean, reduce=False) ???
+    # yob -> int
+    #D.yob = D.yob.astype(int)
+    #D.yob = D.yob.apply(yob_clean, reduce=False) ???
     for i in D.index:
-        if D.at[i, 'ynac'] is None:
-            D.at[i, 'ynac'] = None
+        if D.at[i, 'yob'] is None:
+            D.at[i, 'yob'] = None
         else:
-            D.at[i, 'ynac'] = int(D.at[i, 'ynac'])
+            D.at[i, 'yob'] = int(D.at[i, 'yob'])
 
     # Add INDEX
     D.reset_index(drop=True, inplace=True)
     D['ID'] = D.index
 
-    colsout = ['ads_str', 'dni', 'fnac', 'nac',  'aaa_soc', 
+    colsout = ['ads_str', 'dni', 'fnac', 'nac',  'aaa_soc',
                'docencia', 'area', 'cic', 'cic_code', 'sexo']
-    D.drop(colsout, axis=1, inplace=True)  
+    D.drop(colsout, axis=1, inplace=True)
 
-    yield D
+    yield D# }}}
 
 
 # TRANSFORM: add publication data
@@ -1227,15 +1365,15 @@ S04_make_pages
 S04_pub_value_added
 """
 
-def S04_pub_get_orcids(*args):
+def S04_pub_get_orcids(*args):# {{{
     """
     STEP: S04_pub_get_orcids
 
     In this step, orcids are guessed by downloading from orcid
     service.
-    
+
     The following steps are in order:
-    
+
     | 1) generate query
     | 2) download data
     | 3) check on ads
@@ -1249,9 +1387,9 @@ def S04_pub_get_orcids(*args):
     """
     D = args[0]
     # PLACEHOLDER
-    yield D
+    yield D# }}}
 
-def S04_pub_get_ads_entries(*args):
+def S04_pub_get_ads_entries(*args):# {{{
     """
     STEP: S04_pub_get_ads_entries
 
@@ -1264,7 +1402,7 @@ def S04_pub_get_ads_entries(*args):
     This is the same object that enters the function. In addition, a file is
     saved for each author.
 
-    """   
+    """
     D = args[0]
 
     # ADS: DOWNLOAD DATA (correr esto una sola vez)  / / / / / / / / warning
@@ -1307,16 +1445,14 @@ def S04_pub_get_ads_entries(*args):
             with open(filen, 'wb') as f:
                 pickle.dump(apapers, f)
 
-    # ##########################################################
+    yield D# }}}
 
-    yield D
-
-def S04_pub_clean_papers(*args):
+def S04_pub_clean_papers(*args):# {{{
     D = args[0]
-    
+
     # CARGAR MODELO :::::::::::::::::::::::::::::::::::::::::
     clf, scaler = joblib.load('../../models/SVM_model_pars.joblib')
-                            
+
     # FILTRAR: calcular el filtro :::::::::::::::::::::::::
     lst = D.index
     apin = []
@@ -1352,11 +1488,11 @@ def S04_pub_clean_papers(*args):
 
         file_papers_out = fnames(x, folder, '_C1.pk')
         with open(file_papers_out, 'wb') as f:
-           pickle.dump(papers, f)     
+           pickle.dump(papers, f)
 
-    yield D
+    yield D# }}}
 
-def S04_pub_filter_criteria(*args):
+def S04_pub_filter_criteria(*args):# {{{
     """
     CRITERIA:
 
@@ -1381,7 +1517,7 @@ def S04_pub_filter_criteria(*args):
 
     # fraccion de papers Q1 con afiliación en Argentina
     def q1frac(series):
-         n = sum(np.logical_and(np.array(series.auth_inar)==1, 
+         n = sum(np.logical_and(np.array(series.auth_inar)==1,
                                 np.array(series.auth_Q)==1))
          d = max(sum(np.array(series.auth_Q)==1),1)
          z = n/d
@@ -1415,8 +1551,8 @@ def S04_pub_filter_criteria(*args):
     f_Q1 = D.auth_Q.apply(lambda x: np.array(x)==1)
 
     # papers con menos de 50 autores en revistas Q1
-    filter_papers =  D.apply(lambda x: 
-                             np.logical_and(np.array(x['auth_num'])<50, 
+    filter_papers =  D.apply(lambda x:
+                             np.logical_and(np.array(x['auth_num'])<50,
                                             np.array(x['auth_Q'])==1), axis=1)
 
     if len(filter_papers)==0:
@@ -1424,12 +1560,10 @@ def S04_pub_filter_criteria(*args):
             range(x.Npapers)], axis=1)
     D['filter_papers'] = filter_papers
 
-    yield D
-
-
+    yield D# }}}
 
 # -> auth_Q
-def S04_gen_journal_index(*args):
+def S04_gen_journal_index(*args):# {{{
     """
     STEP: S04_gen_journal_index
 
@@ -1438,7 +1572,7 @@ def S04_gen_journal_index(*args):
     2) journal Q
 
     for all the journals in the papers list.
-    This function must be run one time only, to generate the 
+    This function must be run one time only, to generate the
     """
     D = args[0]
 
@@ -1454,7 +1588,7 @@ def S04_gen_journal_index(*args):
             sent1 = ' '.join(fname)
             sent1 = sent1.replace('/', '')
             row[2] = sent1
-            journals.append(row)  
+            journals.append(row)
 
     jnames = []
     jqs = []
@@ -1473,7 +1607,7 @@ def S04_gen_journal_index(*args):
             fname = [w for w in word_tokens if w not in stop_words]
             sent1 = ' '.join(fname)
             sent1 = sent1.replace('/', '')
-            name = sent1 
+            name = sent1
             pubs.append(name)
         myset = set(pubs)
         ppubs = list(myset)  # lista de nombres de journals sin repeticion
@@ -1519,22 +1653,22 @@ def S04_gen_journal_index(*args):
            else:
                inn += i_n
                ujnames.append(i_n)
-               ujqs.append(i_q)   
-    
+               ujqs.append(i_q)
+
     fileD = '../../data/interim/SJR/Qs_saved.pk'
     with open(fileD, 'wb') as f:
         pickle.dump([ujnames, ujqs], f)
 
-    return None
+    return None# }}}
 
-def S04_sort_journal_index(*args):
+def S04_sort_journal_index(*args):# {{{
     """
-    This is a utility function that can be used 
+    This is a utility function that can be used
     to improve the performance of step S04_pub_journal_index
     """
     fileD = '../../data/interim/SJR/Qs_saved.pk'
     with open(fileD, 'rb') as f:
-       jname, jq = pickle.load(f) 
+       jname, jq = pickle.load(f)
 
 
     f=open('j.txt', 'w')
@@ -1556,12 +1690,9 @@ def S04_sort_journal_index(*args):
 
     fileD = '../../data/interim/SJR/Qs_saved_ordered.pk'
     with open(fileD, 'wb') as f:
-        pickle.dump([jname, jq], f)
+        pickle.dump([jname, jq], f)# }}}
 
-
-
-                                  
-def S04_pub_journal_index(*args):
+def S04_pub_journal_index(*args):# {{{
     """
     STEP: S04_pub_journal_index
 
@@ -1621,7 +1752,7 @@ def S04_pub_journal_index(*args):
         s = csv.reader(csvfile, delimiter=',')
         for row in s:
             jn = row[0].lower()
-            word_tokens = word_tokenize(jn) 
+            word_tokens = word_tokenize(jn)
             fname = [w for w in word_tokens if w not in stop_words]
             journalname = ' '.join(fname)
             jname.append(journalname)
@@ -1646,9 +1777,9 @@ def S04_pub_journal_index(*args):
 
             if journalname in q1_journals:
                 Q = 1
-            elif journalname in q2_journals: 
+            elif journalname in q2_journals:
                 Q = 2
-            elif journalname in q0_journals: 
+            elif journalname in q0_journals:
                 Q = 0
             else:
                 s1m = 0
@@ -1708,10 +1839,10 @@ def S04_pub_journal_index(*args):
 
     D['pub_años'] = A_add
 
-    yield D
+    yield D# }}}
 
 # -> auth_inar
-def S04_pub_add_metrics(*args):
+def S04_pub_add_metrics(*args):# {{{
     D = args[0]
 
     N = D.shape[0]
@@ -1729,7 +1860,7 @@ def S04_pub_add_metrics(*args):
 
         ap = x.apellido.title()
         nm = x.nombre
-        auth = ', '.join([ap, getinitials(nm)]) 
+        auth = ', '.join([ap, getinitials(nm)])
 
         p = get_papers_from_df(x)
 
@@ -1793,15 +1924,15 @@ def S04_pub_add_metrics(*args):
     D['auth_num'] = add_auth_num
     D['auth_inar'] = add_auth_inar
     D['auth_citas'] = add_auth_citas
-    yield D
+    yield D# }}}
 
-def S04_make_pages(*args):
+def S04_make_pages(*args):# {{{
     """
     STEP: S04_make pages
 
     Generate web pages with the list of candidate publication entries. Each
     entry has a checkbox that, when marked, selects the entry for elimination
-    of the list. The webpage allows check "by eye" the list of entries and 
+    of the list. The webpage allows check "by eye" the list of entries and
     to save a filter to further clean the list of publications. Additionally,
     the page contains links to the ADSABS pages of each author, preselected
     with the following criteria:
@@ -1810,7 +1941,7 @@ def S04_make_pages(*args):
     - refereed papers
     - Q1 journals
 
-    When used, this function generates and writes 
+    When used, this function generates and writes
 
     Returns:
     D: DataFrame containing the data (including journal index)
@@ -1822,7 +1953,7 @@ def S04_make_pages(*args):
     source_dir = '../../models/'
     template_file = 'template.html'
     templateLoader = jinja2.FileSystemLoader(searchpath=source_dir)
-     
+
     latex_jinja_env = jinja2.Environment(
         block_start_string=r"\BLOCK{",
         block_end_string='}',
@@ -1871,10 +2002,10 @@ def S04_make_pages(*args):
         url = [f'{s3}{r}{s4}{t}{s5}' for r, t in zip(df.adsurl, df.Título)]
         df['linkurl'] = url
         title_links = df.apply(lambda x: x.linkurl.replace('link', x.Título), axis=1)
-        if FP.size>0:        
+        if FP.size>0:
             df['title_links'] = title_links
         else:
-            df['title_links'] = [] 
+            df['title_links'] = []
         df['counter'] = np.arange(1,df.shape[0]+1)
 
         dfo = df.iloc[:, [9,3,4,8,6,1,2]].copy()
@@ -1909,10 +2040,9 @@ def S04_make_pages(*args):
                                           auth=auth,
                                           filedata=fout))
         target.close()
-    yield D
+    yield D# }}}
 
-
-def S04_load_check_filters(*args):
+def S04_load_check_filters(*args):# {{{
     """
     STEP: S04 check pages
 
@@ -1933,7 +2063,7 @@ def S04_load_check_filters(*args):
         #fout = (f'{source_dir}{str(i).zfill(3)}_'
         #        f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.txt')
         fout = fnames(auth, source_dir, '.txt')
- 
+
         # si existe usarlo, sino, crearlo con todo true
         from os.path import isfile
         if isfile(fout):
@@ -1949,11 +2079,23 @@ def S04_load_check_filters(*args):
             np.savetxt(fout, fltr, fmt='%.0i')
         filters.append(fltr)
     D['filter_papers'] = filters
-    yield D
+    yield D# }}}
 
+def S04_count_papers_ss(*args):# {{{
+    """
+    STEP: S04 check pages
 
+    Use filters to further select papers
 
-def S05_anonymize(*args):
+    Returns:
+    D: DataFrame containing the data (including journal index)
+    """
+    D = args[0]
+    D['papers_in'] = D.filter_papers.apply(np.sum)
+
+    yield D# }}}
+
+def S05_anonymize(*args):# {{{
     """
     STEP: S05: anonymize
 
@@ -1963,20 +2105,15 @@ def S05_anonymize(*args):
     Returns:
     D: DataFrame containing the data
 
-    """     
-    D = args[0] 
+    """
+    D = args[0]
 
-    colsout = ['apellido', 'nombre', 'ynac', 'aff', 'orcid',
+    colsout = ['apellido', 'nombre', 'yob', 'aff', 'orcid',
             'use_orcid', 'LT_sigla', 'conicet']
 
-    D.drop(colsout, axis=1, inplace=True)  
+    D.drop(colsout, axis=1, inplace=True)
 
-    yield D
-
-
-
-
-
+    yield D# }}}
 
 
 # LOAD
@@ -1984,7 +2121,7 @@ def S05_anonymize(*args):
 Load data to data warehouse
 """
 
-def load_final(*args):
+def load_final(*args):# {{{
     """
     STEP: S02_clean_and_sort
 
@@ -1999,7 +2136,7 @@ def load_final(*args):
     Returns:
     D: DataFrame containing the data
 
-    """   
+    """
     D = args[0]
     fileD = '../../data/redux/astrogen_DB_labelled.pk'
     with open(fileD, 'wb') as f:
@@ -2011,12 +2148,11 @@ def load_final(*args):
     #   D.to_csv(f)
     ##
     #fileD = '../../data/redux/astrogen_DB_labelled.xlsx'
-    #D.to_excel(fileD)
+    #D.to_excel(fileD)# }}}
 
-
-def load_anonymized(*args):
+def load_anonymized(*args):# {{{
     """
-    """   
+    """
     D = args[0]
 
     # antes de anonimizar correr curation pages
@@ -2033,26 +2169,19 @@ def load_anonymized(*args):
        D.to_csv(f)
     #
     fileD = '../../data/redux/astrogen_DB.xlsx'
-    D.to_excel(fileD) 
+    D.to_excel(fileD)# }}}
 
 
 # PIPELINE
 """
 Set data reduction pipeline using ETL data integration process.
 
-TST_filter_subset
 data_pipeline
 """
 
-def TST_filter_subset(*args):
-    D = args[0]
-    D = D.iloc[377:387]
-    yield D
-
-
 # > > > PIPELINE < < <
 
-def data_pipeline(**options):
+def data_pipeline(**options):# {{{
     """
     This function builds the graph that needs to be executed.
 
@@ -2085,10 +2214,9 @@ def data_pipeline(**options):
                     S04_make_pages,
                     load_final)
 
-    return graph
+    return graph# }}}
 
-
-def get_services(**options):
+def get_services(**options):# {{{
     """ This function builds the services dictionary, which is a
     simple dict of names-to-implementation used by bonobo for runtime
     injection.
@@ -2097,13 +2225,13 @@ def get_services(**options):
     framework define them. You can also define your own services and
     naming is up to you.
 
-    Returns: 
+    Returns:
        dict
     """
-    return {}
+    return {}# }}}
 
 if __name__ == '__main__' and '__file__' in globals():
-
+    # {{{
     # Load parameters from config file
     inifile = '../../sets/set_experiment.ini'
     global config
@@ -2116,4 +2244,4 @@ if __name__ == '__main__' and '__file__' in globals():
                    data_pipeline(**options),
                    services=get_services(**options)
                   )
-
+    # }}}
