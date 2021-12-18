@@ -1,30 +1,37 @@
 from pipeline import *
-import sqlite3
 
 #%load_ext autoreload
 #%autoreload 2
 
 if __name__ == '__main__' and '__file__' in globals():
 
-    D = S01_read_aaa_table(); df1 = next(D)
-    D = S02_add_OAC_data(df1); df2 = next(D)
-    D = S02_add_IATE_data(df2); df3 = next(D)
-    D = S02_add_IALP_data(df3); df4 = next(D)
-    D = S02_add_GAE_data(df4); df5 = next(D)
-    D = S02_add_IAFE_data(df5); df6 = next(D)
-    D = S02_add_ICATE_data(df6); df7 = next(D)
-    D = S02_check_outliers(df7); df8 = next(D)
-    D = S03_get_yob_from_DNI(df8); df9 = next(D)
-    D = S03_add_age(df9); df10 = next(D)
+    D = S01_read_aaa_table()
+    D = S02_add_OAC_data(next(D))
+    D = S02_add_IATE_data(next(D))
+    D = S02_add_IALP_data(next(D))
+    D = S02_add_GAE_data(next(D))
+    D = S02_add_IAFE_data(next(D))
+    D = S02_add_ICATE_data(next(D))
+    D = S03_get_yob_from_DNI(next(D))
+    D = S03_add_age(next(D))
 
-    df = df10
+    df1 = next(D).copy()
+
+    with open('df1.pk', 'wb') as f:
+        pickle.dump(df1, f)
+    with open('df1.pk', 'rb') as f:
+        df1 = pickle.load(f)
+
+    df = df1.copy()
     for year in range(2007, 2021):
         print(year)
         D = S02_add_CONICET_data(df, year)
         df = next(D)
 
-    df11 = df.copy()
-    D = S03_add_gender(df11); df12 = next(D)
+    df2 = df.copy()
+
+    D = S03_add_gender(df2)
+
     D = S03_clean_and_sort(df12); df13 = next(D)
     D = S04_pub_get_ads_entries(df13); df14 = next(D)
     D = S04_pub_clean_papers(df14); df15 = next(D)

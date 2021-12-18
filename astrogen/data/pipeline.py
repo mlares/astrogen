@@ -119,10 +119,10 @@ def get_filters_by_names_and_DNI(D, UE):# {{{
            inds.append(k)
         else:
             for j, (n2, a2) in enumerate(L2):
-                aa1 = clean_accented(a1)
-                aa2 = clean_accented(a2)
-                nn1 = clean_accented(n1)
-                nn2 = clean_accented(n2)
+                aa1 = clean_accented(a1).lower()
+                aa2 = clean_accented(a2).lower()
+                nn1 = clean_accented(n1).lower()
+                nn2 = clean_accented(n2).lower()
                 d = ds2(aa1, aa2, nn1, nn2)
                 if d < closest:
                     closest = d
@@ -723,19 +723,6 @@ def S02_add_IATE_data(*args):# {{{
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IATE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
-    # TEST \\\
-    if 0>1:
-        # TEST: coincidencias
-        for i, j in enumerate(inds):
-           print(i, filt[i], D.iloc[j].apellido, UE.iloc[i].apellido)
-
-        # TEST: diferencias
-        for i, emb in enumerate(filt):
-            if not emb:
-                print(i, emb, UE.iloc[i].apellido)
-    # TEST ///
-
-
     ADD = UE[~np.array(filt)]
     ADD = fill_empty_columns(ADD, D)
     ADD = ADD[list(D.columns)]
@@ -1033,7 +1020,7 @@ def S02_add_CONICET_data(*args):# {{{
     D = args[0]
     year = str(args[1])
     filename = f'../../data/collect/collect_conicet.xlsx'
-    fieldnname = f'conicetcode{year}'
+    fieldnname = f'cc{year[-2:]}'
 
     CIC = pd.read_excel(filename, sheet_name=year)
     CIC.drop(CIC.filter(regex="Unname"),axis=1, inplace=True)
@@ -1320,7 +1307,6 @@ def S03_clean_and_sort(*args):# {{{
 
     D['cic'] = D.cic.replace({np.nan: None, '': None})
     D['cic'] = D.cic.apply(cic_category)
-
     D['conicet'] = D.conicet.apply(cic_category)
 
     # filter deceased (data from AAA)
