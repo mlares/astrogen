@@ -32,25 +32,27 @@ if __name__ == '__main__' and '__file__' in globals():
 
     D = S03_add_gender(df2)
 
-    D = S03_clean_and_sort(df12); df13 = next(D)
-    D = S04_pub_get_ads_entries(df13); df14 = next(D)
-    D = S04_pub_clean_papers(df14); df15 = next(D)
-    D = S04_pub_journal_index(df15); df16 = next(D)
-    D = S04_pub_add_metrics(df16); df17 = next(D)
+    D = S03_clean_and_sort(next(D))
+    D = S04_pub_get_ads_entries(next(D))
+    D = S04_pub_clean_papers(next(D))
+    D = S04_pub_journal_index(next(D))
+    D = S04_pub_add_metrics(next(D))
+    df3 = next(D).copy()
 
-    with open('df15.pk', 'wb') as f:
-        pickle.dump(df17, f)
-    with open('df15.pk', 'rb') as f:
-        df17 = pickle.load(f)
+    with open('df3.pk', 'wb') as f:
+        pickle.dump(df3, f)
+    with open('df3.pk', 'rb') as f:
+        df3 = pickle.load(f)
 
     # la idea es correr dos veces el S04_load_check_filters
     # la primera vez crea los archivos si no existen (sino, ignora)
-    D = S04_load_check_filters(df17); df18 = next(D)
-    D = S04_make_pages(df18); df19 = next(D)
-    D = S04_load_check_filters(df19); df20 = next(D)
-    D = S04_count_papers_ss(df20); df21 = next(D)
+    D = S04_load_check_filters(df3)
+    D = S04_make_pages(next(D))
+    D = S04_load_check_filters(next(D))
+    D = S04_count_papers_ss(next(D))
 
-    load_final(df21)
+    df4 = next(D).copy()
+    load_final(df4)
 #    load_anonymized(df18)
 
 

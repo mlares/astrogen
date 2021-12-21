@@ -657,23 +657,14 @@ def S02_add_OAC_data(*args):# {{{
     filt, inds = get_filters_by_names(D, UE)
     D = fill_empty_columns(D, UE)
 
-    # TEST: coincidencias
-    #for i, j in enumerate(inds):
-    #   print(D.iloc[j].apellido, UE.iloc[i].apellido)
-
-    # TEST: diferencias
-    #for i, emb in enumerate(filt):
-    #    if not emb:
-    #        print(UE.iloc[i].apellido)
-
-
     N = len(filt)
     for i in range(N):
         if filt[i]:
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            if D.at[inds[i], 'dni'] is np.nan:
+                D.at[inds[i], 'dni'] = UE.iloc[i].dni
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' OAC'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
@@ -719,7 +710,8 @@ def S02_add_IATE_data(*args):# {{{
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            if D.at[inds[i], 'dni'] is np.nan:
+                D.at[inds[i], 'dni'] = UE.iloc[i].dni
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IATE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
@@ -772,7 +764,8 @@ def S02_add_ICATE_data(*args):# {{{
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            if D.at[inds[i], 'dni'] is np.nan:
+                D.at[inds[i], 'dni'] = UE.iloc[i].dni
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' ICATE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
@@ -818,7 +811,8 @@ def S02_add_IALP_data(*args):# {{{
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            if D.at[inds[i], 'dni'] is np.nan:
+                D.at[inds[i], 'dni'] = UE.iloc[i].dni
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IALP'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
@@ -863,7 +857,8 @@ def S02_add_IAFE_data(*args):# {{{
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            if D.at[inds[i], 'dni'] is np.nan:
+                D.at[inds[i], 'dni'] = UE.iloc[i].dni
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' IAFE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
@@ -908,7 +903,8 @@ def S02_add_GAE_data(*args):# {{{
             D.at[inds[i], 'cic'] = UE.iloc[i].cic
             D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
             D.at[inds[i], 'area'] = UE.iloc[i].area
-            D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            if D.at[inds[i], 'dni'] is np.nan:
+                D.at[inds[i], 'dni'] = UE.iloc[i].dni
             D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' GAE'
             D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
 
