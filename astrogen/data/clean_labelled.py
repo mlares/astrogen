@@ -23,27 +23,9 @@ for i in df.index:
 
 df.drop(['LT_sigla'], axis=1, inplace=True)
 
-for i in range(2007,2020):
-    cname = 'conicetcode' + str(i)
-    #df[cname] = df[cname].apply(int)
+for i in range(7,20):
+    cname = 'cc' + str(i).zfill(2)
     df[cname] = df[cname].convert_dtypes().replace({np.nan: None})
-
-
-df.rename(columns={'conicetcode2007': 'cc07', 
-                   'conicetcode2008': 'cc08',
-                   'conicetcode2009': 'cc09',
-                   'conicetcode2010': 'cc10',
-                   'conicetcode2011': 'cc11',
-                   'conicetcode2012': 'cc12',
-                   'conicetcode2013': 'cc13',
-                   'conicetcode2014': 'cc14',
-                   'conicetcode2015': 'cc15',
-                   'conicetcode2016': 'cc16',
-                   'conicetcode2017': 'cc17',
-                   'conicetcode2018': 'cc18',
-                   'conicetcode2019': 'cc19',
-                   'conicetcode2020': 'cc20'},
-                   inplace=True)
 
 for i in df.index:
     if df.loc[i].aff is not None:
@@ -56,12 +38,11 @@ lst= ['auth_Q', 'cita_Q', 'pub_años', 'auth_pos', 'auth_num',
 
 df = df.drop(lst, axis=1)
 
-cols = df.columns.tolist()
-cc = [cols[19]] + cols[:4] + cols[17:19] + cols[20:] + cols[4:17]
-
-df = df[cc]   
-
-
+#cols = df.columns.tolist()
+#cc = [cols[19]] + cols[:4] + cols[17:19] + cols[20:] + cols[4:17]
+cc = [22, 0, 1, 5, 6, 21, 2, 3, 24, 25, 23, 7, 8, 9, 10, 11, 12, 13,
+        14, 15, 16, 17, 18, 19, 20]
+df = df.iloc[:, cc]
 
 # -> DB
 fileD = '../../data/redux/astrogen_DB_labelled.xlsx'

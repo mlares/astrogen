@@ -1263,6 +1263,8 @@ def S03_add_age(*args):# {{{
     today = datetime.date.today()
     df['age'] = df.yob.mul(-1).add(2021)
 
+
+
     yield df# }}}
 
 def S03_clean_and_sort(*args):# {{{
@@ -1890,7 +1892,7 @@ def S04_pub_add_metrics(*args):# {{{
             else:
                 auth_inar.append(0)
 
-            auth_pos.append(kmin)
+            auth_pos.append(kmin+1)
             auth_num.append(ip.author_count)
             auth_citas.append(ip.citation_count)
             auth_año.append(int(ip.year))

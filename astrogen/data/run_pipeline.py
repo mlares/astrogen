@@ -16,7 +16,6 @@ if __name__ == '__main__' and '__file__' in globals():
     D = S03_add_age(next(D))
 
     df1 = next(D).copy()
-
     with open('df1.pk', 'wb') as f:
         pickle.dump(df1, f)
     with open('df1.pk', 'rb') as f:
@@ -29,16 +28,19 @@ if __name__ == '__main__' and '__file__' in globals():
         df = next(D)
 
     df2 = df.copy()
+    with open('df3.pk', 'wb') as f:
+        pickle.dump(df3, f)
+    with open('df3.pk', 'rb') as f:
+        df3 = pickle.load(f)
 
     D = S03_add_gender(df2)
-
     D = S03_clean_and_sort(next(D))
     D = S04_pub_get_ads_entries(next(D))
     D = S04_pub_clean_papers(next(D))
     D = S04_pub_journal_index(next(D))
     D = S04_pub_add_metrics(next(D))
-    df3 = next(D).copy()
 
+    df3 = next(D).copy()
     with open('df3.pk', 'wb') as f:
         pickle.dump(df3, f)
     with open('df3.pk', 'rb') as f:
@@ -52,6 +54,11 @@ if __name__ == '__main__' and '__file__' in globals():
     D = S04_count_papers_ss(next(D))
 
     df4 = next(D).copy()
+    with open('df4.pk', 'wb') as f:
+        pickle.dump(df4, f)
+    with open('df4.pk', 'rb') as f:
+        df4 = pickle.load(f)
+
     load_final(df4)
 #    load_anonymized(df18)
 

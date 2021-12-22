@@ -7,7 +7,6 @@ from pipeline import *
 with open('../../data/redux/astrogen_DB_labelled.pk', 'rb') as f:
     df = pickle.load(f)
 
-
 def insertMultipleRecords(recordList, sqliteConnection, fls):
     try:
         #sqliteConnection = sqlite3.connect('SQLite_Python.db')
