@@ -20,6 +20,7 @@ from scipy.optimize import curve_fit
 from sys import argv
 from Parser import Parser
 from os import path, system
+from os.path import isfile
 from tqdm import tqdm
 from datetime import date
 from io import StringIO
@@ -362,13 +363,25 @@ def gen_spreadsheet(auth, papers):# {{{
     if len(aind)>0:
         for i in aind:
             p = papers[i]
+            j = i-1
+            k = auth.auth_pos[i]-1
+
+            # print(aind)
+            # print(i, auth.auth_pos[i], len(auth.auth_pos))
+            # print(k)
+            # print('lens: ', len(p.aff), len(p.author))
+            # print('autores:')
+            # print(p.author)
+            # print('afiliaciones:')
+            # print(p.aff)
 
             aux = p.aff.copy()
-            aux[auth.auth_pos[i]] = f'<b>{aux[auth.auth_pos[i]]}</b>'
+            # print('k:', k, len(aux))
+            aux[k] = f'<b>{aux[k]}</b>'
             lst_affs.append(aux)
 
             aux = p.author.copy()
-            aux[auth.auth_pos[i]] = f'<b>{aux[auth.auth_pos[i]]}</b>'
+            aux[k] = f'<b>{aux[k]}</b>'
             lst_auths.append(aux)
 
             if p.title is not None:
@@ -1547,7 +1560,7 @@ def S04_pub_filter_criteria(*args):# {{{
     yield D# }}}
 
 # -> auth_Q
-def S04_gen_journal_index(*args):# {{{
+def S04_gen_journal_index2019(*args):# {{{
     """
     STEP: S04_gen_journal_index
 
@@ -1623,6 +1636,122 @@ def S04_gen_journal_index(*args):# {{{
     with open(fileD, 'wb') as f:
         pickle.dump([jnames, jqs], f)
 
+
+    ujnames = []
+    ujqs = []
+
+    inn = ''
+
+    for n, q in zip(jnames, jqs):
+        for i_n, i_q in zip(n, q):
+
+           if i_n in inn:
+               continue
+           else:
+               inn += i_n
+               ujnames.append(i_n)
+               ujqs.append(i_q)
+
+    fileD = '../../data/interim/SJR/Qs_saved.pk'
+    with open(fileD, 'wb') as f:
+        pickle.dump([ujnames, ujqs], f)
+
+    return None# }}}
+
+def S04_gen_journal_index2020(*args):# {{{
+    """
+    STEP: S04_gen_journal_index
+
+    Create a table with:
+    1) journal name
+    2) journal Q
+
+    for all the journals in the papers list.
+    This function must be run one time only, to generate the
+    """
+    D = args[0]
+
+    # JOURNALS DATA ····································
+    stop_words = set(stopwords.words('english'))
+    journals = []
+    with open('../../data/external/scimagojr.csv', newline='') as csvfile:
+        s = csv.reader(csvfile, delimiter=';')
+        for row in s:
+            jname = row[2].lower()
+            word_tokens = word_tokenize(jname)
+            fname = [w for w in word_tokens if w not in stop_words]
+            sent1 = ' '.join(fname)
+            sent1 = sent1.replace('/', '')
+            row[2] = sent1
+            journals.append(row)
+
+    ############ TEST
+
+    with open('../../data/external/scimagojr2020.csv', newline='') as csvfile:
+
+
+    with open('../../data/external/aux', newline='') as csvfile:
+        s = csv.reader(csvfile, delimiter=';')
+        for row in s:
+            jname = row[1].lower()
+            word_tokens = word_tokenize(jname)
+            fname = [w for w in word_tokens if w not in stop_words]
+            sent1 = ' '.join(fname)
+            sent1 = sent1.replace('/', '')
+            row[1] = sent1
+            journals.append(row)
+
+    ############ TEST
+
+
+    jnames = []
+    jqs = []
+    lst = D.index
+    apin = []
+    for i in tqdm(lst): # LISTA DE AUTORES
+        x = D.loc[i]
+        papers = get_papers_from_df(x)
+
+        # PUBLICATIONS DATA ································
+        # la lista de todos los journals para este autor
+        pubs = []
+        for ip in papers:
+            jname = ip.pub.lower()
+            word_tokens = word_tokenize(jname)
+            fname = [w for w in word_tokens if w not in stop_words]
+            sent1 = ' '.join(fname)
+            sent1 = sent1.replace('/', '')
+            name = sent1
+            pubs.append(name)
+        myset = set(pubs)
+        ppubs = list(myset)  # lista de nombres de journals sin repeticion
+
+        # MATCH ···············································
+        match = 0
+        jname = []
+        jq = []
+        for p in ppubs:
+            qs = []
+            for Journal in journals:
+                journal = Journal[2]
+                s1 = similar(p, journal)
+                s2 = jellyfish.jaro_winkler(p, journal)
+                if s1 > 0.92 and s2 > 0.92:
+                    #print(f'{s1:.2f} {s2:.2f} -- {p} -- {journal}')
+                    qs.append(Journal[6])
+            if len(qs)>0:
+                Q = min(qs)
+                jname.append(p)
+                Qnum = int(Q[1]) if len(Q)>1 else 0
+                jq.append(Qnum)
+
+        # la lista unica de journals y sus Qs
+        jnames.append(jname)
+        jqs.append(jq)
+
+    fileD = '../../data/interim/SJR/Qs_saved_individual.pk'
+    with open(fileD, 'wb') as f:
+        pickle.dump([jnames, jqs], f)
 
     ujnames = []
     ujqs = []
@@ -1723,6 +1852,7 @@ def S04_pub_journal_index(*args):# {{{
                     'new astronomy',
                     'acta astronomica',
                     'planetary space science',
+                    'revista mexicana de astronomia astrofisica',
                     'frontiers physics']
     q0_journals = ['arxiv e-prints',
                    'boletin de la asociacion argentina de astronomia la plata argentina',
@@ -1962,16 +2092,19 @@ def S04_make_pages(*args):# {{{
     s5 = '</a>'
 
     source_dir = '../../data/interim/htmls/'
+    filter_dir = '../../data/interim/filters_byeye/'
     for i in tqdm(D.index):
-
         auth = D.loc[i]
         papers = get_papers_from_df(auth)
         df = gen_spreadsheet(auth, papers)
 
-        #df.sort_values(by=['Año'], axis='index', inplace=True)
         idx = np.argsort(df.Año.values)
         df = df.loc[idx, :]
         FP = np.array(auth.filter_papers.reshape([-1])[idx])
+
+        # save index ordering for rearrangement
+        fout = fnames(auth, filter_dir, '.idx', True)
+        np.savetxt(fout, idx, fmt='%d')
 
         # mark checkboxes according to the estimated subsampling
         if FP.size>0:
@@ -2037,30 +2170,44 @@ def S04_load_check_filters(*args):# {{{
     """
     D = args[0]
 
-    source_dir = '../../data/interim/htmls/'
+    source_dir_model = '../../data/interim/filters_model/'
+    source_dir_byeye = '../../data/interim/filters_byeye/'
     filters = []
     for i in tqdm(D.index):
         auth = D.loc[i]
         p = get_papers_from_df(auth)
         N = len(p)
-        #nn = getinitialscompact(auth.nombre)
-        #fout = (f'{source_dir}{str(i).zfill(3)}_'
-        #        f'{auth.apellido.replace(" ", "_")}_{auth.nombre[0]}.txt')
-        fout = fnames(auth, source_dir, '.txt')
+        fout_byeye = fnames(auth, source_dir_byeye, '.txt')
+        fout_byidx = fnames(auth, source_dir_byeye, '.idx')
+        fout_model = fnames(auth, source_dir_model, '.txt')
 
-        # si existe usarlo, sino, crearlo con todo true
-        from os.path import isfile
-        if isfile(fout):
+        if isfile(fout_byeye):
             # read
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                fltr = np.loadtxt(fout, dtype=bool)
+                # read filters from web pages
+                f = open(fout_byeye, 'r')
+                fltr_byeye = [True if ll.strip()=='true' else False\
+                              for ll in f.readlines()]
+                # read sorting sequence
+                idx = np.loadtxt(fout_byidx, dtype=bool)
+                idx = idx.astype(int32)
+
+                # generate filter
+                fltr = [0]*len(fltr_byeye)
+                for k, i in enumerate(idx):
+                    fltr[i] = fltr_byeye[k]
+
+        elif isfile(fout_model):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                fltr = np.loadtxt(fout_model, dtype=bool)
         else:
             # create using software generated Q index
             fltr1 = [x==1 for x in auth.auth_Q]
             fltr2 = [True if x<51 else False for x in auth.auth_num]
             fltr = np.logical_and(np.array(fltr1), np.array(fltr2))
-            np.savetxt(fout, fltr, fmt='%.0i')
+            np.savetxt(fout_model, fltr, fmt='%.0i')
         filters.append(fltr)
     D['filter_papers'] = filters
     yield D# }}}

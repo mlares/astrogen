@@ -28,10 +28,10 @@ if __name__ == '__main__' and '__file__' in globals():
         df = next(D)
 
     df2 = df.copy()
-    with open('df3.pk', 'wb') as f:
-        pickle.dump(df3, f)
-    with open('df3.pk', 'rb') as f:
-        df3 = pickle.load(f)
+    with open('df2.pk', 'wb') as f:
+        pickle.dump(df2, f)
+    with open('df2.pk', 'rb') as f:
+        df2 = pickle.load(f)
 
     D = S03_add_gender(df2)
     D = S03_clean_and_sort(next(D))
@@ -49,9 +49,12 @@ if __name__ == '__main__' and '__file__' in globals():
     # la idea es correr dos veces el S04_load_check_filters
     # la primera vez crea los archivos si no existen (sino, ignora)
     D = S04_load_check_filters(df3)
-    D = S04_make_pages(next(D))
-    D = S04_load_check_filters(next(D))
-    D = S04_count_papers_ss(next(D))
+    df = next(D)
+    D = S04_make_pages(df)
+    df = next(D)
+    D = S04_load_check_filters(df)
+    df = next(D)
+    D = S04_count_papers_ss(df)
 
     df4 = next(D).copy()
     with open('df4.pk', 'wb') as f:
