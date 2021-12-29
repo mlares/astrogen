@@ -13,6 +13,7 @@ source_dir_byeye = '../../data/interim/filters_byeye/'
 TP, TN, FP, FN = 0, 0, 0, 0
 
 for i in tqdm(D.index):
+    print(i)
     auth = D.loc[i]
     p = get_papers_from_df(auth)
     N = len(p)
@@ -60,13 +61,13 @@ for i in tqdm(D.index):
         FP += sum(fp)
         FN += sum(fn)
 
-        #print(auth.apellido)
-        #for i, j, k in zip(fltr_model, fltr_byeye, fpl):
-        #    print(f'{i:2}, {j:2}, {i and not j:2}, {k:2}')
-
+        print(auth.apellido)
+        #k=0
+        #for i, j in zip(fltr_model, fltr_byeye):
+        #    k+=1
+        #    print(f'{k:3} --- {i:2}, {j:2}, {i and not j:2}')
         #print(len(fltr_model))
         #print(TP, TN, FP, FN)
-        #print(tp, tn, fp, fn)
         #input()
 
 # %% metricas

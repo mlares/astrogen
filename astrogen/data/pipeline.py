@@ -1475,10 +1475,14 @@ def S04_pub_clean_papers(*args):# {{{
             pred = clf.predict(tst)[0]
 
             # BAAA appears as:
-            # Boletin de la Asociacion Argentina de Astronomia La Plata Argentina
+            # Boletin de la Asociacion Argentina de Astronomia...
             notbaaa = not 'rgentina' in ip.pub
 
-            includepaper = pred and notbaaa
+            # not erratums:
+            erratum = 'erratum' in ip.title.lower()
+            not erratum = not erratum
+
+            includepaper = pred and notbaaa and noterratum
             ipin.append(includepaper)
 
         papers = [apapers[k] for k in range(len(ipin)) if ipin[k]]
@@ -1674,7 +1678,8 @@ def S04_gen_journal_index2020(*args):# {{{
     # JOURNALS DATA ····································
     stop_words = set(stopwords.words('english'))
     journals = []
-    with open('../../data/external/scimagojr.csv', newline='') as csvfile:
+
+    with open('../../data/external/scimagojr2020.csv', newline='') as csvfile:
         s = csv.reader(csvfile, delimiter=';')
         for row in s:
             jname = row[2].lower()
@@ -1685,25 +1690,6 @@ def S04_gen_journal_index2020(*args):# {{{
             row[2] = sent1
             journals.append(row)
 
-    ############ TEST
-
-    with open('../../data/external/scimagojr2020.csv', newline='') as csvfile:
-
-
-    with open('../../data/external/aux', newline='') as csvfile:
-        s = csv.reader(csvfile, delimiter=';')
-        for row in s:
-            jname = row[1].lower()
-            word_tokens = word_tokenize(jname)
-            fname = [w for w in word_tokens if w not in stop_words]
-            sent1 = ' '.join(fname)
-            sent1 = sent1.replace('/', '')
-            row[1] = sent1
-            journals.append(row)
-
-    ############ TEST
-
-
     jnames = []
     jqs = []
     lst = D.index
@@ -1713,7 +1699,7 @@ def S04_gen_journal_index2020(*args):# {{{
         papers = get_papers_from_df(x)
 
         # PUBLICATIONS DATA ································
-        # la lista de todos los journals para este autor
+        # list of all journals for this author
         pubs = []
         for ip in papers:
             jname = ip.pub.lower()
@@ -1724,7 +1710,7 @@ def S04_gen_journal_index2020(*args):# {{{
             name = sent1
             pubs.append(name)
         myset = set(pubs)
-        ppubs = list(myset)  # lista de nombres de journals sin repeticion
+        ppubs = list(myset)  # list of journal names without repetition
 
         # MATCH ···············································
         match = 0
@@ -1745,7 +1731,7 @@ def S04_gen_journal_index2020(*args):# {{{
                 Qnum = int(Q[1]) if len(Q)>1 else 0
                 jq.append(Qnum)
 
-        # la lista unica de journals y sus Qs
+        # unique list of journals and their Q numbers
         jnames.append(jname)
         jqs.append(jq)
 
@@ -1755,7 +1741,6 @@ def S04_gen_journal_index2020(*args):# {{{
 
     ujnames = []
     ujqs = []
-
     inn = ''
 
     for n, q in zip(jnames, jqs):
@@ -1782,7 +1767,6 @@ def S04_sort_journal_index(*args):# {{{
     fileD = '../../data/interim/SJR/Qs_saved.pk'
     with open(fileD, 'rb') as f:
        jname, jq = pickle.load(f)
-
 
     f=open('j.txt', 'w')
     for a, b in zip(jname, jq):
@@ -1820,11 +1804,6 @@ def S04_pub_journal_index(*args):# {{{
     D = args[0]
 
     stop_words = set(stopwords.words('english'))
-
-    #fileD = '../../data/interim/SJR/Qs_saved_ordered.pk'
-    #with open(fileD, 'rb') as f:
-    #   jname, jq = pickle.load(f)
-
     # selected journals (most common, to speed up the search)
     q1_journals = ['astrophysical journal',
                     'astronomical journal',
@@ -1859,23 +1838,22 @@ def S04_pub_journal_index(*args):# {{{
                    'revista mexicana de astronomia astrofisica conference series']
 
 
-    fileD = '../../data/interim/SJR/Qs_saved_ordered.csv'
+    fileD = '../../data/interim/SJR/Qs_saved_ordered2020.csv'
     jname = []
     jq = []
     with open(fileD, newline='') as csvfile:
-        s = csv.reader(csvfile, delimiter=',')
+        s = csv.reader(csvfile, delimiter=';')
         for row in s:
-            jn = row[0].lower()
+            jn = row[1].lower()
             word_tokens = word_tokenize(jn)
             fname = [w for w in word_tokens if w not in stop_words]
             journalname = ' '.join(fname)
             jname.append(journalname)
-            jq.append(int(row[1]))
+            jq.append(int(row[0]))
 
     N = D.shape[0]
     add_auth_Q = []
     add_cita_N = []
-
     for i in tqdm(range(N)):
         x = D.iloc[i]
         p = get_papers_from_df(x)
@@ -1899,7 +1877,9 @@ def S04_pub_journal_index(*args):# {{{
                 s1m = 0
                 s2m = 0
                 assigned_journal = ''
+                k=0
                 for j, q in zip(jname, jq):
+                    k+=1
                     s1 = similar(j, journalname)
                     s2 = jellyfish.jaro_winkler(j, journalname)
                     if s1 > s1m and s2 > s2m:
@@ -1908,6 +1888,7 @@ def S04_pub_journal_index(*args):# {{{
                         assigned_journal = j
                         if s1>0.99 and s2>0.99:
                             break
+                print(k)
                 if s1m<0.92 or s2m<0.92:  # not close enough
                     Q = 0
 

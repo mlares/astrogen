@@ -1,0 +1,108 @@
+DRYAD
+
+ABSTRACT
+----------
+
+The gender gap in STEM careers has been a matter of concern among
+modern Institutions. Here we compile a public dataset for the
+Argentinian astronomical workforce to analyze the gender balance and
+gender equality of opportunities in the Argentine Astronomy. The
+database is compiled from public access databases, through detailed
+curation of web pages, spreadsheets from Institutions with open access
+data policies. The data comprises information on the number of
+students in the FaMAF (Facultad de Matemática, Astronomía y Física),
+UNC (Universidad Nacional de Córdoba) on a period spanning years 2007
+to 2020. Also, we keep track of the number of doctoral and
+postdoctoral positions and permanent positions in CONICET (Consejo
+Nacional de Investigaciones Científicas y Técnicas).  Finally, we made
+use of public repositories of research publication to compile
+information from bibliographic records, including the number of papers
+for a given author, the years of the publications, number of
+citations, journal and journal index, number of authors and author
+position in the authors list.
+
+
+
+METHODS
+----------
+
+DATA DESCRIPTION
+
+The data is presented as a single SQL data file, which comprises three tables:
+
++ famaf:
+  number of students, stage in the grade and number of years
+  since enrollment.
+
++ people:
+  list of Argentinian astronomers.  This table contains age,
+  category in CONICET and gender. Other sensible information that would
+  allow to relate a record to a given researcher has been deleted.
+
++ publications:
+  list of publications with publication metrics
+
+The contents of these tables are as follows:
+
+table "famaf"
+  - year_in (integer): year of enrollment
+  - mi (integer): number of male active students in year "year" that enrolled in
+    year "year_in".
+  - fi (integer): number of female active students in year "year" that 
+    enrolled in year "year_in". 
+  - me (integer): number of male students that obtain the degree in 
+    year "year" and enrolled in year "year_in". 
+  - fe (integer): number of female students that obtain the degree in 
+    year "year" and enrolled in year "year_in".  
+  - year (integer): year the count of students is made
+  - duration (integer): 
+
+
+table "people"
+  - ID (integer): 
+  - genero (text): 
+  - edad (integer): 
+  - Hindex (integer): 
+  - Npapers (integer): 
+  - cc07 (integer): 
+  - cc08 (integer): 
+  - cc09 (integer): 
+  - cc10 (integer): 
+  - cc11 (integer): 
+  - cc12 (integer): 
+  - cc13 (integer): 
+  - cc14 (integer): 
+  - cc15 (integer): 
+  - cc16 (integer): 
+  - cc17 (integer): 
+  - cc18 (integer): 
+  - cc19 (integer): 
+  - cc20 (integer): 
+
+table "papers"
+  - ID (integer): 
+  - journal
+  - journal_Q (integer): 
+  - year (integer): 
+  - citation_count (integer): 
+  - author_count (integer): 
+  - author_pos (integer): 
+  - inar (integer): 
+  - filter
+
+
+
+
+
+
+DATA SOURCES
+
+We limit our study to only one of the four argentinian universities that grant the degree of Bachelor in Astronomy, the UNC. It is a 5-year career, after which students can start their PhD.  The University annual statistical reviews are freely accessible at \url{https://www.unc.edu.ar/programa-de-estad%C3%ADsticas-universitarias/anuarios-estad%C3%ADsticos} from the year 1980 to 2019. Data is accessible via PDF documents, which contain tables with information from each year. 
+The tables have change both in their format and in their contents throughout the years, recently as a single document but previously as web pages with links to several parts of the reports. In general, more recent yearbooks are more complete, and the volumes prior to year 2000 are presented as scanned pages. We found no public data from the other Universities which offer the astronomy degree. We analyzed data from the year 2000, spanning nearly two decades. Although the information does not include personal records,
+using these data it is possible to derive the duration of the career and the rate of permanence for female and male students separately. Given the irregular format of data tables, it was not possible to scrap the documents to obtain a reduced data--set. Instead, we selected and copied some information from several separated tables, and compiled a database which we used to obtain our results. This database is available to download from a public server.
+
+
+
+
+
+
