@@ -90,5 +90,10 @@ print(f'F1 score: {F1}\n')
 print(f'False discovery rate, {FDR}')
 print(f'False positive rate: {FPR}')
 
+print(P+N)
+
+print(TP, FP)
+print(FN, TN)
+
 
 # %%

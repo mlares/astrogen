@@ -9,6 +9,7 @@ if __name__ == '__main__' and '__file__' in globals():
     D = S02_add_OAC_data(next(D))
     D = S02_add_IATE_data(next(D))
     D = S02_add_IALP_data(next(D))
+    D = S02_add_IAR_data(next(D))
     D = S02_add_GAE_data(next(D))
     D = S02_add_IAFE_data(next(D))
     D = S02_add_ICATE_data(next(D))
@@ -51,21 +52,19 @@ if __name__ == '__main__' and '__file__' in globals():
     with open('df4.pk', 'rb') as f:
         df4 = pickle.load(f)
 
-    D = S04_pub_journal_index2020(df); df = next(D)
-
-
+    D = S04_pub_journal_index(df4); df = next(D)
 
     D = S04_pub_add_metrics(df); df = next(D)
 
-    df4 = next(D).copy()
-    with open('df4.pk', 'wb') as f:
-        pickle.dump(df4, f)
-    with open('df4.pk', 'rb') as f:
-        df4 = pickle.load(f)
+    df5 = df.copy()
+    with open('df5.pk', 'wb') as f:
+        pickle.dump(df5, f)
+    with open('df5.pk', 'rb') as f:
+        df5 = pickle.load(f)
 
     # la idea es correr dos veces el S04_load_check_filters
     # la primera vez crea los archivos si no existen (sino, ignora)
-    D = S04_load_check_filters(df4)
+    D = S04_load_check_filters(df5)
     df = next(D)
     D = S04_make_pages(df)
     df = next(D)
@@ -73,13 +72,13 @@ if __name__ == '__main__' and '__file__' in globals():
     df = next(D)
     D = S04_count_papers_ss(df)
 
-    df5 = next(D).copy()
-    with open('df5.pk', 'wb') as f:
-        pickle.dump(df5, f)
-    with open('df5.pk', 'rb') as f:
-        df5 = pickle.load(f)
+    df6 = next(D).copy()
+    with open('df6.pk', 'wb') as f:
+        pickle.dump(df6, f)
+    with open('df6.pk', 'rb') as f:
+        df6 = pickle.load(f)
 
-    load_final(df4)
+    load_final(df6)
 #    load_anonymized(df18)
 
 

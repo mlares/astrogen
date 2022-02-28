@@ -927,6 +927,52 @@ def S02_add_GAE_data(*args):# {{{
     D = pd.concat([D, ADD], ignore_index=True)
     yield D# }}}
 
+def S02_add_IAR_data(*args):# {{{
+    """
+    STEP: S02_add_IAR_data
+
+    In this step, the database is combined with data from the GAE
+
+    | Columns:
+    | 1) apellido
+    | 2) nombre
+    | 3) ads_str
+    | 4) dni
+    | 5) yob
+    | 6) cic (+)
+    | 7) docencia (+)
+    | 8) area (+)
+    | 9) orcid (+)
+    | 10) use_orcid (+)
+
+    Returns:
+    D: DataFrame containing the data
+
+    """
+    D = args[0]
+    UE = pd.read_excel('../../data/collect/collect_IAR.xlsx')
+    UE.drop(UE.filter(regex="Unname"),axis=1, inplace=True)
+
+    filt, inds = get_filters_by_names(D, UE)
+    D = fill_empty_columns(D, UE)
+
+    N = len(filt)
+    for i in range(N):
+        if filt[i]:
+            D.at[inds[i], 'cic'] = UE.iloc[i].cic
+            D.at[inds[i], 'orcid'] = UE.iloc[i].orcid
+            D.at[inds[i], 'area'] = UE.iloc[i].area
+            if D.at[inds[i], 'dni'] is np.nan:
+                D.at[inds[i], 'dni'] = UE.iloc[i].dni
+            D.at[inds[i], 'aff'] = D.at[inds[i], 'aff'] + ' GAE'
+            D.at[inds[i], 'use_orcid'] = UE.iloc[i].use_orcid
+
+    ADD = UE[~np.array(filt)]
+    ADD = fill_empty_columns(ADD, D)
+    ADD = ADD[list(D.columns)]
+    D = pd.concat([D, ADD], ignore_index=True)
+    yield D# }}}
+
 def S02_check_outliers(*args):# {{{
     """
     The purpose of this step is to check the validity of the DNI
@@ -1478,11 +1524,17 @@ def S04_pub_clean_papers(*args):# {{{
             # Boletin de la Asociacion Argentina de Astronomia...
             notbaaa = not 'rgentina' in ip.pub
 
-            # not erratums:
-            erratum = 'erratum' in ip.title.lower()
-            not erratum = not erratum
+            # Eliminate "Revista Mexicana de Astronomía"
+            notmex = not 'exicana' in ip.pub
 
-            includepaper = pred and notbaaa and noterratum
+            # not erratums:
+            try:
+                erratum = 'erratum' in ip.title[0].lower()
+                noterratum = not erratum
+            except:
+                noterratum = True
+
+            includepaper = pred and notbaaa and notmex and noterratum
             ipin.append(includepaper)
 
         papers = [apapers[k] for k in range(len(ipin)) if ipin[k]]
@@ -1880,17 +1932,29 @@ def S04_pub_journal_index(*args):# {{{
                 k=0
                 for j, q in zip(jname, jq):
                     k+=1
-                    s1 = similar(j, journalname)
-                    s2 = jellyfish.jaro_winkler(j, journalname)
-                    if s1 > s1m and s2 > s2m:
-                        s1m, s2m = s1, s2
+                    if journalname == j:
                         Q = q
                         assigned_journal = j
-                        if s1>0.99 and s2>0.99:
-                            break
-                print(k)
-                if s1m<0.92 or s2m<0.92:  # not close enough
-                    Q = 0
+                        break
+                # if no coincidence found, search for proximity
+                if k==len(jname):
+                    s1m = 0
+                    s2m = 0
+                    assigned_journal = ''
+                    k=0
+                    for j, q in zip(jname, jq):
+                        k+=1
+                        s1 = similar(j, journalname)
+                        s2 = jellyfish.jaro_winkler(j, journalname)
+                        if s1 > s1m and s2 > s2m:
+                            s1m, s2m = s1, s2
+                            Q = q
+                            jsel = j
+                            assigned_journal = j
+                            if s1>0.95 and s2>0.95:
+                                break
+                    if s1m<0.92 or s2m<0.92:  # not close enough
+                        Q = 0
 
             auth_Q.append(Q)
             cita_N.append(ip.citation_count)
@@ -2081,7 +2145,7 @@ def S04_make_pages(*args):# {{{
 
         idx = np.argsort(df.Año.values)
         df = df.loc[idx, :]
-        FP = np.array(auth.filter_papers.reshape([-1])[idx])
+        FP = np.array(auth.filter_papers).reshape([-1])[idx]
 
         # save index ordering for rearrangement
         fout = fnames(auth, filter_dir, '.idx', True)
@@ -2172,7 +2236,7 @@ def S04_load_check_filters(*args):# {{{
                               for ll in f.readlines()]
                 # read sorting sequence
                 idx = np.loadtxt(fout_byidx, dtype=bool)
-                idx = idx.astype(int32)
+                idx = idx.astype(np.int32)
 
                 # generate filter
                 fltr = [0]*len(fltr_byeye)
@@ -2306,6 +2370,7 @@ def data_pipeline(**options):# {{{
                     S02_add_OAC_data,
                     S02_add_IATE_data,
                     S02_add_IALP_data,
+                    S02_add_IAR_data,
                     S02_add_GAE_data,
                     S02_add_IAFE_data,
                     S02_add_ICATE_data,
