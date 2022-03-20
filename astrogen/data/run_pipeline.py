@@ -64,15 +64,11 @@ if __name__ == '__main__' and '__file__' in globals():
 
     # la idea es correr dos veces el S04_load_check_filters
     # la primera vez crea los archivos si no existen (sino, ignora)
-    D = S04_load_check_filters(df5)
-    df = next(D)
-    D = S04_make_pages(df)
-    df = next(D)
-    D = S04_load_check_filters(df)
-    df = next(D)
-    D = S04_count_papers_ss(df)
+    D = S04_load_check_filters(df5); df = next(D)
+    D = S04_make_pages(df); df = next(D)
+    D = S04_load_check_filters(df); df = next(D)
+    D = S04_count_papers_ss(df); df6 = next(D).copy()
 
-    df6 = next(D).copy()
     with open('df6.pk', 'wb') as f:
         pickle.dump(df6, f)
     with open('df6.pk', 'rb') as f:

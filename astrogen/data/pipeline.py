@@ -356,6 +356,8 @@ def gen_spreadsheet(auth, papers):# {{{
     s1 = 'https://ui.adsabs.harvard.edu/abs/'
     s2 = '/abstract'
 
+# ACA HAY UN PRBLEMA! actualizar Npapers???
+
     aind = np.arange(auth.Npapers)[auth.filter_papers]
     aind = np.arange(auth.Npapers)#[auth.filter_papers]
     aind = np.ravel(aind)
@@ -1883,11 +1885,11 @@ def S04_pub_journal_index(*args):# {{{
                     'new astronomy',
                     'acta astronomica',
                     'planetary space science',
-                    'revista mexicana de astronomia astrofisica',
+                    'revista mexicana astronomia astrofisica',
                     'frontiers physics']
     q0_journals = ['arxiv e-prints',
-                   'boletin de la asociacion argentina de astronomia la plata argentina',
-                   'revista mexicana de astronomia astrofisica conference series']
+                   'boletin asociacion argentina de astronomia la plata argentina',
+                   'revista mexicana astronomia astrofisica conference series']
 
 
     fileD = '../../data/interim/SJR/Qs_saved_ordered2020.csv'
